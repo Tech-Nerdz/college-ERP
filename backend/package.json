@@ -1,0 +1,47 @@
+{
+  "name": "eduvertex-erp-backend",
+  "version": "1.0.0",
+  "description": "Eduvertex ERP System Backend - Node.js & MySQL",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "seed": "node seeder.js"
+  },
+  "keywords": [
+    "erp",
+    "education",
+    "management",
+    "nodejs",
+    "mysql"
+  ],
+  "author": "Eduvertex",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "colors": "^1.4.0",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "docs": "^0.3.2-canary.0",
+    "docx": "^9.5.1",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.3",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.11.0",
+    "sequelize": "^6.37.3",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.7",
+    "slugify": "^1.6.6",
+    "validator": "^13.11.0",
+    "xss-clean": "^0.1.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
