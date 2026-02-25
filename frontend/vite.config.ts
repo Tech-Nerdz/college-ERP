@@ -11,17 +11,17 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8086,
+    port: 8087,
     strictPort: true,
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3005',
+        target: 'http://localhost:8086',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://localhost:3005',
+        target: 'http://localhost:8086',
         changeOrigin: true,
         secure: false,
       },
