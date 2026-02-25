@@ -37,14 +37,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
 
     try {
-      let response;
-      
-      // regardless of role, backend login endpoint now understands either studentId or email
-      response = await fetch('/api/v1/auth/login', {
+      const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: trimmedId, password: trimmedPassword }),
       });
+
+      // Check if response is OK, handle error responses with proper error messages
+      if (!response.ok) {
+        const errorBody = await response.text();
+        let errorMessage = `Login failed: ${response.status} ${response.statusText}`;
+        try {
+          const jsonError = JSON.parse(errorBody);
+          errorMessage = jsonError.error || jsonError.message || errorMessage;
+        } catch (e) {
+          // Fallback to generic error message if response is not JSON
+        }
+        console.error('Login error:', errorMessage);
+        return false;
+      }
+
+      // Check content type before parsing JSON
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        console.error('Login error: Response is not JSON');
+        return false;
+      }
 
       const result = await response.json();
 

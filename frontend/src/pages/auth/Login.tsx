@@ -62,25 +62,58 @@ export default function Login() {
       try {
         if (role === 'student') {
           const response = await fetch(`/api/v1/auth/student-details/${email.trim()}`);
-          const result = await response.json();
-          if (result.success && result.data) {
-            setUserDetails(result.data);
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              setUserDetails(result.data);
+            } else {
+              setUserDetails(null);
+            }
           } else {
             setUserDetails(null);
           }
         } else if (role === 'faculty') {
           const response = await fetch(`/api/v1/auth/faculty-details/${email.trim()}`);
-          const result = await response.json();
-          if (result.success && result.data) {
-            // normalize to same shape used by UI
-            setUserDetails({
-              name: result.data.name,
-              rollNo: result.data.collegeId || result.data.college_id || undefined,
-              department: result.data.department,
-              semester: undefined,
-              year: undefined,
-              designation: result.data.designation
-            });
+          if (response.ok) {
+            const result = await response.json();
+            if (result.success && result.data) {
+              // normalize to same shape used by UI
+              setUserDetails({
+                name: result.data.name || result.data.Name,
+                rollNo: result.data.collegeId || result.data.college_id || result.data.faculty_college_code,
+                department: result.data.department,
+                semester: undefined,
+                year: undefined,
+                designation: result.data.designation
+              });
+            } else {
+              setUserDetails(null);
+            }
+          } else {
+            setUserDetails(null);
+          }
+        } else if (role === 'department-admin') {
+          // For department-admin, query admins list and match by email
+          const resp = await fetch(`/api/v1/auth/admins/department-admin`);
+          if (resp.ok) {
+            const list = await resp.json();
+            if (list.success && Array.isArray(list.data)) {
+              const match = list.data.find((a: any) => (a.email || '').toLowerCase() === email.trim().toLowerCase());
+              if (match) {
+                setUserDetails({
+                  name: match.name,
+                  rollNo: undefined,
+                  department: undefined,
+                  semester: undefined,
+                  year: undefined,
+                  designation: 'Department Admin'
+                });
+              } else {
+                setUserDetails(null);
+              }
+            } else {
+              setUserDetails(null);
+            }
           } else {
             setUserDetails(null);
           }
@@ -173,7 +206,7 @@ export default function Login() {
             </div>
 
             {/* User Details Display */}
-            {userDetails && role !== 'department-admin' && (
+            {userDetails && (
               <div className="p-4 bg-primary/5 border border-primary/10 rounded-lg space-y-3">
                 <h3 className="text-sm font-semibold text-primary flex items-center gap-2">
                   <UserIcon className="h-4 w-4" />
@@ -190,7 +223,7 @@ export default function Login() {
                   {userDetails.rollNo && (
                     <div className="flex items-center gap-2">
                       <Mail className="h-3 w-3 text-muted-foreground" />
-                      <span className="text-muted-foreground">{role === 'faculty' ? 'Faculty ID:' : 'Roll No:'}</span>
+                      <span className="text-muted-foreground">{role === 'student' ? 'Roll No:' : role === 'faculty' || role === 'department-admin' ? 'Faculty ID:' : 'ID:'}</span>
                       <span className="font-medium">{userDetails.rollNo}</span>
                     </div>
                   )}

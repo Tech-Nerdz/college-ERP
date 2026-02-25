@@ -75,6 +75,17 @@ const startServer = () => {
   // Body parser
   app.use(express.json());
 
+  // Handle invalid JSON payloads from clients to avoid unhandled exceptions
+  // This must be registered immediately after `express.json()` so parse errors
+  // are converted into a friendly 400 response instead of a 500.
+  app.use((err, req, res, next) => {
+    if (err && err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+      console.error('Invalid JSON payload:', err.message);
+      return res.status(400).json({ success: false, error: 'Invalid JSON payload' });
+    }
+    next(err);
+  });
+
   // Cookie parser
   app.use(cookieParser());
 
@@ -85,6 +96,12 @@ const startServer = () => {
 
   // File uploading
   app.use(fileupload());
+
+  // Simple request logger to help debug unexpected 500s from endpoints
+  app.use((req, res, next) => {
+    console.log('Incoming request:', req.method, req.originalUrl);
+    next();
+  });
 
   // Sanitize data
   app.use(mongoSanitize());
@@ -141,12 +158,19 @@ const startServer = () => {
 
   const PORT = process.env.PORT || 5000;
 
-  const server = app.listen(
-    PORT,
-    console.log(
-      `Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold
-    )
-  );
+  const server = app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);
+  });
+
+  // Handle server listen errors (e.g., port in use)
+  server.on('error', (err) => {
+    if (err && err.code === 'EADDRINUSE') {
+      console.error(`Port ${PORT} is already in use. Another process is listening on this port.`.red);
+      console.error('Hint: stop the process using this port or set PORT in your environment.'.yellow);
+      process.exit(1);
+    }
+    console.error('Server error:', err);
+  });
 
   // Handle unhandled promise rejections
   process.on('unhandledRejection', (err, promise) => {

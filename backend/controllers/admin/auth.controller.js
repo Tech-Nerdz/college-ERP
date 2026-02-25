@@ -222,82 +222,101 @@ export const login = asyncHandler(async (req, res, next) => {
   let user = null;
   let userType = null; // 'admin', 'faculty', or 'student'
 
-  // 1. Check for faculty in faculty_profiles table FIRST (priority)
-  user = await Faculty.findOne({
-    where: { email },
-    attributes: { include: ['password'] },
-    include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
-  });
+  try {
+    // 1. Check for faculty in faculty_profiles table FIRST (priority)
+    user = await Faculty.findOne({
+      where: { email },
+      attributes: { include: ['password'] },
+      include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
+    });
 
-  if (user) {
-    const isMatch = await user.matchPassword(password);
-    if (isMatch && user.status === 'active') {
-      userType = 'faculty';
-      return sendTokenResponse(user, 200, res);
+    if (user) {
+      const isMatch = await user.matchPassword(password);
+      if (isMatch && user.status === 'active') {
+        userType = 'faculty';
+        return sendTokenResponse(user, 200, res);
+      }
+      // If password doesn't match or inactive, fall through to check other tables
+      user = null;
     }
-    // If password doesn't match or inactive, fall through to check other tables
-    user = null;
+  } catch (err) {
+    console.error('Error in faculty login check:', err);
   }
 
-  // 2. Check for student in student_profile table (email or studentId)
-  user = await Student.findOne({
-    where: {
-      [Op.or]: [
-        { email },
-        { studentId: email } // 'email' variable really holds the identifier string
-      ]
-    },
-    attributes: { exclude: ['userId'] },
-    include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
-  });
+  try {
+    // 2. Check for student in student_profile table (email or studentId)
+    user = await Student.findOne({
+      where: {
+        [Op.or]: [
+          { email },
+          { studentId: email } // 'email' variable really holds the identifier string
+        ]
+      },
+      attributes: { exclude: ['userId'] },
+      include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
+    });
 
-  if (user) {
-    const isMatch = await user.matchPassword(password);
-    if (isMatch && user.status === 'active') {
-      userType = 'student';
-      return sendTokenResponse(user, 200, res);
+    if (user) {
+      const isMatch = await user.matchPassword(password);
+      if (isMatch && user.status === 'active') {
+        userType = 'student';
+        return sendTokenResponse(user, 200, res);
+      }
+      // If password doesn't match or inactive, fall through to check admin
+      user = null;
     }
-    // If password doesn't match or inactive, fall through to check admin
-    user = null;
+  } catch (err) {
+    console.error('Error in student login check:', err);
   }
 
-  // 3. Check for admin user in users table (lowest priority)
-  user = await User.findOne({
-    where: { email },
-    attributes: { include: ['password'] },
-    include: [{ model: Role, as: 'role' }]
-  });
+  try {
+    // 3. Check for admin user in users table (lowest priority)
+    user = await User.findOne({
+      where: { email },
+      attributes: { include: ['password'] },
+      include: [{ model: Role, as: 'role' }]
+    });
 
-  if (user) {
-    if (!user.isActive) {
-      return next(new ErrorResponse('Your account has been deactivated', 401));
-    }
+    if (user) {
+      if (!user.isActive) {
+        return next(new ErrorResponse('Your account has been deactivated', 401));
+      }
 
-    // If this user is a department admin (role_id 7), validate using faculty_profiles
-    if (user.role && user.role.role_id === 7) {
-      const deptAdminFaculty = await Faculty.findOne({
-        where: { email },
-        attributes: { include: ['password'] },
-        include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
-      });
+      // If this user is a department admin (role_id 7), try both users table and faculty_profiles
+      if (user.role && user.role.role_id === 7) {
+        // First try validating with the user's password from users table
+        const isUserMatch = await user.matchPassword(password);
+        if (isUserMatch) {
+          userType = 'admin';
+          return sendTokenResponse(user, 200, res);
+        }
 
-      if (!deptAdminFaculty) {
+        // If user password doesn't match, try faculty_profiles as fallback
+        const deptAdminFaculty = await Faculty.findOne({
+          where: { email },
+          attributes: { include: ['password'] },
+          include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
+        });
+
+        if (deptAdminFaculty) {
+          const isFacultyMatch = await deptAdminFaculty.matchPassword(password);
+          if (isFacultyMatch && deptAdminFaculty.status === 'active') {
+            return sendTokenResponse(deptAdminFaculty, 200, res);
+          }
+        }
+
         return next(new ErrorResponse('Invalid credentials', 401));
       }
 
-      const isFacultyMatch = await deptAdminFaculty.matchPassword(password);
-      if (isFacultyMatch && deptAdminFaculty.status === 'active') {
-        return sendTokenResponse(deptAdminFaculty, 200, res);
+      // Regular admin user (not department admin)
+      const isMatch = await user.matchPassword(password);
+      if (isMatch) {
+        userType = 'admin';
+        return sendTokenResponse(user, 200, res);
       }
-
-      return next(new ErrorResponse('Invalid credentials', 401));
     }
-
-    const isMatch = await user.matchPassword(password);
-    if (isMatch) {
-      userType = 'admin';
-      return sendTokenResponse(user, 200, res);
-    }
+  } catch (err) {
+    console.error('Error in admin login check:', err);
   }
 
   // If no user found or password doesn't match in any table
@@ -617,29 +636,39 @@ export const getAdminsByRole = asyncHandler(async (req, res, next) => {
     roleNames = ['superadmin', 'super-admin'];
   }
 
-  // Find the role_ids
-  const roles = await Role.findAll({
-    where: { role_name: { [Op.in]: roleNames } },
-    attributes: ['role_id']
-  });
+  console.log('getAdminsByRole called for role:', role);
+  try {
+    // Find the role_ids
+    const roles = await Role.findAll({
+      where: { role_name: { [Op.in]: roleNames } },
+      attributes: ['role_id']
+    });
 
-  const roleIds = roles.map(r => r.role_id);
+    const roleIds = roles.map(r => r.role_id).filter(Boolean);
 
-  const admins = await User.findAll({
-    where: {
-      role_id: { [Op.in]: roleIds }
-    },
-    attributes: ['name', 'email']
-  });
+    if (roleIds.length === 0) {
+      return res.status(200).json({ success: true, data: [] });
+    }
 
-  // Map results to ensure each has a 'name' field for the frontend
-  const formattedAdmins = admins.map(admin => ({
-    name: admin.name || 'Admin',
-    email: admin.email
-  }));
+    const admins = await User.findAll({
+      where: {
+        role_id: { [Op.in]: roleIds }
+      },
+      attributes: ['name', 'email']
+    });
 
-  res.status(200).json({
-    success: true,
-    data: formattedAdmins
-  });
+    // Map results to ensure each has a 'name' field for the frontend
+    const formattedAdmins = admins.map(admin => ({
+      name: admin.name || 'Admin',
+      email: admin.email
+    }));
+
+    res.status(200).json({
+      success: true,
+      data: formattedAdmins
+    });
+  } catch (err) {
+    console.error('getAdminsByRole error:', err.stack || err);
+    return next(new ErrorResponse('Failed to fetch admins', 500));
+  }
 });
