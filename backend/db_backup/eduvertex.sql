@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 23, 2026 at 10:55 PM
+-- Generation Time: Feb 25, 2026 at 07:08 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,9 +49,7 @@ CREATE TABLE `announcements` (
 --
 
 INSERT INTO `announcements` (`id`, `title`, `message`, `type`, `priority`, `targetRole`, `department`, `attachments`, `isActive`, `createdById`, `creatorRole`, `expiresAt`, `createdAt`, `updatedAt`) VALUES
-(1, 'Welcome to Eduvertex ERP', 'Welcome to the new Eduvertex ERP system. This system will help manage all academic and administrative activities.', 'general', 'medium', '[\"all\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
-(2, 'Semester 6 Timetable Released', 'The timetable for Semester 6 has been released. Please check the timetable section for details.', 'academic', 'high', '[\"student\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
-(3, 'Faculty Meeting Tomorrow', 'All faculty members are requested to attend the meeting tomorrow at 10 AM in the conference hall.', 'general', 'medium', '[\"faculty\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00');
+(5, 'Welcome to eduvertex', 'The Eduvertex is a real time ERP Enterpersise Resource Planning ', 'general', 'low', '[\"all\"]', NULL, '[]', 1, 109, 'super-admin', NULL, '2026-02-25 16:30:00', '2026-02-25 16:30:00');
 
 -- --------------------------------------------------------
 
@@ -158,11 +156,46 @@ CREATE TABLE `faculty_experience` (
   `from_date` date DEFAULT NULL,
   `to_date` date DEFAULT NULL,
   `period` varchar(50) DEFAULT NULL,
-  `is_current` tinyint(1) DEFAULT 0,
-  `job_title` varchar(150) NOT NULL,
-  `company` varchar(255) NOT NULL,
-  `location` varchar(255) DEFAULT NULL
+  `is_current` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `faculty_experience`
+--
+
+INSERT INTO `faculty_experience` (`exp_id`, `faculty_id`, `designation`, `institution_name`, `university`, `department`, `from_date`, `to_date`, `period`, `is_current`) VALUES
+(2, 406, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'akka university', 'Electronics & Communication Engineering', '2026-02-24', '2026-02-24', '4M', 0),
+(4, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'asdfasf', 'Internet of Things', '2026-02-25', '2026-02-17', '232', 0),
+(5, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0),
+(6, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0),
+(7, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `faculty_industry_experience`
+--
+
+CREATE TABLE `faculty_industry_experience` (
+  `exp_id` int(11) NOT NULL,
+  `faculty_id` int(11) NOT NULL,
+  `job_title` varchar(150) DEFAULT NULL,
+  `company` varchar(255) DEFAULT NULL,
+  `location` varchar(255) DEFAULT NULL,
+  `from_date` date DEFAULT NULL,
+  `to_date` date DEFAULT NULL,
+  `period` varchar(50) DEFAULT NULL,
+  `is_current` tinyint(1) DEFAULT 0,
+  `status` enum('active','inactive') DEFAULT 'active'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `faculty_industry_experience`
+--
+
+INSERT INTO `faculty_industry_experience` (`exp_id`, `faculty_id`, `job_title`, `company`, `location`, `from_date`, `to_date`, `period`, `is_current`, `status`) VALUES
+(3, 406, 'Data Analyst', 'Ematix private Limited', 'Theni', '2026-02-24', '2026-03-14', '2m', 0, 'active'),
+(5, 101, 'Project Manager', 'dsfgfhg', 'dfgf', '0000-00-00', '0000-00-00', '', 0, 'active');
 
 -- --------------------------------------------------------
 
@@ -183,6 +216,24 @@ CREATE TABLE `faculty_leaves` (
   `applied_on` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `faculty_leave_schedules`
+--
+
+CREATE TABLE `faculty_leave_schedules` (
+  `id` int(11) NOT NULL,
+  `faculty_id` int(11) NOT NULL,
+  `leave_id` int(11) DEFAULT NULL,
+  `from_date` date NOT NULL,
+  `to_date` date NOT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `reason` text DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -243,7 +294,7 @@ CREATE TABLE `faculty_profiles` (
 --
 
 INSERT INTO `faculty_profiles` (`faculty_id`, `faculty_college_code`, `coe_id`, `AICTE_ID`, `Anna_University_ID`, `Name`, `email`, `phone_number`, `password`, `role_id`, `department_id`, `designation`, `educational_qualification`, `phd_status`, `gender`, `date_of_birth`, `date_of_joining`, `profile_image_url`, `status`, `blood_group`, `aadhar_number`, `pan_number`, `perm_address`, `curr_address`, `created_at`, `updated_at`, `linkedin_url`, `is_timetable_incharge`, `is_placement_coordinator`) VALUES
-(101, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'drmathalai.raj@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, 'HEAD OF THE DEPARTMENT', NULL, 'No', NULL, NULL, NULL, '/uploads/faculty/dr_mathalai_raj__j.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-21 17:51:26', NULL, 0, 0),
+(101, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'drmathalai.raj@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 7, 1, 'HEAD OF THE DEPARTMENT', NULL, '', NULL, NULL, NULL, '/uploads/faculty/dr_mathalai_raj__j.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-24 15:44:58', NULL, 0, 0),
 (111, 'SH1', NULL, NULL, NULL, 'DR.B.MALLAIYASAMY', 'drbmallaiyasamy.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
 (121, 'SH10', NULL, NULL, NULL, 'DR.DAVID MATHAN.N', 'drdavid.mathann@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
 (124, 'ME11', NULL, NULL, NULL, 'VEMBATHURAJESH.A', 'vembathurajesha.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
@@ -271,9 +322,8 @@ INSERT INTO `faculty_profiles` (`faculty_id`, `faculty_college_code`, `coe_id`, 
 (354, 'NS10T33', NULL, NULL, NULL, 'NATHIRUN SABINASH', 'ns10t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (355, 'NS10T34', NULL, NULL, NULL, 'MANOJ PRABAKAR R', 'ns10t34@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (356, 'NS10T35', NULL, NULL, NULL, 'HARI PRASATH T', 'ns10t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(357, 'NS20T35', NULL, NULL, NULL, 'ABIRAMI KAYATHIRI S', 'ns20t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
+(357, 'NS20T35', NULL, NULL, NULL, 'ABIRAMI KAYATHIRI S', 'ns20t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-25 18:05:03', NULL, 1, 0),
 (358, 'NS20T41', NULL, NULL, NULL, 'ANUSUYA V', 'ns20t41@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(359, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'cs12@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (360, 'NS20T25', NULL, NULL, NULL, 'VELKUMAR K', 'ns20t25@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (361, 'NS20T33', NULL, NULL, NULL, 'DEEPIGA K', 'ns20t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (362, 'NS20T40', NULL, NULL, NULL, 'VENKATALAKSHMI M', 'ns20t40@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
@@ -316,11 +366,10 @@ INSERT INTO `faculty_profiles` (`faculty_id`, `faculty_college_code`, `coe_id`, 
 (399, 'NS70T05', NULL, NULL, NULL, 'MAHALAKSHMI S', 'ns70t05@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (400, 'NS20T39', NULL, NULL, NULL, 'BHAVANI M', 'ns20t39@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (401, 'NS70T04', NULL, NULL, NULL, 'SAI SUGANYA B', 'ns70t04@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(402, 'NS20T38', NULL, NULL, NULL, 'PAVITHRA M', 'ns20t38@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (403, 'NS20T37', NULL, NULL, NULL, 'GEERTHIGA G', 'ns20t37@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:37:47', NULL, 0, 0),
 (404, 'NS20T32', NULL, NULL, NULL, 'VINOTH KUMAR J', 'ns20t32@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (405, 'NS70T02', NULL, NULL, NULL, 'KANIMOLI J', 'ns70t02@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:26:34', NULL, 0, 0),
-(406, 'NS80T01', NULL, NULL, NULL, 'NAGAJOTHI P', 'ns80t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:37:53', NULL, 1, 0),
+(406, 'NS80T01', NULL, NULL, NULL, 'NAGAJOTHI P', 'ns80t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'Pursuing', NULL, NULL, NULL, '/uploads/faculty/nagajothi_p.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-24 14:46:06', 'https://www.linkedin.com/in/prathap/', 1, 0),
 (408, 'NS2207T15', NULL, NULL, NULL, 'PRATHAP. C', 'ns2207t15@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:38:00', NULL, 0, 1),
 (409, 'NS30T03', NULL, NULL, NULL, 'GANESH.K', 'ns30t03@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
 (410, 'NS40T16', NULL, NULL, NULL, 'Dr.R.ATHILINGAM', 'ns40t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
@@ -390,14 +439,40 @@ CREATE TABLE `faculty_subject_assignments` (
   `id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `subject_id` int(11) NOT NULL,
+  `assigned_by` int(11) DEFAULT NULL,
+  `assigned_at` datetime DEFAULT NULL,
   `academic_year` varchar(9) NOT NULL,
   `semester` tinyint(2) NOT NULL,
   `class_id` int(11) DEFAULT NULL,
   `allocation_date` date NOT NULL DEFAULT curdate(),
   `status` enum('active','inactive','suspended') NOT NULL DEFAULT 'active',
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `total_hours` int(11) DEFAULT 0 COMMENT 'Total hours for the subject',
+  `no_of_periods` int(11) DEFAULT 0 COMMENT 'Number of periods per week'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `faculty_substitutes`
+--
+
+CREATE TABLE `faculty_substitutes` (
+  `id` int(11) NOT NULL,
+  `faculty_id` int(11) NOT NULL,
+  `substitute_faculty_id` int(11) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `reason` text DEFAULT NULL,
+  `leave_id` int(11) DEFAULT NULL,
+  `status` enum('pending','approved','rejected','active','completed') NOT NULL DEFAULT 'pending',
+  `requested_by` int(11) NOT NULL,
+  `approved_by` int(11) DEFAULT NULL,
+  `approval_date` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -417,6 +492,57 @@ CREATE TABLE `faculy_edu_qualification` (
   `society_name` varchar(255) NOT NULL,
   `status` enum('Active','Inactive') DEFAULT 'Active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `faculy_edu_qualification`
+--
+
+INSERT INTO `faculy_edu_qualification` (`faculty_id`, `degree`, `branch`, `college`, `university`, `year`, `percentage`, `membership_id`, `society_name`, `status`) VALUES
+(406, 'B.E.', 'Computer Science Engineering', 'Nadar Saraswathi College of Engineering and Technology', 'Akka University', '2022', '60', 2, 'IEEE', 'Inactive'),
+(101, 'B.E.', 'Cyber Security', 'Nadar Saraswathi College of Engineering and Technology', 'akka', '2023', '58', 5, '', 'Active'),
+(101, 'M.Tech', 'Electrical & Electronics Engineering', 'Nadar Saraswathi College of Engineering and Technology', 'akkaa', '2025', '10', 20, '', 'Active'),
+(101, 'Membership', 'Professional Membership', '', 'Professional Organization', NULL, NULL, 21, 'IEEE', 'Inactive'),
+(101, 'Membership', 'Professional Membership', '', 'Professional Organization', NULL, NULL, 22, 'dsd', 'Active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `period_config`
+--
+
+CREATE TABLE `period_config` (
+  `id` int(11) NOT NULL,
+  `department_id` int(11) DEFAULT NULL,
+  `period_number` int(11) NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL,
+  `duration_minutes` int(11) NOT NULL,
+  `is_break` tinyint(1) DEFAULT 0,
+  `break_name` varchar(100) DEFAULT NULL,
+  `status` enum('active','inactive') DEFAULT 'active',
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `period_config`
+--
+
+INSERT INTO `period_config` (`id`, `department_id`, `period_number`, `start_time`, `end_time`, `duration_minutes`, `is_break`, `break_name`, `status`, `createdAt`, `updatedAt`) VALUES
+(1, NULL, 1, '09:00:00', '09:50:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(2, NULL, 2, '09:50:00', '10:40:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(3, NULL, 3, '10:40:00', '11:10:00', 30, 1, 'Tea Break', 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(4, NULL, 4, '11:10:00', '12:00:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(5, NULL, 5, '12:00:00', '12:50:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(6, NULL, 6, '12:50:00', '13:30:00', 40, 1, 'Lunch Break', 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(7, NULL, 7, '13:30:00', '14:20:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
+(8, NULL, 1, '09:00:00', '09:50:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(9, NULL, 2, '09:50:00', '10:40:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(10, NULL, 3, '10:40:00', '11:10:00', 30, 1, 'Tea Break', 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(11, NULL, 4, '11:10:00', '12:00:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(12, NULL, 5, '12:00:00', '12:50:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(13, NULL, 6, '12:50:00', '13:30:00', 40, 1, 'Lunch Break', 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(14, NULL, 7, '13:30:00', '14:20:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10');
 
 -- --------------------------------------------------------
 
@@ -1638,6 +1764,7 @@ CREATE TABLE `subjects` (
   `description` text DEFAULT NULL,
   `department_id` int(11) NOT NULL,
   `semester` tinyint(2) NOT NULL COMMENT '1-8 semesters',
+  `sem_type` enum('odd','even') NOT NULL DEFAULT 'odd',
   `class_id` int(11) DEFAULT NULL,
   `credits` decimal(4,2) NOT NULL DEFAULT 4.00,
   `type` enum('Theory','Practical','Theory+Practical','Project','Seminar','Internship') NOT NULL DEFAULT 'Theory',
@@ -1655,15 +1782,89 @@ CREATE TABLE `subjects` (
 -- Dumping data for table `subjects`
 --
 
-INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `description`, `department_id`, `semester`, `class_id`, `credits`, `type`, `is_elective`, `is_laboratory`, `min_hours_per_week`, `max_students`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'CS101', 'Programming in C', 'Fundamentals of C programming', 1, 1, NULL, 3.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(2, 'CS102', 'Programming Lab - C', 'C Programming practical lab sessions', 1, 1, NULL, 1.50, 'Practical', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(3, 'CS103', 'Data Structures', 'Arrays, Linked Lists, Stacks, Queues', 1, 2, NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(4, 'CS104', 'Database Management', 'Relational databases and SQL', 1, 3, NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(5, 'EC101', 'Basic Electronics', 'Diodes, Transistors, and Applications', 2, 1, NULL, 3.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(6, 'EC102', 'Electronics Lab', 'Practical electronics experiments', 2, 1, NULL, 1.50, 'Practical', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(7, 'ME101', 'Engineering Mechanics', 'Statics and Dynamics', 3, 1, NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(8, 'ME102', 'Thermodynamics', 'Laws of thermodynamics and applications', 3, 2, NULL, 3.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16');
+INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `description`, `department_id`, `semester`, `sem_type`, `class_id`, `credits`, `type`, `is_elective`, `is_laboratory`, `min_hours_per_week`, `max_students`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(7, 'ME101', 'Engineering Mechanics', 'Statics and Dynamics', 3, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
+(8, 'ME102', 'Thermodynamics', 'Laws of thermodynamics and applications', 3, 2, 'odd', NULL, 3.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
+(9, 'cs9210', 'c proramming', '', 6, 1, 'odd', NULL, 4.00, 'Theory+Practical', 1, 0, 3, NULL, 'active', 109, '2026-02-25 09:22:53', '2026-02-25 09:22:53'),
+(10, 'CS9584', 'C PROGRAMMING', '', 1, 1, 'even', NULL, 4.00, 'Theory', 0, 1, 3, NULL, 'active', 109, '2026-02-25 09:24:39', '2026-02-25 16:28:12'),
+(11, 'CSE101', 'Introduction to Programming', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(12, 'CSE102', 'Data Structures', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(13, 'CSE103', 'Digital Logic Design', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(14, 'CSE104', 'Web Development Basics', NULL, 1, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(15, 'CSE105', 'Database Management Systems', NULL, 1, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(16, 'CSE106', 'Operating Systems', NULL, 1, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(17, 'CSE107', 'Computer Networks', NULL, 1, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(18, 'CSE108', 'Software Engineering', NULL, 1, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(19, 'CSE109', 'Algorithms and Complexity', NULL, 1, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(20, 'CSE110', 'Artificial Intelligence', NULL, 1, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(21, 'ECE101', 'Circuit Theory', NULL, 2, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(22, 'ECE102', 'Electronic Devices and Circuits', NULL, 2, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(23, 'ECE103', 'Digital Electronics', NULL, 2, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(24, 'ECE104', 'Signals and Systems', NULL, 2, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(25, 'ECE105', 'Electromagnetic Theory', NULL, 2, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(26, 'ECE106', 'Microprocessors and Microcontrollers', NULL, 2, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(27, 'ECE107', 'Communication Systems', NULL, 2, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(28, 'ECE108', 'Control Systems', NULL, 2, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(29, 'ECE109', 'Power Systems', NULL, 2, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(30, 'ECE110', 'VLSI Design', NULL, 2, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(31, 'ME103', 'Thermodynamics', NULL, 3, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(32, 'ME104', 'Fluid Mechanics', NULL, 3, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(33, 'ME105', 'Manufacturing Processes', NULL, 3, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(34, 'ME106', 'Heat Transfer', NULL, 3, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(35, 'ME107', 'Machine Design', NULL, 3, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(36, 'ME108', 'Dynamics of Machinery', NULL, 3, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(37, 'ME109', 'Power Plant Engineering', NULL, 3, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(38, 'ME110', 'Automobile Engineering', NULL, 3, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(39, 'CE101', 'Surveying', NULL, 4, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(40, 'CE102', 'Engineering Geology', NULL, 4, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(41, 'CE103', 'Structural Analysis', NULL, 4, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(42, 'CE104', 'Hydraulics and Fluid Mechanics', NULL, 4, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(43, 'CE105', 'Geotechnical Engineering', NULL, 4, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(44, 'CE106', 'Water Resources Engineering', NULL, 4, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(45, 'CE107', 'RCC Design', NULL, 4, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(46, 'CE108', 'Steel Design', NULL, 4, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(47, 'CE109', 'Transportation Engineering', NULL, 4, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(48, 'CE110', 'Environmental Engineering', NULL, 4, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(49, 'EEE101', 'Basic Electrical Engineering', NULL, 5, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(50, 'EEE102', 'AC and DC Circuits', NULL, 5, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(51, 'EEE103', 'Electromagnetic Induction', NULL, 5, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(52, 'EEE104', 'Electrical Machines', NULL, 5, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(53, 'EEE105', 'Power Systems', NULL, 5, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(54, 'EEE106', 'Power Generation', NULL, 5, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(55, 'EEE107', 'High Voltage Engineering', NULL, 5, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(56, 'EEE108', 'Power Distribution', NULL, 5, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(57, 'EEE109', 'Industrial Drives', NULL, 5, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(58, 'EEE110', 'Smart Grid Technology', NULL, 5, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(59, 'IT101', 'Introduction to IT', NULL, 6, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(60, 'IT102', 'Programming Languages', NULL, 6, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(61, 'IT103', 'Web Technologies', NULL, 6, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(62, 'IT104', 'Database Systems', NULL, 6, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(63, 'IT105', 'Cloud Computing', NULL, 6, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(64, 'IT106', 'Network Security', NULL, 6, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(65, 'IT107', 'Data Analytics', NULL, 6, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(66, 'IT108', 'Machine Learning', NULL, 6, 4, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(67, 'IT109', 'Mobile Application Development', NULL, 6, 5, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(68, 'IT110', 'IT Project Management', NULL, 6, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(69, 'CHE101', 'Physical Chemistry', NULL, 7, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(70, 'CHE102', 'Organic Chemistry', NULL, 7, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(71, 'CHE103', 'Inorganic Chemistry', NULL, 7, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(72, 'CHE104', 'Analytical Chemistry', NULL, 7, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(73, 'CHE105', 'Chemical Engineering Fundamentals', NULL, 7, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(74, 'CHE106', 'Process Engineering', NULL, 7, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(75, 'CHE107', 'Industrial Chemistry', NULL, 7, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(76, 'CHE108', 'Polymer Science', NULL, 7, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(77, 'CHE109', 'Environmental Chemistry', NULL, 7, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(78, 'CHE110', 'Biochemistry', NULL, 7, 5, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(79, 'PHY101', 'Classical Mechanics', NULL, 10, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(80, 'PHY102', 'Thermodynamics', NULL, 10, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(81, 'PHY103', 'Waves and Oscillations', NULL, 10, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(82, 'PHY104', 'Optics', NULL, 10, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(83, 'PHY105', 'Electricity and Magnetism', NULL, 10, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(84, 'PHY106', 'Modern Physics', NULL, 10, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(85, 'PHY107', 'Quantum Mechanics', NULL, 10, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(86, 'PHY108', 'Solid State Physics', NULL, 10, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(87, 'PHY109', 'Astrophysics', NULL, 10, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
+(88, 'PHY110', 'Nuclear Physics', NULL, 10, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50');
 
 -- --------------------------------------------------------
 
@@ -1713,6 +1914,73 @@ INSERT INTO `timetables` (`id`, `name`, `academic_year`, `semester`, `department
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `timetable_details`
+--
+
+CREATE TABLE `timetable_details` (
+  `id` int(11) NOT NULL,
+  `timetable_id` int(11) NOT NULL,
+  `class_id` int(11) NOT NULL,
+  `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday') NOT NULL,
+  `period_number` int(11) NOT NULL,
+  `subject_id` int(11) DEFAULT NULL,
+  `faculty_id` int(11) DEFAULT NULL,
+  `room_number` varchar(50) DEFAULT NULL,
+  `period_type` enum('lecture','practical','tutorial','break','lunch') DEFAULT 'lecture',
+  `is_break` tinyint(1) DEFAULT 0,
+  `status` enum('active','cancelled','pending') DEFAULT 'active',
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_incharge`
+--
+
+CREATE TABLE `timetable_incharge` (
+  `id` int(11) NOT NULL,
+  `department_id` int(11) NOT NULL,
+  `faculty_id` int(11) NOT NULL,
+  `appointment_date` date NOT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_master`
+--
+
+CREATE TABLE `timetable_master` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `academic_year` varchar(20) NOT NULL,
+  `semester` enum('odd','even') NOT NULL,
+  `department_id` int(11) DEFAULT NULL,
+  `year` enum('1st','2nd','3rd','4th') DEFAULT NULL,
+  `timetable_incharge_id` int(11) DEFAULT NULL,
+  `status` enum('draft','pending_approval','active','inactive') DEFAULT 'draft',
+  `approved_by` int(11) DEFAULT NULL,
+  `approved_at` timestamp NULL DEFAULT NULL,
+  `created_by` int(11) NOT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `timetable_master`
+--
+
+INSERT INTO `timetable_master` (`id`, `name`, `academic_year`, `semester`, `department_id`, `year`, `timetable_incharge_id`, `status`, `approved_by`, `approved_at`, `created_by`, `createdAt`, `updatedAt`) VALUES
+(1, 'CSE - 3 RD YEAR SEM-1', '2023-2027', 'odd', 1, '3rd', NULL, 'draft', NULL, NULL, 109, '2026-02-25 18:04:27', '2026-02-25 18:04:27');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `timetable_notifications`
 --
 
@@ -1751,6 +2019,8 @@ CREATE TABLE `timetable_slots` (
   `room` varchar(50) DEFAULT NULL,
   `type` enum('lecture','lab','tutorial') DEFAULT 'lecture',
   `status` enum('active','cancelled') DEFAULT 'active',
+  `is_substitute` tinyint(1) DEFAULT 0,
+  `original_faculty_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1759,9 +2029,9 @@ CREATE TABLE `timetable_slots` (
 -- Dumping data for table `timetable_slots`
 --
 
-INSERT INTO `timetable_slots` (`id`, `timetable_id`, `day`, `period_number`, `start_time`, `end_time`, `subject_id`, `faculty_id`, `class_id`, `room`, `type`, `status`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Monday', 1, '09:00:00', '09:50:00', NULL, 1, 1, '101', 'lecture', 'active', '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
-(2, 1, 'Monday', 2, '09:50:00', '10:40:00', NULL, 8, 1, '101', 'lecture', 'active', '2024-01-01 00:00:00', '2024-01-01 00:00:00');
+INSERT INTO `timetable_slots` (`id`, `timetable_id`, `day`, `period_number`, `start_time`, `end_time`, `subject_id`, `faculty_id`, `class_id`, `room`, `type`, `status`, `is_substitute`, `original_faculty_id`, `created_at`, `updated_at`) VALUES
+(1, 1, 'Monday', 1, '09:00:00', '09:50:00', NULL, 1, 1, '101', 'lecture', 'active', 0, NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
+(2, 1, 'Monday', 2, '09:50:00', '10:40:00', NULL, 8, 1, '101', 'lecture', 'active', 0, NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -1776,15 +2046,59 @@ CREATE TABLE `timetable_slot_assignments` (
   `subject_code` varchar(20) NOT NULL,
   `subject_name` varchar(255) NOT NULL,
   `faculty_id` int(11) NOT NULL,
+  `is_substitute` tinyint(1) DEFAULT 0,
+  `original_faculty_id` int(11) DEFAULT NULL,
+  `substitute_assignment_id` int(11) DEFAULT NULL,
   `assigned_by` int(11) NOT NULL,
   `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday') NOT NULL,
   `year` enum('1st','2nd','3rd','4th') NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
   `room_number` varchar(50) DEFAULT NULL,
+  `type` enum('lecture','lab','tutorial','practical') DEFAULT 'lecture',
   `status` enum('active','inactive','pending_approval') NOT NULL DEFAULT 'pending_approval',
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_staff_alterations`
+--
+
+CREATE TABLE `timetable_staff_alterations` (
+  `id` int(11) NOT NULL,
+  `timetable_id` int(11) NOT NULL,
+  `timetable_detail_id` int(11) NOT NULL,
+  `original_faculty_id` int(11) NOT NULL,
+  `alternative_faculty_id` int(11) NOT NULL,
+  `reason` text NOT NULL,
+  `requested_by` int(11) NOT NULL,
+  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
+  `alternative_response` text DEFAULT NULL,
+  `accepted_at` timestamp NULL DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `timetable_uploads`
+--
+
+CREATE TABLE `timetable_uploads` (
+  `id` int(11) NOT NULL,
+  `timetable_id` int(11) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `total_records` int(11) DEFAULT 0,
+  `successful_records` int(11) DEFAULT 0,
+  `failed_records` int(11) DEFAULT 0,
+  `uploaded_by` int(11) NOT NULL,
+  `upload_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `status` enum('processing','completed','failed') NOT NULL DEFAULT 'processing',
+  `error_log` longtext DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
@@ -1815,8 +2129,7 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role_id`, `phone`, `isA
 (2, 'mathalai sundaram', 'executive@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 3, '9876543211', 1, '0000-00-00 00:00:00', '2026-02-20 05:08:42', NULL, NULL),
 (3, 'Academic Admin', 'academic@nscet.org', '$2a$10$rtVcTSxhiJKb4Cm3GdJWTety1jN8MAbcweTMHTRw2TQOE79tziyEq', 4, '9876543212', 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00', NULL, NULL),
 (109, 'GOAT', 'nscetadmin@gmail.com', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 2, '9876543210', 1, '2026-02-20 05:39:02', '2026-02-20 05:39:02', NULL, NULL),
-(112, 'Test Admin', 'testadmin@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 1, '9876543210', 1, '2026-02-20 06:24:50', '2026-02-20 06:24:50', NULL, NULL),
-(115, 'VIGNESH.L.S', 'hodad@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 7, '8072435849', 1, '2026-02-21 14:54:39', '2026-02-23 21:51:41', '/uploads/avatars/vignesh_l_s.png', 6);
+(112, 'Test Admin', 'testadmin@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 1, '9876543210', 1, '2026-02-20 06:24:50', '2026-02-20 06:24:50', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1835,6 +2148,20 @@ CREATE TABLE `year_break_timings` (
   `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
   `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `year_break_timings`
+--
+
+INSERT INTO `year_break_timings` (`id`, `department_id`, `year`, `break_name`, `start_time`, `end_time`, `duration_minutes`, `createdAt`, `updatedAt`) VALUES
+(1, 0, '1st', 'Tea Break', '10:40:00', '11:10:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(2, 0, '1st', 'Lunch Break', '12:50:00', '13:30:00', 40, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(3, 0, '2nd', 'Tea Break', '10:40:00', '11:10:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(4, 0, '2nd', 'Lunch Break', '12:50:00', '13:30:00', 40, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(5, 0, '3rd', 'Tea Break', '10:40:00', '11:00:00', 20, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(6, 0, '3rd', 'Lunch Break', '12:50:00', '13:20:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(7, 0, '4th', 'Tea Break', '10:40:00', '11:00:00', 20, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
+(8, 0, '4th', 'Lunch Break', '12:50:00', '13:20:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10');
 
 --
 -- Indexes for dumped tables
@@ -1869,8 +2196,15 @@ ALTER TABLE `faculty_events`
 -- Indexes for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  ADD PRIMARY KEY (`faculty_id`),
-  ADD UNIQUE KEY `exp_id` (`exp_id`);
+  ADD PRIMARY KEY (`exp_id`),
+  ADD KEY `idx_faculty_id` (`faculty_id`);
+
+--
+-- Indexes for table `faculty_industry_experience`
+--
+ALTER TABLE `faculty_industry_experience`
+  ADD PRIMARY KEY (`exp_id`),
+  ADD KEY `idx_faculty_id` (`faculty_id`);
 
 --
 -- Indexes for table `faculty_leaves`
@@ -1879,6 +2213,14 @@ ALTER TABLE `faculty_leaves`
   ADD PRIMARY KEY (`leave_id`),
   ADD KEY `faculty_id` (`faculty_id`),
   ADD KEY `reassign_faculty_id` (`reassign_faculty_id`);
+
+--
+-- Indexes for table `faculty_leave_schedules`
+--
+ALTER TABLE `faculty_leave_schedules`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_faculty` (`faculty_id`),
+  ADD KEY `idx_date_range` (`from_date`,`to_date`);
 
 --
 -- Indexes for table `faculty_phd`
@@ -1922,11 +2264,28 @@ ALTER TABLE `faculty_subject_assignments`
   ADD KEY `idx_fsa_status` (`status`);
 
 --
+-- Indexes for table `faculty_substitutes`
+--
+ALTER TABLE `faculty_substitutes`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `faculty_id` (`faculty_id`),
+  ADD KEY `substitute_faculty_id` (`substitute_faculty_id`),
+  ADD KEY `requested_by` (`requested_by`),
+  ADD KEY `status` (`status`);
+
+--
 -- Indexes for table `faculy_edu_qualification`
 --
 ALTER TABLE `faculy_edu_qualification`
-  ADD PRIMARY KEY (`faculty_id`),
-  ADD UNIQUE KEY `membership_id` (`membership_id`);
+  ADD UNIQUE KEY `membership_id` (`membership_id`),
+  ADD KEY `idx_faculty_id` (`faculty_id`);
+
+--
+-- Indexes for table `period_config`
+--
+ALTER TABLE `period_config`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_period_dept` (`department_id`,`period_number`);
 
 --
 -- Indexes for table `roles`
@@ -2089,7 +2448,9 @@ ALTER TABLE `subjects`
   ADD KEY `idx_subject_dept` (`department_id`),
   ADD KEY `idx_subject_semester` (`semester`),
   ADD KEY `idx_subject_class` (`class_id`),
-  ADD KEY `idx_subject_status` (`status`);
+  ADD KEY `idx_subject_status` (`status`),
+  ADD KEY `idx_sem_type` (`sem_type`),
+  ADD KEY `idx_dept_sem` (`department_id`,`semester`,`sem_type`);
 
 --
 -- Indexes for table `subject_class_mappings`
@@ -2110,6 +2471,34 @@ ALTER TABLE `timetables`
   ADD KEY `department_id` (`department_id`),
   ADD KEY `class_id` (`class_id`),
   ADD KEY `created_by` (`created_by`);
+
+--
+-- Indexes for table `timetable_details`
+--
+ALTER TABLE `timetable_details`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_timetable` (`timetable_id`),
+  ADD KEY `idx_class` (`class_id`),
+  ADD KEY `idx_faculty` (`faculty_id`),
+  ADD KEY `idx_day_period` (`day_of_week`,`period_number`);
+
+--
+-- Indexes for table `timetable_incharge`
+--
+ALTER TABLE `timetable_incharge`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_dept_timetable_incharge` (`department_id`),
+  ADD KEY `department_id` (`department_id`),
+  ADD KEY `faculty_id` (`faculty_id`);
+
+--
+-- Indexes for table `timetable_master`
+--
+ALTER TABLE `timetable_master`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_department` (`department_id`),
+  ADD KEY `idx_academic_year` (`academic_year`),
+  ADD KEY `idx_status` (`status`);
 
 --
 -- Indexes for table `timetable_notifications`
@@ -2144,6 +2533,24 @@ ALTER TABLE `timetable_slot_assignments`
   ADD KEY `idx_class_year_day` (`class_id`,`year`,`day_of_week`);
 
 --
+-- Indexes for table `timetable_staff_alterations`
+--
+ALTER TABLE `timetable_staff_alterations`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_timetable` (`timetable_id`),
+  ADD KEY `idx_original_faculty` (`original_faculty_id`),
+  ADD KEY `idx_alternative_faculty` (`alternative_faculty_id`),
+  ADD KEY `idx_status` (`status`);
+
+--
+-- Indexes for table `timetable_uploads`
+--
+ALTER TABLE `timetable_uploads`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `timetable_id` (`timetable_id`),
+  ADD KEY `uploaded_by` (`uploaded_by`);
+
+--
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
@@ -2167,7 +2574,7 @@ ALTER TABLE `year_break_timings`
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `faculty_events`
@@ -2179,7 +2586,13 @@ ALTER TABLE `faculty_events`
 -- AUTO_INCREMENT for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT for table `faculty_industry_experience`
+--
+ALTER TABLE `faculty_industry_experience`
+  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `faculty_leaves`
@@ -2188,16 +2601,22 @@ ALTER TABLE `faculty_leaves`
   MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `faculty_leave_schedules`
+--
+ALTER TABLE `faculty_leave_schedules`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `faculty_phd`
 --
 ALTER TABLE `faculty_phd`
-  MODIFY `phd_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `phd_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `faculty_profiles`
 --
 ALTER TABLE `faculty_profiles`
-  MODIFY `faculty_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=431;
+  MODIFY `faculty_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=432;
 
 --
 -- AUTO_INCREMENT for table `faculty_subject_assignments`
@@ -2206,10 +2625,22 @@ ALTER TABLE `faculty_subject_assignments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `faculty_substitutes`
+--
+ALTER TABLE `faculty_substitutes`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `faculy_edu_qualification`
 --
 ALTER TABLE `faculy_edu_qualification`
-  MODIFY `membership_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `membership_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `period_config`
+--
+ALTER TABLE `period_config`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `staff_attendance_entry`
@@ -2305,13 +2736,31 @@ ALTER TABLE `student_sports`
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
 
 --
 -- AUTO_INCREMENT for table `subject_class_mappings`
 --
 ALTER TABLE `subject_class_mappings`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `timetable_details`
+--
+ALTER TABLE `timetable_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `timetable_incharge`
+--
+ALTER TABLE `timetable_incharge`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `timetable_master`
+--
+ALTER TABLE `timetable_master`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `timetable_notifications`
@@ -2326,6 +2775,18 @@ ALTER TABLE `timetable_slot_assignments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `timetable_staff_alterations`
+--
+ALTER TABLE `timetable_staff_alterations`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `timetable_uploads`
+--
+ALTER TABLE `timetable_uploads`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
@@ -2335,7 +2796,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `year_break_timings`
 --
 ALTER TABLE `year_break_timings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Constraints for dumped tables
@@ -2351,8 +2812,13 @@ ALTER TABLE `faculty_events`
 -- Constraints for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  ADD CONSTRAINT `faculty_experience_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `faculty_experience_ibfk_2` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `faculty_experience_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `faculty_industry_experience`
+--
+ALTER TABLE `faculty_industry_experience`
+  ADD CONSTRAINT `fk_industry_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `faculty_leaves`
@@ -2374,6 +2840,14 @@ ALTER TABLE `faculty_subject_assignments`
   ADD CONSTRAINT `fk_fsa_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE SET NULL,
   ADD CONSTRAINT `fk_fsa_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fk_fsa_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `faculty_substitutes`
+--
+ALTER TABLE `faculty_substitutes`
+  ADD CONSTRAINT `fk_substitute_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `fk_substitute_faculty_sub` FOREIGN KEY (`substitute_faculty_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `fk_substitute_requested_by` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `faculy_edu_qualification`
@@ -2411,6 +2885,13 @@ ALTER TABLE `timetable_slot_assignments`
   ADD CONSTRAINT `timetable_slot_assignments_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `timetable_slot_assignments_ibfk_3` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `timetable_slot_assignments_ibfk_4` FOREIGN KEY (`assigned_by`) REFERENCES `faculty_profiles` (`faculty_id`) ON UPDATE CASCADE;
+
+--
+-- Constraints for table `timetable_uploads`
+--
+ALTER TABLE `timetable_uploads`
+  ADD CONSTRAINT `fk_timetable_upload_timetable` FOREIGN KEY (`timetable_id`) REFERENCES `timetables` (`id`),
+  ADD CONSTRAINT `fk_timetable_upload_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `users`

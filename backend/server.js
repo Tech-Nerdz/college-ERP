@@ -21,14 +21,17 @@ import seedSuperAdmin from './utils/initDB.js';
 import authRoutes from './routes/admin/auth.routes.js';
 import userRoutes from './routes/admin/user.routes.js';
 import departmentRoutes from './routes/admin/department.routes.js';
+import adminSubjectRoutes from './routes/admin/subject.routes.js';
 import facultyRoutes from './routes/faculty/faculty.routes.js';
 import studentRoutes from './routes/student/student.routes.js';
 import timetableRoutes from './routes/timetable/timetable.routes.js';
+import timetableManagementAdminRoutes from './routes/admin/timetable-management.routes.js';
 import leaveRoutes from './routes/leave-attendance/leave.routes.js';
 import attendanceRoutes from './routes/leave-attendance/attendance.routes.js';
 import announcementRoutes from './routes/admin/announcement.routes.js';
 import timetableManagementRoutes from './routes/department-admin/timetable-management.routes.js';
 import breakTimingRoutes from './routes/department-admin/break-timing.routes.js';
+import facultyAllocationRoutes from './routes/department-admin/faculty-allocation.routes.js';
 import timetableNotificationRoutes from './routes/faculty/timetable-notification.routes.js';
 import coordinatorRoutes from './routes/department-admin/coordinator.routes.js';
 import subjectRoutes from './routes/department-admin/subject.routes.js';
@@ -95,12 +98,14 @@ const startServer = () => {
   // Prevent XSS attacks
   app.use(xss());
 
-  // Rate limiting
-  const limiter = rateLimit({
-    windowMs: 10 * 60 * 1000, // 10 mins
-    max: 100
-  });
-  app.use(limiter);
+  // Rate limiting: enable only in production to avoid hitting limits during local development
+  if (process.env.NODE_ENV === 'production') {
+    const limiter = rateLimit({
+      windowMs: 10 * 60 * 1000, // 10 mins
+      max: 100
+    });
+    app.use(limiter);
+  }
 
   // Prevent http param pollution
   app.use(hpp());
@@ -118,16 +123,19 @@ const startServer = () => {
   app.use('/api/v1/auth', authRoutes);
   app.use('/api/v1/users', userRoutes);
   app.use('/api/v1/departments', departmentRoutes);
+  app.use('/api/v1/admin/subjects', adminSubjectRoutes);
   app.use('/api/v1/faculty', facultyRoutes);
   app.use('/api/v1/students', studentRoutes);
   app.use('/api/v1/subjects', generalSubjectRoutes);
   app.use('/api/v1/classes', classRoutes);
   app.use('/api/v1/timetable', timetableRoutes);
+  app.use('/api/v1/timetable-management', timetableManagementAdminRoutes);
   app.use('/api/v1/leave', leaveRoutes);
   app.use('/api/v1/attendance', attendanceRoutes);
   app.use('/api/v1/announcements', announcementRoutes);
   app.use('/api/v1/department-admin/timetable', timetableManagementRoutes);
   app.use('/api/v1/department-admin/break-timings', breakTimingRoutes);
+  app.use('/api/v1/department-admin/faculty-allocations', facultyAllocationRoutes);
   app.use('/api/v1/department-admin/coordinators', coordinatorRoutes);
   app.use('/api/v1/department-admin/subjects', subjectRoutes);
   app.use('/api/v1/faculty/notifications', timetableNotificationRoutes);

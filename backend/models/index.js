@@ -11,6 +11,10 @@ import ClassModel from './Class.model.js';
 import Timetable from './Timetable.model.js';
 import TimetableSlot from './TimetableSlot.model.js';
 import TimetableAlteration from './TimetableAlteration.model.js';
+import TimetableMaster from './TimetableMaster.model.js';
+import TimetableDetails from './TimetableDetails.model.js';
+import FacultyLeaveSchedule from './FacultyLeaveSchedule.model.js';
+import TimetableStaffAlteration from './TimetableStaffAlteration.model.js';
 import Faculty from './Faculty.model.js';
 import Student from './Student.model.js';
 import Leave from './Leave.model.js';
@@ -25,6 +29,9 @@ import TimetableNotification from './TimetableNotification.model.js';
 import FacultySubjectAssignment from './FacultySubjectAssignment.model.js';
 import SubjectClassMapping from './SubjectClassMapping.model.js';
 import FacultyEduQualification from './FacultyEduQualification.model.js';
+import FacultyExperience from './FacultyExperience.model.js';
+import FacultyIndustryExperience from './FacultyIndustryExperience.model.js';
+import FacultyPhd from './FacultyPhd.model.js';
 
 // Initialize models
 const models = {
@@ -37,6 +44,10 @@ const models = {
   Timetable: Timetable(sequelize),
   TimetableSlot: TimetableSlot(sequelize),
   TimetableAlteration: TimetableAlteration(sequelize),
+  TimetableMaster: TimetableMaster(sequelize),
+  TimetableDetails: TimetableDetails(sequelize),
+  FacultyLeaveSchedule: FacultyLeaveSchedule(sequelize),
+  TimetableStaffAlteration: TimetableStaffAlteration(sequelize),
   Faculty: Faculty(sequelize),
   Student: Student(sequelize),
   Leave: Leave(sequelize),
@@ -51,6 +62,9 @@ const models = {
   FacultySubjectAssignment: FacultySubjectAssignment(sequelize),
   SubjectClassMapping: SubjectClassMapping(sequelize),
   FacultyEduQualification: FacultyEduQualification(sequelize),
+  FacultyExperience: FacultyExperience(sequelize),
+  FacultyIndustryExperience: FacultyIndustryExperience(sequelize),
+  FacultyPhd: FacultyPhd(sequelize),
 };
 
 // Define associations
@@ -60,7 +74,7 @@ Object.keys(models).forEach((modelName) => {
   }
 });
 
-const initModels = () => models;
+const initModels = () => ({...models, sequelize});
 
 export default initModels;
-export { models };
+export { models, sequelize };

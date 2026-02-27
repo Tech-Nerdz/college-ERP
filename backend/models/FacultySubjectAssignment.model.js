@@ -11,6 +11,10 @@ const FacultySubjectAssignment = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
+    class_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
     subject_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -39,6 +43,18 @@ const FacultySubjectAssignment = (sequelize) => {
     status: {
       type: DataTypes.ENUM('active', 'inactive'),
       defaultValue: 'active',
+    },
+    total_hours: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: 'Total hours for the subject',
+    },
+    no_of_periods: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      defaultValue: 0,
+      comment: 'Number of periods per week',
     },
   }, {
     tableName: 'faculty_subject_assignments',
@@ -71,6 +87,12 @@ const FacultySubjectAssignment = (sequelize) => {
     FacultySubjectAssignmentModel.belongsTo(models.Subject, {
       foreignKey: 'subject_id',
       as: 'subject',
+    });
+
+    // Assignment belongs to Class
+    FacultySubjectAssignmentModel.belongsTo(models.Class, {
+      foreignKey: 'class_id',
+      as: 'class',
     });
 
     // Assignment belongs to User (who assigned)

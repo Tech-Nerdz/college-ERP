@@ -2,14 +2,11 @@ import { DataTypes } from 'sequelize';
 
 const FacultyEduQualification = (sequelize) => {
     const EduQualification = sequelize.define('FacultyEduQualification', {
-        id: {
+        membership_id: {
             type: DataTypes.INTEGER,
+            allowNull: false,
             primaryKey: true,
             autoIncrement: true,
-        },
-        membership_id: {
-            type: DataTypes.STRING(255),
-            allowNull: true,
         },
         faculty_id: {
             type: DataTypes.INTEGER,
@@ -21,7 +18,7 @@ const FacultyEduQualification = (sequelize) => {
         },
         branch: {
             type: DataTypes.STRING(150),
-            allowNull: true,
+            allowNull: false,
         },
         college: {
             type: DataTypes.STRING(255),
@@ -29,7 +26,7 @@ const FacultyEduQualification = (sequelize) => {
         },
         university: {
             type: DataTypes.STRING(255),
-            allowNull: true,
+            allowNull: false,
         },
         year: {
             type: DataTypes.STRING(50),
@@ -41,7 +38,8 @@ const FacultyEduQualification = (sequelize) => {
         },
         society_name: {
             type: DataTypes.STRING(255),
-            allowNull: true,
+            allowNull: false,
+            defaultValue: '',
         },
         status: {
             type: DataTypes.ENUM('Active', 'Inactive'),
