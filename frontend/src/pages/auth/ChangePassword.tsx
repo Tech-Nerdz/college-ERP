@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/pages/admin/superadmin/components/ui/button';
 import { Input } from '@/pages/admin/superadmin/components/ui/input';
 import { Label } from '@/pages/admin/superadmin/components/ui/label';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { Lock, ShieldCheck } from 'lucide-react';
 import { AdminLayout } from '@/pages/admin/superadmin/components/layout/AdminLayout';
 

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/pages/admin/academic
 import { dashboardStats, mockStudents, mockFaculty, mockDepartments } from '@/data/mockData';
 import { FileText, Download, TrendingUp, Users, GraduationCap, Building2 } from 'lucide-react';
 import { Button } from '@/pages/admin/academic/components/ui/button';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 export default function AcademicReports() {
   const handleDownload = (reportType: string) => {

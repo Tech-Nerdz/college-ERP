@@ -3,7 +3,7 @@ import { AdminLayout } from '@/pages/admin/superadmin/components/layout/AdminLay
 import { DataTable } from '@/pages/admin/superadmin/components/dashboard/DataTable';
 import { DepartmentFormModal } from '@/pages/admin/superadmin/components/modals/DepartmentFormModal';
 import { Department } from '@/types/auth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import {
   AlertDialog,
   AlertDialogAction,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { Users, BookOpen, Award, Loader2, Check, Calendar, Clock } from 'lucide-react';
 import { MainLayout } from '@/pages/admin/department-admin/components/layout/MainLayout';
 import { motion } from 'framer-motion';

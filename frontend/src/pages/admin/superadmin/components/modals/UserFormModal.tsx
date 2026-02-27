@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/pages/admin/superadmin/components/ui/select';
-import { Student, Faculty, Admin, Department } from '@/types/auth';
+import { Student, Faculty, Admin, Department, Role } from '@/types/auth';
 
 type FormData = Partial<Student | Faculty | Admin>;
 
@@ -101,15 +101,6 @@ export function UserFormModal({ open, onClose, onSave, type, initialData, mode }
 
   const updateField = (field: string, value: string | number) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-
-    // Auto-fetch department code if department is selected
-    const currentRole = (formData as Admin).role;
-    if (field === 'department' && type === 'admin' && currentRole === 'department-admin') {
-      const selectedDept = departments.find(d => d.name === value);
-      if (selectedDept) {
-        setFormData(prev => ({ ...prev, departmentCode: selectedDept.code }));
-      }
-    }
   };
 
   const getTitle = () => {
@@ -256,8 +247,8 @@ export function UserFormModal({ open, onClose, onSave, type, initialData, mode }
                   </SelectTrigger>
                   <SelectContent className="bg-popover">
                     {departments.map((dept) => (
-                      <SelectItem key={dept.id || (dept as any)._id} value={dept.name}>
-                        {dept.name}
+                      <SelectItem key={dept.id || (dept as any)._id} value={dept.short_name}>
+                        {dept.full_name || dept.short_name}
                       </SelectItem>
                     ))}
                     {departments.length === 0 && (
@@ -269,16 +260,19 @@ export function UserFormModal({ open, onClose, onSave, type, initialData, mode }
             )}
 
             {type === 'admin' && (formData as Admin).role === 'department-admin' && (
-              <div className="space-y-2">
-                <Label htmlFor="departmentCode">Department Code</Label>
-                <Input
-                  id="departmentCode"
-                  value={(formData as Admin).departmentCode || ''}
-                  readOnly
-                  placeholder="Select a department to see code"
-                  className="bg-muted/50 cursor-not-allowed"
-                />
-              </div>
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="departmentCode">College / Department Code</Label>
+                  <Input
+                    id="departmentCode"
+                    value={(formData as Admin).departmentCode || ''}
+                    onChange={(e) => updateField('departmentCode', e.target.value)}
+                    placeholder="Enter college/department code"
+                    required
+                  />
+                </div>
+                <div className="text-sm text-muted-foreground">Provide the college code (e.g. dept short code) for department admin accounts.</div>
+              </>
             )}
 
             {type === 'student' && (

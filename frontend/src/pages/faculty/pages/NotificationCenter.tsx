@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Bell, Check, X, AlertCircle, Clock } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Notification {

@@ -1,12 +1,13 @@
 ﻿import { useState, useRef, useEffect } from "react";
-import { toast } from "@/pages/admin/department-admin/hooks/use-toast";
-import { MainLayout } from "@/pages/admin/department-admin/components/layout/MainLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/pages/faculty/hooks/use-toast";
+import { MainLayout } from "@/pages/admin/department-admin/components/layout/MainLayout";
 import { motion } from "framer-motion";
-import { Button } from "@/pages/admin/department-admin/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/pages/admin/department-admin/components/ui/tabs";
-import { Badge } from "@/pages/admin/department-admin/components/ui/badge";
-import { NotificationBell } from "@/pages/admin/department-admin/components/notifications/NotificationBell";
+import { Button } from "@/pages/faculty/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/pages/faculty/components/ui/tabs";
+import { Badge } from "@/pages/faculty/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/pages/faculty/components/ui/select";
+import { NotificationBell } from "@/pages/faculty/components/notifications/NotificationBell";
 import {
   Mail,
   Phone,
@@ -23,54 +24,57 @@ import {
   Users,
   Target,
   Star,
+  Linkedin,
+  Globe,
   Edit2,
   Check,
   X,
   Trash2,
   Plus,
-  Linkedin,
-  Globe,
 } from "lucide-react";
 
 // Types for Profile Data
 interface EducationDetail {
+  id?: number;
+  membership_id?: number | string;
   degree: string;
   branch: string;
-  college: string;
+  college?: string;
   university: string;
-  year: string;
-  percentage: string;
-  url: string;
+  year?: string;
+  percentage?: string;
+  society_name?: string;
+  status?: string;
 }
 
 interface MembershipDetail {
-  society: string;
-  id: string;
-  status: string;
-  url: string;
+  id?: number;
+  membership_id?: number | string;
+  society_name: string;
+  status?: string;
 }
 
 interface ExperienceDetail {
+  id?: number;
   designation: string;
   institutionName: string;
   university: string;
   department: string;
   from: string;
   to: string;
-  period: string;
+  period?: string;
   current: boolean;
-  url: string;
 }
 
 interface IndustryDetail {
+  id?: number;
   jobTitle: string;
   company: string;
-  location: string;
+  location?: string;
   from: string;
   to: string;
-  period: string;
+  period?: string;
   current: boolean;
-  url: string;
 }
 
 // Faculty data based on the Self-Appraisal Form
@@ -78,37 +82,28 @@ const initialFacultyData = {
   // Basic Information
   name: "C.Prathap",
   employeeId: "NS20T15",
-  aicteId: "AICTE-123456",
-  coeId: "COE-789012",
+  aicteId: "",
+  coeId: "",
   designation: "Assistant Professor",
   department: "Artificial Intelligence and Data Science",
-  college: "Nadar Saraswathi College of Engineering & Technology",
-  dateOfBirth: "24.10.1995",
-  age: 29,
-  dateOfJoining: "01.09.2023",
-  email: "Velvinojagan@gmail.com",
-  phone: "+91 8072435849",
+  collegeCode: "NS20T11",
+  orcidId: "",
+  dateOfBirth: "",
+  age: "",
+  dateOfJoining: "",
+  email: "",
+  phone: "+918072435849",
   address: "Vadapudupatti, Theni 625531",
-  orcidId: "0000-0001-5391-3610",
-  linkedinUrl: "https://www.linkedin.com/in/prathap/",
+  linkedinUrl: "",
   profilePhoto: "",
-  phdStatus: "Pursuing",
-  thesisTitle: "Advanced Machine Learning Algorithms for Predictive Analytics",
-  registerNo: "PHD2023101",
-  guideName: "Dr. S. Ramasamy",
+  phdStatus: "",
+  thesisTitle: "",
+  registerNo: "",
+  guideName: "",
 };
 
 // Educational Qualifications
 const educationalQualifications = [
-  {
-    degree: "Ph.D.",
-    branch: "Information and Communication Engineering",
-    college: "-",
-    university: "Anna University",
-    year: "Pursuing",
-    percentage: "-",
-    url: "https://example.com/phd-proof.pdf"
-  },
   {
     degree: "M.E",
     branch: "Computer Science Engineering",
@@ -130,60 +125,11 @@ const educationalQualifications = [
 ];
 
 // Experience Details (split into teaching and industry)
-const teachingExperience = [
-  {
-    designation: "Assistant Professor",
-    institutionName: "Nadar Saraswathi College of Engineering and Technology",
-    university: "Anna University",
-    department: "Artificial Intelligence and Data Science",
-    from: "01.09.2023",
-    to: "Present",
-    period: "1 Yr 1 M",
-    current: true,
-    url: "https://example.com/exp-certificate-1.pdf"
-  },
-  {
-    designation: "Assistant Professor",
-    institutionName: "AAA College of Engineering and Technology",
-    university: "Anna University",
-    department: "Artificial Intelligence and Data Science",
-    from: "15.08.2021",
-    to: "31.05.2023",
-    period: "1 Yr 10 M",
-    current: false,
-    url: "https://example.com/exp-certificate-2.pdf"
-  },
-  {
-    designation: "Assistant Professor",
-    institutionName: "Ultra College of Engineering and Technology",
-    university: "Anna University",
-    department: "Artificial Intelligence and Data Science",
-    from: "21.09.2020",
-    to: "20.07.2021",
-    period: "10 M",
-    current: false,
-    url: "https://example.com/exp-certificate-3.pdf"
-  },
-];
-
-const industryExperience = [
-  {
-    jobTitle: "Front End Developer and Instructor",
-    company: "Azhimat, Chennai",
-    location: "Chennai",
-    from: "01.06.2019",
-    to: "30.08.2020",
-    period: "1 Yr 2 M",
-    current: false,
-    url: "https://example.com/industry-proof.pdf"
-  },
-];
-
 // Subjects Handled
 const subjectsHandled = [
-  { program: "B.E - CSE", semester: "3", subject: "CS3301 - Data Structures", result: "82%", url: "https://example.com/subject-proof-1.pdf" },
-  { program: "B.Tech - AI&DS", semester: "4", subject: "CS3591 - Computer Networks", result: "100%", url: "https://example.com/subject-proof-2.pdf" },
-  { program: "B.Tech - IT", semester: "4", subject: "IT3401 - Web Technology", result: "92%", url: "https://example.com/subject-proof-3.pdf" },
+  { program: "B.E - CSE", semester: "3", subject: "CS3301 - Data Structures", result: "82%", category: "T", url: "https://example.com/subject-proof-1.pdf" },
+  { program: "B.Tech - AI&DS", semester: "4", subject: "CS3591 - Computer Networks", result: "100%", category: "P", url: "https://example.com/subject-proof-2.pdf" },
+  { program: "B.Tech - IT", semester: "4", subject: "IT3401 - Web Technology", result: "92%", category: "TCL", url: "https://example.com/subject-proof-3.pdf" },
 ];
 
 // Professional Memberships
@@ -240,37 +186,217 @@ export default function Profile() {
   const [selectedEventCategory, setSelectedEventCategory] = useState<keyof typeof initialEventsData>("Resource Person");
   const [selectedResearchCategory, setSelectedResearchCategory] = useState<keyof typeof initialResearchData>("Conference");
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const lastUserIdRef = useRef<any>(null);
   const [facultyData, setFacultyData] = useState({
     ...initialFacultyData,
     name: user?.name || initialFacultyData.name,
     email: user?.email || initialFacultyData.email,
-    profilePhoto: user?.avatar || initialFacultyData.profilePhoto,
-    department: user?.department?.short_name || user?.department?.full_name || initialFacultyData.department
+    profilePhoto: user?.avatar || initialFacultyData.profilePhoto
   });
 
   useEffect(() => {
     if (user) {
+      const departmentFullName = typeof user.department === 'object'
+        ? user.department?.full_name || user.department?.short_name || ''
+        : user.department || '';
+
       setFacultyData(prev => ({
         ...prev,
         name: user.name || prev.name,
         email: user.email || prev.email,
         profilePhoto: user.avatar || prev.profilePhoto,
-        department: typeof user.department === 'object'
-          ? (user.department.short_name || user.department.full_name || prev.department)
-          : (user.department || prev.department)
+        designation: user.designation || prev.designation,
+        department: departmentFullName || prev.department,
+        linkedinUrl: (user as any)?.linkedin_url || prev.linkedinUrl
       }));
     }
+  }, [user]);
+
+  // fetch full faculty profile (IDs, dates, ORCID, linkedin) from backend
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) return;
+        const res = await fetch('/api/v1/faculty/me/profile', { headers: { 'Authorization': `Bearer ${token}` } });
+        if (!res.ok) return;
+        const payload = await res.json();
+        if (payload && payload.success && payload.data) {
+          const p = payload.data;
+          setFacultyData(prev => ({
+            ...prev,
+            aicteId: p.aicte_id ?? p.aicteId ?? prev.aicteId,
+            coeId: p.coe_id ?? p.coeId ?? prev.coeId,
+            orcidId: p.orcid_id ?? p.orcidId ?? prev.orcidId,
+            dateOfBirth: p.date_of_birth ?? p.dob ?? prev.dateOfBirth,
+            dateOfJoining: p.date_of_joining ?? p.dateOfJoining ?? prev.dateOfJoining,
+            linkedinUrl: p.linkedin_url ?? p.linkedinUrl ?? prev.linkedinUrl,
+          }));
+        }
+      } catch (e) {
+        console.warn('Failed to fetch department-admin profile', e);
+      }
+    })();
+  }, [user]);
+
+  // Fetch education and membership records from DB
+  useEffect(() => {
+    const fetchData = async () => {
+      // helper to safely parse JSON only when content-type is JSON
+      const safeJson = async (res: Response) => {
+        const ct = res.headers.get('content-type') || '';
+        if (ct.includes('application/json')) {
+          try {
+            return await res.json();
+          } catch (e) {
+            console.warn('[PROFILE] failed to parse JSON response', e);
+            return null;
+          }
+        }
+        console.warn('[PROFILE] non-JSON response, content-type=', ct, res.status);
+        return null;
+      };
+
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token || !user) return;
+
+        // Avoid duplicate fetches for the same user (helps with React StrictMode double-invoke in DEV)
+        if (lastUserIdRef.current && user.id && lastUserIdRef.current === user.id) {
+          return;
+        }
+        if (user.id) lastUserIdRef.current = user.id;
+
+        const response = await fetch('/api/v1/faculty/education', {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const result = await safeJson(response);
+        if (result && result.success && Array.isArray(result.data)) {
+          // Education has 'degree', Memberships have 'society_name'
+          const education = result.data.filter((item: any) => item.degree && item.degree !== 'Membership');
+          const pMemberships = result.data.filter((item: any) => item.society_name || item.degree === 'Membership');
+
+          setEducationData(education.map((r: any) => ({
+            // Use primary id when provided; do not fall back to membership_id/faculty_id
+            id: r.id ?? null,
+            membership_id: r.membership_id,
+            degree: r.degree,
+            branch: r.branch,
+            college: r.college,
+            university: r.university,
+            year: r.year,
+            percentage: r.percentage,
+            url: ""
+          })));
+
+          setMembershipData(pMemberships.map((r: any) => ({
+            // Prefer DB primary id; keep membership_id separate
+            id: r.id ?? null,
+            membership_id: r.membership_id,
+            society_name: r.society_name,
+            status: r.status,
+            url: ""
+          })));
+        }
+        // Teaching experiences
+        const expResponse = await fetch('/api/v1/faculty/experience', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const expResult = await safeJson(expResponse);
+        if (expResult && expResult.success && Array.isArray(expResult.data)) {
+          setTeachingExpData(expResult.data.map((r: any) => ({
+            id: r.id,
+            designation: r.designation,
+            institutionName: r.institution_name,
+            university: r.university,
+            department: r.department,
+            from: r.from_date,
+            to: r.to_date,
+            period: r.period,
+            current: r.is_current,
+            url: ""
+          })));
+        }
+
+        // Industry experiences (separate table)
+        const indResponse = await fetch('/api/v1/faculty/experience/industry', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const indResult = await safeJson(indResponse);
+        if (indResult && indResult.success && Array.isArray(indResult.data)) {
+          setIndustryExpData(indResult.data.map((r: any) => ({
+            id: r.id,
+            jobTitle: r.job_title,
+            company: r.company,
+            location: r.location,
+            from: r.from_date,
+            to: r.to_date,
+            period: r.period,
+            current: r.is_current,
+            url: ""
+          })));
+        }
+        // PhD records (faculty_phd table)
+        try {
+          const phdResponse = await fetch('/api/v1/faculty/phd', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (!phdResponse.ok) {
+            // Endpoint may not exist on backend; skip without attempting to parse HTML error pages
+            console.debug('[PROFILE] /faculty/phd returned', phdResponse.status, phdResponse.statusText);
+          } else {
+            const phdResult = await safeJson(phdResponse);
+            if (phdResult && phdResult.success && Array.isArray(phdResult.data)) {
+              const entries = phdResult.data.map((r: any) => ({
+                id: r.phd_id ?? r.id ?? null,
+                orcidId: r.orcid_id ?? r.orcidId ?? "",
+                phdStatus: r.status ?? r.phd_status ?? r.phdStatus ?? "",
+                thesisTitle: r.thesis_title ?? r.thesisTitle ?? "",
+                registerNo: r.register_no ?? r.registerNo ?? "",
+                guideName: r.guide_name ?? r.guideName ?? "",
+              }));
+
+              if (entries.length > 0) {
+                const primary = entries[0];
+                if (primary.id) setPrimaryPhdId(primary.id);
+                setFacultyData(prev => ({
+                  ...prev,
+                  phdStatus: primary.phdStatus || prev.phdStatus,
+                  orcidId: primary.orcidId || prev.orcidId,
+                  thesisTitle: primary.thesisTitle || prev.thesisTitle,
+                  registerNo: primary.registerNo || prev.registerNo,
+                  guideName: primary.guideName || prev.guideName,
+                }));
+
+                setPhdList(entries.slice(1));
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to fetch PhD records', e);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
   }, [user]);
 
   // Events and Research states
   const [eventsData, setEventsData] = useState(initialEventsData);
   const [researchData, setResearchData] = useState(initialResearchData);
+  const [selectedSubjectFilter, setSelectedSubjectFilter] = useState<string | null>(null);
 
   const [addingEvent, setAddingEvent] = useState(false);
   const [editingEvent, setEditingEvent] = useState<{ index: number } | null>(null);
   const [newEvent, setNewEvent] = useState({ name: "", date: "", organizer: "", url: "" });
   const [tempEvent, setTempEvent] = useState({ name: "", date: "", organizer: "", url: "" });
+  const [newEventOrganizerType, setNewEventOrganizerType] = useState<"" | "organized" | "participated">("");
 
   const [addingResearch, setAddingResearch] = useState(false);
   const [editingResearch, setEditingResearch] = useState<{ index: number } | null>(null);
@@ -283,50 +409,51 @@ export default function Profile() {
   const [fieldError, setFieldError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Education and membership states
-  const [educationData, setEducationData] = useState<EducationDetail[]>(educationalQualifications);
+  const [educationData, setEducationData] = useState<EducationDetail[]>([]);
   const [editingEducation, setEditingEducation] = useState<number | null>(null);
   const [tempEducation, setTempEducation] = useState<EducationDetail | null>(null);
   const [addingEducation, setAddingEducation] = useState(false);
   const [newEducation, setNewEducation] = useState<EducationDetail>({
     degree: "",
     branch: "",
-    college: "",
+    college: "Nadar Saraswathi College of Engineering and Technology",
     university: "",
     year: "",
     percentage: "",
-    url: "",
+    society_name: "",
   });
+  const [newDegreeIsOther, setNewDegreeIsOther] = useState(false);
+  const [newBranchIsOther, setNewBranchIsOther] = useState(false);
 
-  const [membershipData, setMembershipData] = useState<MembershipDetail[]>(memberships);
+  const [membershipData, setMembershipData] = useState<MembershipDetail[]>([]);
   const [editingMembership, setEditingMembership] = useState<number | null>(null);
   const [tempMembership, setTempMembership] = useState<MembershipDetail | null>(null);
   const [addingMembership, setAddingMembership] = useState(false);
   const [newMembership, setNewMembership] = useState<MembershipDetail>({
-    society: "",
-    id: "",
+    membership_id: "",
+    society_name: "",
     status: "Active",
-    url: "",
   });
 
   // Experience states
-  const [teachingExpData, setTeachingExpData] = useState<ExperienceDetail[]>(teachingExperience);
+  const [teachingExpData, setTeachingExpData] = useState<ExperienceDetail[]>([]);
   const [editingTeachingExp, setEditingTeachingExp] = useState<number | null>(null);
   const [tempTeachingExp, setTempTeachingExp] = useState<ExperienceDetail | null>(null);
   const [addingTeachingExp, setAddingTeachingExp] = useState(false);
   const [newTeachingExp, setNewTeachingExp] = useState<ExperienceDetail>({
     designation: "",
-    institutionName: "",
+    institutionName: "Nadar Saraswathi College of Engineering and Technology",
     university: "",
     department: "",
     from: "",
     to: "",
     period: "",
     current: false,
-    url: "",
   });
+  const [newDesignationIsOther, setNewDesignationIsOther] = useState(false);
+  const [newTeachingDeptIsOther, setNewTeachingDeptIsOther] = useState(false);
 
-  const [industryExpData, setIndustryExpData] = useState<IndustryDetail[]>(industryExperience);
+  const [industryExpData, setIndustryExpData] = useState<IndustryDetail[]>([]);
   const [editingIndustryExp, setEditingIndustryExp] = useState<number | null>(null);
   const [tempIndustryExp, setTempIndustryExp] = useState<IndustryDetail | null>(null);
   const [addingIndustryExp, setAddingIndustryExp] = useState(false);
@@ -338,18 +465,24 @@ export default function Profile() {
     to: "",
     period: "",
     current: false,
-    url: "",
   });
+  const [newJobTitleIsOther, setNewJobTitleIsOther] = useState(false);
 
   // PhD editing states
   const [editingPhd, setEditingPhd] = useState(false);
   const [tempPhd, setTempPhd] = useState({
+    orcidId: "",
     phdStatus: "",
     thesisTitle: "",
     registerNo: "",
     guideName: "",
-    orcidId: "",
   });
+  const [addingPhd, setAddingPhd] = useState(false);
+  const [newPhd, setNewPhd] = useState({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+  const [phdList, setPhdList] = useState<{ id?: number; orcidId: string; phdStatus: string; thesisTitle: string; registerNo: string; guideName: string }[]>([]);
+  const [editingPhdIndex, setEditingPhdIndex] = useState<number | null>(null);
+  const [tempPhdEntry, setTempPhdEntry] = useState({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+  const [primaryPhdId, setPrimaryPhdId] = useState<number | null>(null);
 
   function validateEmail(email: string) {
     return /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
@@ -359,10 +492,95 @@ export default function Profile() {
     return /^(\+91[\s-]?)?[6-9]\d{9}$/.test(phone.replace(/\D/g, ''));
   }
 
+  function validateLinkedInUrl(url: string) {
+    if (!url.trim()) return false;
+    try {
+      const urlObj = new URL(url);
+      return urlObj.hostname.includes('linkedin.com');
+    } catch {
+      return false;
+    }
+  }
+
   const handleEditField = (field: string, currentValue: string) => {
     setEditingField(field);
     setTempValue(currentValue);
     setFieldError("");
+  };
+
+  const handleDeletePrimaryPhd = async () => {
+    if (!window.confirm('Are you sure you want to delete your primary PhD record?')) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+    setLoading(true);
+    try {
+      if (primaryPhdId) {
+        const response = await fetch(`/api/v1/faculty/phd/${primaryPhdId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json().catch(() => ({}));
+        if (result && result.success) {
+          setFacultyData(prev => ({ ...prev, phdStatus: "", orcidId: "", thesisTitle: "", registerNo: "", guideName: "" }));
+          setPrimaryPhdId(null);
+          try {
+            const phdResp = await fetch('/api/v1/faculty/phd', { headers: { 'Authorization': `Bearer ${token}` } });
+            if (phdResp.ok) {
+              const phdJson = await phdResp.json();
+              if (phdJson && phdJson.success && Array.isArray(phdJson.data)) {
+                const entries = phdJson.data.map((r: any) => ({
+                  id: r.phd_id ?? r.id ?? null,
+                  orcidId: r.orcid_id ?? r.orcidId ?? "",
+                  phdStatus: r.status ?? r.phd_status ?? r.phdStatus ?? "",
+                  thesisTitle: r.thesis_title ?? r.thesisTitle ?? "",
+                  registerNo: r.register_no ?? r.registerNo ?? "",
+                  guideName: r.guide_name ?? r.guideName ?? "",
+                }));
+                if (entries.length > 0) {
+                  const primary = entries[0];
+                  if (primary.id) setPrimaryPhdId(primary.id);
+                  setFacultyData(prev => ({
+                    ...prev,
+                    phdStatus: primary.phdStatus || prev.phdStatus,
+                    orcidId: primary.orcidId || prev.orcidId,
+                    thesisTitle: primary.thesisTitle || prev.thesisTitle,
+                    registerNo: primary.registerNo || prev.registerNo,
+                    guideName: primary.guideName || prev.guideName,
+                  }));
+                  setPhdList(entries.slice(1));
+                } else {
+                  setPhdList([]);
+                }
+              }
+            }
+          } catch (e) {
+            console.warn('Failed to refresh phd list after primary delete', e);
+          }
+          toast({ title: 'PhD record deleted' });
+        } else {
+          throw new Error(result.message || 'Failed to delete primary PhD record');
+        }
+      } else {
+        const resp = await fetch('/api/v1/faculty/update-profile', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ phd_status: "", orcid_id: null, thesis_title: null, register_no: null, guide_name: null })
+        });
+        if (resp.ok) {
+          setFacultyData(prev => ({ ...prev, phdStatus: "", orcidId: "", thesisTitle: "", registerNo: "", guideName: "" }));
+          setPhdList([]);
+          toast({ title: 'PhD record cleared' });
+        } else {
+          const err = await resp.json().catch(() => ({}));
+          throw new Error(err.message || 'Failed to clear primary PhD');
+        }
+      }
+    } catch (error: any) {
+      console.error('Delete primary PhD error', error);
+      toast({ title: 'Error', description: error.message || 'Failed to delete primary PhD record.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCancelEdit = () => {
@@ -371,118 +589,99 @@ export default function Profile() {
     setFieldError("");
   };
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files || !e.target.files[0]) return;
-
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
-
-    setLoading(true);
-    try {
-      const token = (user as any)?.token || localStorage.getItem('authToken');
-      const response = await fetch('/api/v1/auth/avatar', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        },
-        body: formData
-      });
-
-      const result = await response.json();
-      if (result.success) {
-        const avatarUrl = result.data;
-        // Update local state
-        setFacultyData((prev) => ({
-          ...prev,
-          profilePhoto: avatarUrl,
-        }));
-        // Update global auth state
-        updateUserData({ avatar: avatarUrl });
-
-        toast({
-          title: 'Photo updated',
-          description: 'Your profile photo has been updated successfully.'
-        });
-      } else {
-        toast({
-          title: 'Upload failed',
-          description: result.error || 'Could not upload photo',
-          variant: 'destructive'
-        });
-      }
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
-      toast({
-        title: 'Error',
-        description: 'An error occurred while uploading photo.',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSaveField = async (field: string) => {
     // Validate based on field type
+    let valueToSave = tempValue;
     if (field === "email") {
       if (!validateEmail(tempValue)) {
         setFieldError("Invalid email format");
         return;
       }
     } else if (field === "phone") {
-      if (!validatePhone(tempValue)) {
+      // normalize phone to include +91 when only 10 digits provided
+      const digits = tempValue.replace(/\D/g, '');
+      let normalized = digits;
+      if (digits.length === 10) {
+        normalized = '91' + digits;
+      }
+      if (!normalized.startsWith('91')) {
+        // if no country code, keep digits as-is and validation will fail
+        normalized = digits;
+      }
+      const formatted = (normalized.startsWith('+') ? normalized : '+' + normalized);
+      if (!validatePhone(formatted)) {
         setFieldError("Invalid phone number");
         return;
       }
-    } else if (field === "address" || field === "name" || field === "profilePhoto") {
+      // use formatted value for saving below
+      valueToSave = formatted;
+    } else if (field === "linkedin_url") {
+      if (!validateLinkedInUrl(tempValue)) {
+        setFieldError("Invalid LinkedIn URL (must be from linkedin.com)");
+        return;
+      }
+    } else if (field === "address") {
       if (tempValue.trim().length === 0) {
-        setFieldError(`${field} cannot be empty`);
+        setFieldError("Address cannot be empty");
         return;
       }
     }
 
     setLoading(true);
     try {
-      const token = (user as any)?.token || localStorage.getItem('authToken');
-      const response = await fetch('/api/v1/auth/updatedetails', {
+      const token = localStorage.getItem('authToken');
+      console.log('[PROFILE UPDATE] Token from localStorage:', token ? 'EXISTS' : 'MISSING');
+
+      if (!token) {
+        setFieldError('Authentication token not found. Please log in again.');
+        setLoading(false);
+        return;
+      }
+
+      const updatePayload: any = {};
+      updatePayload[field] = valueToSave;
+
+      const response = await fetch('/api/v1/faculty/update-profile', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ [field === 'profilePhoto' ? 'avatar' : field]: tempValue })
+        body: JSON.stringify(updatePayload)
       });
 
-      const result = await response.json();
-      if (result.success) {
-        // Update local state
-        setFacultyData((prev) => ({
-          ...prev,
-          [field]: tempValue,
-        }));
-        // Update global auth state
-        updateUserData({ [field === 'profilePhoto' ? 'avatar' : field]: tempValue });
-
-        setEditingField(null);
-        setTempValue("");
-        setFieldError("");
-        toast({
-          title: 'Profile updated',
-          description: `Your ${field} has been updated successfully.`
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('[PROFILE UPDATE ERROR]', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorData
         });
-      } else {
-        toast({
-          title: 'Update failed',
-          description: result.error || 'Could not update profile',
-          variant: 'destructive'
-        });
+        setFieldError(errorData.message || 'Failed to update profile');
+        setLoading(false);
+        return;
       }
+
+      await response.json();
+
+      setFacultyData((prev) => ({
+        ...prev,
+        [field]: valueToSave,
+      }));
+      setEditingField(null);
+      setTempValue("");
+      setFieldError("");
+
+      toast({
+        title: 'Profile updated',
+        description: `Your ${field} has been updated successfully.`
+      });
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error('Update error:', error);
+      setFieldError('Failed to update profile. Please try again.');
       toast({
         title: 'Error',
-        description: 'An error occurred while updating profile.',
+        description: 'Failed to update profile. Please try again.',
         variant: 'destructive'
       });
     } finally {
@@ -503,20 +702,61 @@ export default function Profile() {
 
   const handleSaveEducation = async (index: number) => {
     if (!tempEducation) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      toast({ title: 'Not authenticated', description: 'Please log in and try again.', variant: 'destructive' });
+      return;
+    }
+
+    const recId = educationData[index]?.id;
+    console.debug('[PROFILE] handleSaveEducation', { recId, hasToken: !!token });
+    if (recId === undefined || recId === null) {
+      toast({ title: 'Error', description: 'Record id missing; cannot update.', variant: 'destructive' });
+      return;
+    }
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const updated = [...educationData];
-      updated[index] = tempEducation;
-      setEducationData(updated);
-      setEditingEducation(null);
-      setTempEducation(null);
-      setLoading(false);
-      toast({
-        title: 'Education updated',
-        description: 'Educational qualification has been updated successfully.'
+    try {
+      const response = await fetch(`/api/v1/faculty/education/${recId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          degree: tempEducation.degree || null,
+          branch: tempEducation.branch || null,
+          college: tempEducation.college || null,
+          university: tempEducation.university || null,
+          year: tempEducation.year || null,
+          percentage: tempEducation.percentage || null,
+          url: tempEducation.url || null
+        })
       });
-    }, 1000);
+
+      const result = await response.json();
+      if (result.success) {
+        const updated = [...educationData];
+        updated[index] = { ...tempEducation, id: result.data.id };
+        setEducationData(updated);
+        setEditingEducation(null);
+        setTempEducation(null);
+        toast({
+          title: 'Education updated',
+          description: 'Educational qualification has been updated successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to update record');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update education record.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleEducationFieldChange = (field: string, value: string) => {
@@ -536,20 +776,56 @@ export default function Profile() {
 
   const handleSaveMembership = async (index: number) => {
     if (!tempMembership) return;
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const updated = [...membershipData];
-      updated[index] = tempMembership;
-      setMembershipData(updated);
-      setEditingMembership(null);
-      setTempMembership(null);
-      setLoading(false);
-      toast({
-        title: 'Membership updated',
-        description: 'Professional membership has been updated successfully.'
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      toast({ title: 'Not authenticated', description: 'Please log in and try again.', variant: 'destructive' });
+      return;
+    }
+
+    const recId = membershipData[index]?.id;
+    console.debug('[PROFILE] handleSaveMembership', { recId, hasToken: !!token });
+    if (recId === undefined || recId === null) {
+      toast({ title: 'Error', description: 'Record id missing; cannot update.', variant: 'destructive' });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/v1/faculty/education/${recId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          society_name: tempMembership.society_name || null,
+          status: tempMembership.status || null,
+          membership_id: tempMembership.membership_id || null,
+          url: tempMembership.url || null
+        })
       });
-    }, 1000);
+
+      const result = await response.json();
+      if (result.success) {
+        const updated = [...membershipData];
+        updated[index] = { ...tempMembership, id: result.data.id };
+        setMembershipData(updated);
+        setEditingMembership(null);
+        setTempMembership(null);
+        toast({
+          title: 'Membership updated'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to update record');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update membership record.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleMembershipFieldChange = (field: string, value: string) => {
@@ -562,24 +838,26 @@ export default function Profile() {
     setNewEducation({
       degree: "",
       branch: "",
-      college: "",
+      college: "Nadar Saraswathi College of Engineering and Technology",
       university: "",
       year: "",
       percentage: "",
-      url: "",
+      society_name: "",
     });
   };
 
   const handleCancelAddEducation = () => {
     setAddingEducation(false);
+    setNewDegreeIsOther(false);
+    setNewBranchIsOther(false);
     setNewEducation({
       degree: "",
       branch: "",
-      college: "",
+      college: "Nadar Saraswathi College of Engineering and Technology",
       university: "",
       year: "",
       percentage: "",
-      url: "",
+      society_name: "",
     });
   };
 
@@ -594,26 +872,72 @@ export default function Profile() {
       return;
     }
 
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setEducationData([...educationData, newEducation]);
-      setAddingEducation(false);
-      setNewEducation({
-        degree: "",
-        branch: "",
-        college: "",
-        university: "",
-        year: "",
-        percentage: "",
-        url: "",
+    try {
+      const response = await fetch('/api/v1/faculty/education', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          degree: newEducation.degree || '',
+          branch: newEducation.branch || '',
+          college: newEducation.college || '',
+          university: newEducation.university || '',
+          year: newEducation.year || '',
+          percentage: newEducation.percentage || '',
+          society_name: newEducation.society_name || ''
+        })
       });
-      setLoading(false);
+
+      const result = await response.json();
+      if (result.success) {
+        const updatedRow = { ...newEducation, id: result.data.id };
+
+        // Update Education state
+        if (educationData.some(e => e.id === result.data.id)) {
+          setEducationData(educationData.map(e => e.id === result.data.id ? updatedRow : e));
+        } else {
+          setEducationData([...educationData, updatedRow]);
+        }
+
+        // Also update Membership state if this row exists there
+        if (membershipData.some(m => m.id === result.data.id)) {
+          setMembershipData(membershipData.map(m => m.id === result.data.id ? { ...m, ...result.data } : m));
+        }
+
+        setAddingEducation(false);
+        setNewDegreeIsOther(false);
+        setNewBranchIsOther(false);
+        setNewEducation({
+          degree: "",
+          branch: "",
+          college: "Nadar Saraswathi College of Engineering and Technology",
+          university: "",
+          year: "",
+          percentage: "",
+          url: "",
+        });
+        toast({
+          title: 'Education added',
+          description: 'New educational qualification has been added successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to save record');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Education added',
-        description: 'New educational qualification has been added successfully.'
+        title: 'Error',
+        description: error.message || 'Failed to save education record.',
+        variant: 'destructive'
       });
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNewEducationChange = (field: string, value: string) => {
@@ -622,16 +946,41 @@ export default function Profile() {
 
   const handleDeleteEducation = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this educational qualification?')) {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
       setLoading(true);
-      setTimeout(() => {
-        const updated = educationData.filter((_, i) => i !== index);
-        setEducationData(updated);
-        setLoading(false);
-        toast({
-          title: 'Education deleted',
-          description: 'Educational qualification has been deleted successfully.'
+      try {
+        const response = await fetch(`/api/v1/faculty/education/${educationData[index].id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-      }, 500);
+
+        const result = await response.json();
+        if (result.success) {
+          // Remove from education list
+          setEducationData(educationData.filter((_, i) => i !== index));
+          // Also remove from membership list if it exists there
+          setMembershipData(membershipData.filter(m => m.id !== educationData[index].id));
+
+          toast({
+            title: 'Education deleted',
+            description: 'Educational qualification has been deleted successfully.'
+          });
+        } else {
+          throw new Error(result.error || 'Failed to delete record');
+        }
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to delete education record.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -639,18 +988,17 @@ export default function Profile() {
   const handleAddMembership = () => {
     setAddingMembership(true);
     setNewMembership({
-      society: "",
-      id: "",
+      membership_id: "",
+      society_name: "",
       status: "Active",
-      url: "",
     });
   };
 
   const handleCancelAddMembership = () => {
     setAddingMembership(false);
     setNewMembership({
-      society: "",
-      id: "",
+      membership_id: "",
+      society_name: "",
       status: "Active",
       url: "",
     });
@@ -658,32 +1006,73 @@ export default function Profile() {
 
   const handleSaveNewMembership = async () => {
     // Validate required fields
-    if (!newMembership.society || !newMembership.id) {
+    if (!newMembership.society_name) {
       toast({
         title: 'Validation Error',
-        description: 'Please fill in society name and ID fields.',
+        description: 'Please fill in society name field.',
         variant: 'destructive'
       });
       return;
     }
 
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setMembershipData([...membershipData, newMembership]);
-      setAddingMembership(false);
-      setNewMembership({
-        society: "",
-        id: "",
-        status: "Active",
-        url: "",
+    try {
+      const response = await fetch('/api/v1/faculty/education', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          society_name: newMembership.society_name || '',
+          status: newMembership.status || 'Active',
+          degree: 'Membership',
+          branch: 'Professional Membership',
+          university: 'Professional Organization',
+          college: ''
+        })
       });
-      setLoading(false);
+
+      const result = await response.json();
+      if (result.success) {
+        const updatedRow = { ...newMembership, id: result.data.id };
+
+        // Update Membership state
+        if (membershipData.some(m => m.id === result.data.id)) {
+          setMembershipData(membershipData.map(m => m.id === result.data.id ? updatedRow : m));
+        } else {
+          setMembershipData([...membershipData, updatedRow]);
+        }
+
+        // Also update Education state if this row exists there
+        if (educationData.some(e => e.id === result.data.id)) {
+          setEducationData(educationData.map(e => e.id === result.data.id ? { ...e, ...result.data } : e));
+        }
+
+        setAddingMembership(false);
+        setNewMembership({
+          membership_id: "",
+          society_name: "",
+          status: "Active",
+        });
+        toast({
+          title: 'Membership added'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to save record');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Membership added',
-        description: 'New professional membership has been added successfully.'
+        title: 'Error',
+        description: error.message || 'Failed to save membership record.',
+        variant: 'destructive'
       });
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNewMembershipChange = (field: string, value: string) => {
@@ -692,47 +1081,74 @@ export default function Profile() {
 
   const handleDeleteMembership = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this membership?')) {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
       setLoading(true);
-      setTimeout(() => {
-        const updated = membershipData.filter((_, i) => i !== index);
-        setMembershipData(updated);
-        setLoading(false);
-        toast({
-          title: 'Membership deleted',
-          description: 'Professional membership has been deleted successfully.'
+      try {
+        const response = await fetch(`/api/v1/faculty/education/${membershipData[index].id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-      }, 500);
+
+        const result = await response.json();
+        if (result.success) {
+          // Remove from membership list
+          setMembershipData(membershipData.filter((_, i) => i !== index));
+          // Also remove from education list if it exists there
+          setEducationData(educationData.filter(e => e.id !== membershipData[index].id));
+
+          toast({
+            title: 'Membership deleted',
+            description: 'Professional membership has been deleted successfully.'
+          });
+        } else {
+          throw new Error(result.error || 'Failed to delete record');
+        }
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to delete membership record.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   // Teaching Experience handlers
   const handleAddTeachingExp = () => {
     setAddingTeachingExp(true);
+    setNewDesignationIsOther(false);
+    setNewTeachingDeptIsOther(false);
     setNewTeachingExp({
       designation: "",
-      institutionName: "",
+      institutionName: "Nadar Saraswathi College of Engineering and Technology",
       university: "",
       department: "",
       from: "",
       to: "",
       period: "",
       current: false,
-      url: "",
     });
   };
 
   const handleCancelAddTeachingExp = () => {
     setAddingTeachingExp(false);
+    setNewDesignationIsOther(false);
+    setNewTeachingDeptIsOther(false);
     setNewTeachingExp({
       designation: "",
-      institutionName: "",
+      institutionName: "Nadar Saraswathi College of Engineering and Technology",
       university: "",
       department: "",
       from: "",
       to: "",
       period: "",
       current: false,
-      url: "",
     });
   };
 
@@ -746,27 +1162,91 @@ export default function Profile() {
       return;
     }
 
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
     setLoading(true);
-    setTimeout(() => {
-      setTeachingExpData([...teachingExpData, newTeachingExp]);
-      setAddingTeachingExp(false);
-      setNewTeachingExp({
-        designation: "",
-        institutionName: "",
-        university: "",
-        department: "",
-        from: "",
-        to: "",
-        period: "",
-        current: false,
-        url: "",
+    try {
+      const response = await fetch('/api/v1/faculty/experience', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          designation: newTeachingExp.designation,
+          institution_name: newTeachingExp.institutionName,
+          university: newTeachingExp.university,
+          department: newTeachingExp.department,
+          from_date: newTeachingExp.from,
+          to_date: newTeachingExp.to,
+          period: newTeachingExp.period,
+          is_current: newTeachingExp.current
+        })
       });
-      setLoading(false);
+
+      const result = await response.json();
+      if (result.success) {
+        // Update both sections if the row is shared
+        const updatedEntry = {
+          id: result.data.id,
+          designation: result.data.designation,
+          institutionName: result.data.institution_name,
+          university: result.data.university,
+          department: result.data.department,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current,
+        };
+
+        const existingIndex = teachingExpData.findIndex(e => e.id === result.data.id);
+        if (existingIndex > -1) {
+          const updated = [...teachingExpData];
+          updated[existingIndex] = updatedEntry;
+          setTeachingExpData(updated);
+        } else {
+          setTeachingExpData([...teachingExpData, updatedEntry]);
+        }
+
+        // Also update industry if it exists there
+        setIndustryExpData(industryExpData.map(e => e.id === result.data.id ? {
+          ...e,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current
+        } : e));
+
+        setAddingTeachingExp(false);
+        setNewDesignationIsOther(false);
+        setNewTeachingDeptIsOther(false);
+        setNewTeachingExp({
+          designation: "",
+          institutionName: "Nadar Saraswathi College of Engineering and Technology",
+          university: "",
+          department: "",
+          from: "",
+          to: "",
+          period: "",
+          current: false,
+        });
+        toast({
+          title: 'Experience added',
+          description: 'Teaching experience has been added successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to save experience');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Experience added',
-        description: 'Teaching experience has been added successfully.'
+        title: 'Error',
+        description: error.message || 'Failed to save teaching experience.',
+        variant: 'destructive'
       });
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNewTeachingExpChange = (field: string, value: string | boolean) => {
@@ -785,19 +1265,72 @@ export default function Profile() {
 
   const handleSaveTeachingExp = async (index: number) => {
     if (!tempTeachingExp) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      toast({ title: 'Not authenticated', description: 'Please log in and try again.', variant: 'destructive' });
+      return;
+    }
+
+    const recId = teachingExpData[index]?.id;
+    console.debug('[PROFILE] handleSaveTeachingExp', { recId, hasToken: !!token });
+    if (recId === undefined || recId === null) {
+      toast({ title: 'Error', description: 'Record id missing; cannot update.', variant: 'destructive' });
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      const updated = [...teachingExpData];
-      updated[index] = tempTeachingExp;
-      setTeachingExpData(updated);
-      setEditingTeachingExp(null);
-      setTempTeachingExp(null);
-      setLoading(false);
-      toast({
-        title: 'Experience updated',
-        description: 'Teaching experience has been updated successfully.'
+    try {
+      const response = await fetch(`/api/v1/faculty/experience/${recId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          designation: tempTeachingExp.designation,
+          institution_name: tempTeachingExp.institutionName,
+          university: tempTeachingExp.university,
+          department: tempTeachingExp.department,
+          from_date: tempTeachingExp.from,
+          to_date: tempTeachingExp.to,
+          period: tempTeachingExp.period,
+          is_current: tempTeachingExp.current
+        })
       });
-    }, 1000);
+
+      const result = await response.json();
+      if (result.success) {
+        const updated = [...teachingExpData];
+        updated[index] = { ...tempTeachingExp, id: result.data.id };
+        setTeachingExpData(updated);
+
+        // Update industry if shared
+        setIndustryExpData(industryExpData.map(e => e.id === result.data.id ? {
+          ...e,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current
+        } : e));
+
+        setEditingTeachingExp(null);
+        setTempTeachingExp(null);
+        toast({
+          title: 'Experience updated',
+          description: 'Teaching experience has been updated successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to update record');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update teaching experience.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleTeachingExpFieldChange = (field: string, value: string | boolean) => {
@@ -806,22 +1339,48 @@ export default function Profile() {
 
   const handleDeleteTeachingExp = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this teaching experience?')) {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
       setLoading(true);
-      setTimeout(() => {
-        const updated = teachingExpData.filter((_, i) => i !== index);
-        setTeachingExpData(updated);
-        setLoading(false);
-        toast({
-          title: 'Experience deleted',
-          description: 'Teaching experience has been deleted successfully.'
+      try {
+        const response = await fetch(`/api/v1/faculty/experience/${teachingExpData[index].id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
-      }, 500);
+
+        const result = await response.json();
+        if (result.success) {
+          // Remove from teaching list
+          setTeachingExpData(teachingExpData.filter((_, i) => i !== index));
+          // Also remove from industry list if it exists there
+          setIndustryExpData(industryExpData.filter(m => m.id !== teachingExpData[index].id));
+
+          toast({
+            title: 'Experience deleted',
+            description: 'Teaching experience has been deleted successfully.'
+          });
+        } else {
+          throw new Error(result.error || 'Failed to delete record');
+        }
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to delete teaching experience.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   // Industry Experience handlers
   const handleAddIndustryExp = () => {
     setAddingIndustryExp(true);
+    setNewJobTitleIsOther(false);
     setNewIndustryExp({
       jobTitle: "",
       company: "",
@@ -836,6 +1395,7 @@ export default function Profile() {
 
   const handleCancelAddIndustryExp = () => {
     setAddingIndustryExp(false);
+    setNewJobTitleIsOther(false);
     setNewIndustryExp({
       jobTitle: "",
       company: "",
@@ -858,26 +1418,87 @@ export default function Profile() {
       return;
     }
 
+    const token = localStorage.getItem('authToken');
+    if (!token) return;
+
     setLoading(true);
-    setTimeout(() => {
-      setIndustryExpData([...industryExpData, newIndustryExp]);
-      setAddingIndustryExp(false);
-      setNewIndustryExp({
-        jobTitle: "",
-        company: "",
-        location: "",
-        from: "",
-        to: "",
-        period: "",
-        current: false,
-        url: "",
+    try {
+      const response = await fetch('/api/v1/faculty/experience/industry', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          job_title: newIndustryExp.jobTitle,
+          company: newIndustryExp.company,
+          location: newIndustryExp.location,
+          from_date: newIndustryExp.from,
+          to_date: newIndustryExp.to,
+          period: newIndustryExp.period,
+          is_current: newIndustryExp.current
+        })
       });
-      setLoading(false);
+
+      const result = await response.json();
+      if (result.success) {
+        setAddingIndustryExp(false);
+        setNewJobTitleIsOther(false);
+
+        const updatedEntry = {
+          id: result.data.id,
+          jobTitle: result.data.job_title,
+          company: result.data.company,
+          location: result.data.location,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current,
+        };
+
+        const existingIndex = industryExpData.findIndex(e => e.id === result.data.id);
+        if (existingIndex > -1) {
+          const updated = [...industryExpData];
+          updated[existingIndex] = updatedEntry;
+          setIndustryExpData(updated);
+        } else {
+          setIndustryExpData([...industryExpData, updatedEntry]);
+        }
+
+        // Update teaching if shared
+        setTeachingExpData(teachingExpData.map(e => e.id === result.data.id ? {
+          ...e,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current
+        } : e));
+
+        setNewIndustryExp({
+          jobTitle: "",
+          company: "",
+          location: "",
+          from: "",
+          to: "",
+          period: "",
+          current: false,
+        });
+        toast({
+          title: 'Experience added',
+          description: 'Industry experience has been added successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to save experience');
+      }
+    } catch (error: any) {
       toast({
-        title: 'Experience added',
-        description: 'Industry experience has been added successfully.'
+        title: 'Error',
+        description: error.message || 'Failed to save industry experience.',
+        variant: 'destructive'
       });
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleNewIndustryExpChange = (field: string, value: string | boolean) => {
@@ -896,19 +1517,71 @@ export default function Profile() {
 
   const handleSaveIndustryExp = async (index: number) => {
     if (!tempIndustryExp) return;
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      toast({ title: 'Not authenticated', description: 'Please log in and try again.', variant: 'destructive' });
+      return;
+    }
+
+    const recId = industryExpData[index]?.id;
+    console.debug('[PROFILE] handleSaveIndustryExp', { recId, hasToken: !!token });
+    if (recId === undefined || recId === null) {
+      toast({ title: 'Error', description: 'Record id missing; cannot update.', variant: 'destructive' });
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
-      const updated = [...industryExpData];
-      updated[index] = tempIndustryExp;
-      setIndustryExpData(updated);
-      setEditingIndustryExp(null);
-      setTempIndustryExp(null);
-      setLoading(false);
-      toast({
-        title: 'Experience updated',
-        description: 'Industry experience has been updated successfully.'
+    try {
+      const response = await fetch(`/api/v1/faculty/experience/industry/${recId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          job_title: tempIndustryExp.jobTitle,
+          company: tempIndustryExp.company,
+          location: tempIndustryExp.location,
+          from_date: tempIndustryExp.from,
+          to_date: tempIndustryExp.to,
+          period: tempIndustryExp.period,
+          is_current: tempIndustryExp.current
+        })
       });
-    }, 1000);
+
+      const result = await response.json();
+      if (result.success) {
+        const updated = [...industryExpData];
+        updated[index] = { ...tempIndustryExp, id: result.data.id };
+        setIndustryExpData(updated);
+
+        // Update teaching if shared
+        setTeachingExpData(teachingExpData.map(e => e.id === result.data.id ? {
+          ...e,
+          from: result.data.from_date,
+          to: result.data.to_date,
+          period: result.data.period,
+          current: result.data.is_current
+        } : e));
+
+        setEditingIndustryExp(null);
+        setTempIndustryExp(null);
+        toast({
+          title: 'Experience updated',
+          description: 'Industry experience has been updated successfully.'
+        });
+      } else {
+        throw new Error(result.error || 'Failed to update record');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update industry experience.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleIndustryExpFieldChange = (field: string, value: string | boolean) => {
@@ -917,22 +1590,58 @@ export default function Profile() {
 
   const handleDeleteIndustryExp = async (index: number) => {
     if (window.confirm('Are you sure you want to delete this industry experience?')) {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
       setLoading(true);
-      setTimeout(() => {
-        const updated = industryExpData.filter((_, i) => i !== index);
-        setIndustryExpData(updated);
-        setLoading(false);
-        toast({
-          title: 'Experience deleted',
-          description: 'Industry experience has been deleted successfully.'
+      try {
+        const response = await fetch(`/api/v1/faculty/experience/industry/${industryExpData[index].id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-      }, 500);
+
+        const result = await response.json();
+        if (result.success) {
+          // If record was fully deleted, remove from both lists
+          if (!result.data || Object.keys(result.data).length === 0) {
+            setIndustryExpData(industryExpData.filter((_, i) => i !== index));
+            setTeachingExpData(teachingExpData.filter(m => m.id !== industryExpData[index].id));
+          } else {
+            // Record was just updated (section cleared), remove from industry list
+            setIndustryExpData(industryExpData.filter((_, i) => i !== index));
+            // Update teaching list if it exists there
+            setTeachingExpData(teachingExpData.map(m => m.id === result.data.id ? {
+              ...m,
+              from: result.data.from_date,
+              to: result.data.to_date,
+              period: result.data.period,
+              current: result.data.is_current
+            } : m));
+          }
+
+          toast({
+            title: 'Experience deleted',
+            description: 'Industry experience has been cleared successfully.'
+          });
+        } else {
+          throw new Error(result.error || 'Failed to delete record');
+        }
+      } catch (error: any) {
+        toast({
+          title: 'Error',
+          description: error.message || 'Failed to delete industry experience.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   // Events Handlers
   const handleAddEvent = () => {
     setAddingEvent(true);
+    setNewEventOrganizerType("");
     setNewEvent({ name: "", date: "", organizer: "", url: "" });
   };
 
@@ -951,6 +1660,7 @@ export default function Profile() {
       [selectedEventCategory]: [...prev[selectedEventCategory], newEvent]
     }));
     setAddingEvent(false);
+    setNewEventOrganizerType("");
     toast({ title: "Event added", description: "New event has been added successfully." });
   };
 
@@ -1023,22 +1733,14 @@ export default function Profile() {
     }
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
-      console.log("File selected:", file.name, file.size, file.type);
-    }
-  };
-
   const handleEditPhd = () => {
     setEditingPhd(true);
     setTempPhd({
-      phdStatus: facultyData.phdStatus || "Pursuing",
+      orcidId: facultyData.orcidId || "",
+      phdStatus: facultyData.phdStatus || "",
       thesisTitle: facultyData.thesisTitle || "",
       registerNo: facultyData.registerNo || "",
       guideName: facultyData.guideName || "",
-      orcidId: facultyData.orcidId || "",
     });
   };
 
@@ -1046,29 +1748,257 @@ export default function Profile() {
     setEditingPhd(false);
   };
 
-  const handlePhdFieldChange = (field: string, value: string) => {
-    setTempPhd((prev: any) => ({ ...prev, [field]: value }));
-  };
-
   const handleSavePhd = async () => {
     setLoading(true);
     try {
-      // Simulate API call
-      setTimeout(() => {
-        setFacultyData((prev) => ({
-          ...prev,
-          ...tempPhd,
-        }));
-        setEditingPhd(false);
-        setLoading(false);
-        toast({
-          title: 'PhD details updated',
-          description: 'Your PhD information has been updated successfully.'
-        });
-      }, 500);
-    } catch (error) {
-      console.error('Error updating PhD details:', error);
+      const token = localStorage.getItem('authToken');
+      if (!token) throw new Error('Not authenticated');
+
+      // Update phd_status on faculty profile
+      const resp = await fetch('/api/v1/faculty/update-profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({
+          phd_status: tempPhd.phdStatus,
+          orcid_id: tempPhd.orcidId,
+          thesis_title: tempPhd.thesisTitle,
+          register_no: tempPhd.registerNo,
+          guide_name: tempPhd.guideName
+        })
+      });
+
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to update PhD status');
+      }
+
+      // Update local UI state
+      setFacultyData((prev) => ({
+        ...prev,
+        phdStatus: tempPhd.phdStatus,
+        orcidId: tempPhd.orcidId || prev.orcidId,
+        thesisTitle: tempPhd.thesisTitle || prev.thesisTitle,
+        registerNo: tempPhd.registerNo || prev.registerNo,
+        guideName: tempPhd.guideName || prev.guideName,
+      }));
+      // Refresh phd list from server
+      try {
+        const phdRes = await fetch('/api/v1/faculty/phd', { headers: { 'Authorization': `Bearer ${token}` } });
+        if (phdRes.ok) {
+          const phdJson = await phdRes.json();
+          if (phdJson.success && Array.isArray(phdJson.data)) {
+              const entries = phdJson.data.map((r: any) => ({
+                id: r.phd_id ?? r.id ?? null,
+                orcidId: r.orcid_id ?? r.orcidId ?? "",
+                phdStatus: r.status ?? r.phd_status ?? r.phdStatus ?? "",
+                thesisTitle: r.thesis_title ?? r.thesisTitle ?? "",
+                registerNo: r.register_no ?? r.registerNo ?? "",
+                guideName: r.guide_name ?? r.guideName ?? "",
+              }));
+              if (entries.length > 0) {
+                const primary = entries[0];
+                if (primary.id) setPrimaryPhdId(primary.id);
+                setFacultyData(prev => ({
+                  ...prev,
+                  phdStatus: primary.phdStatus || prev.phdStatus,
+                  orcidId: primary.orcidId || prev.orcidId,
+                  thesisTitle: primary.thesisTitle || prev.thesisTitle,
+                  registerNo: primary.registerNo || prev.registerNo,
+                  guideName: primary.guideName || prev.guideName,
+                }));
+                setPhdList(entries.slice(1));
+              } else {
+                setPhdList([]);
+              }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to refresh phd list', e);
+      }
+      setEditingPhd(false);
+      toast({ title: 'PhD details updated', description: 'Your PhD information has been updated successfully.' });
+    } catch (error: any) {
+      console.error('Failed to save PhD details', error);
+      toast({ title: 'Error', description: error.message || 'Failed to update PhD details', variant: 'destructive' });
+    } finally {
       setLoading(false);
+    }
+  };
+
+  const handlePhdFieldChange = (field: string, value: string) => {
+    setTempPhd(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddPhd = () => {
+    setAddingPhd(true);
+    setNewPhd({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+  };
+
+  const handleCancelAddPhd = () => {
+    setAddingPhd(false);
+    setNewPhd({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+  };
+
+  const handleSaveNewPhd = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      // Fallback to local addition
+      setPhdList(prev => [...prev, { ...newPhd }]);
+      setAddingPhd(false);
+      setNewPhd({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+      toast({ title: 'PhD record added', description: 'New PhD record has been added locally (not persisted).' });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const response = await fetch('/api/v1/faculty/phd', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          status: newPhd.phdStatus,
+          orcid_id: newPhd.orcidId,
+          thesis_title: newPhd.thesisTitle,
+          register_no: newPhd.registerNo,
+          guide_name: newPhd.guideName
+        })
+      });
+
+      const result = await response.json();
+      if (result.success) {
+        // Refresh PhD list from backend so UI reflects canonical data
+        try {
+          const phdResp = await fetch('/api/v1/faculty/phd', { headers: { 'Authorization': `Bearer ${token}` } });
+          if (phdResp.ok) {
+            const phdJson = await phdResp.json();
+            if (phdJson && phdJson.success && Array.isArray(phdJson.data)) {
+              const entries = phdJson.data.map((r: any) => ({
+                id: r.phd_id ?? r.id ?? null,
+                orcidId: r.orcid_id ?? r.orcidId ?? "",
+                phdStatus: r.status ?? r.phd_status ?? r.phdStatus ?? "",
+                thesisTitle: r.thesis_title ?? r.thesisTitle ?? "",
+                registerNo: r.register_no ?? r.registerNo ?? "",
+                guideName: r.guide_name ?? r.guideName ?? "",
+              }));
+
+              if (entries.length > 0) {
+                const primary = entries[0];
+                if (primary.id) setPrimaryPhdId(primary.id);
+                setFacultyData(prev => ({
+                  ...prev,
+                  phdStatus: primary.phdStatus || prev.phdStatus,
+                  orcidId: primary.orcidId || prev.orcidId,
+                  thesisTitle: primary.thesisTitle || prev.thesisTitle,
+                  registerNo: primary.registerNo || prev.registerNo,
+                  guideName: primary.guideName || prev.guideName,
+                }));
+                setPhdList(entries.slice(1));
+              }
+            }
+          }
+        } catch (e) {
+          console.warn('Failed to refresh PhD records after create', e);
+        }
+
+        setAddingPhd(false);
+        setNewPhd({ orcidId: "", phdStatus: "", thesisTitle: "", registerNo: "", guideName: "" });
+        toast({ title: 'PhD record added', description: 'New PhD record has been saved.' });
+      } else {
+        throw new Error(result.message || result.error || 'Failed to save PhD record');
+      }
+    } catch (error: any) {
+      console.error('Failed to save PhD record', error);
+      toast({ title: 'Error', description: error.message || 'Failed to save PhD record.', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAdditionalPhd = async (index: number) => {
+    const entry = phdList[index];
+    if (entry?.id) {
+      if (!window.confirm('Are you sure you want to delete this PhD record?')) return;
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/v1/faculty/phd/${entry.id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+        if (result.success) {
+          setPhdList(prev => prev.filter((_, i) => i !== index));
+          setEditingPhdIndex(null);
+          toast({ title: 'PhD record deleted' });
+        } else {
+          throw new Error(result.message || 'Failed to delete PhD record');
+        }
+      } catch (error: any) {
+        console.error('Delete PhD error', error);
+        toast({ title: 'Error', description: error.message || 'Failed to delete PhD record.', variant: 'destructive' });
+      } finally {
+        setLoading(false);
+      }
+    } else {
+      setPhdList(prev => prev.filter((_, i) => i !== index));
+      setEditingPhdIndex(null);
+      toast({ title: 'PhD record deleted' });
+    }
+  };
+
+  const handleEditPhdEntry = (index: number) => {
+    setEditingPhdIndex(index);
+    setTempPhdEntry({ ...phdList[index] });
+  };
+
+  const handleSavePhdEntry = (index: number) => {
+    const updated = [...phdList];
+    updated[index] = { ...tempPhdEntry };
+    setPhdList(updated);
+    setEditingPhdIndex(null);
+    toast({ title: 'PhD record updated' });
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      try {
+        setLoading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/v1/auth/avatar', {
+          method: 'POST',
+          body: formData,
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          updateUserData({ avatar: result.data });
+          toast({
+            title: 'Success',
+            description: 'Profile photo updated successfully.'
+          });
+        } else {
+          throw new Error(result.message || 'Upload failed');
+        }
+      } catch (error) {
+        console.error('Upload error:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to upload profile photo.',
+          variant: 'destructive'
+        });
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -1131,11 +2061,11 @@ export default function Profile() {
         className="mb-8 flex items-center justify-between"
       >
         <div>
-          <h1 className="page-header font-serif">Faculty Profile</h1>
+          <h1 className="page-header font-serif">Department Admin Profile</h1>
           <p className="text-muted-foreground -mt-4"></p>
         </div>
         <div className="flex items-center gap-3">
-          <NotificationBell />
+         
           <Button onClick={handleDownloadProfile} className="bg-secondary hover:bg-secondary/90">
             <Download className="w-4 h-4 mr-2" />
             Download Profile
@@ -1151,59 +2081,30 @@ export default function Profile() {
           transition={{ delay: 0.1 }}
           className="widget-card lg:col-span-1"
         >
-          <div className="text-center relative group">
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleAvatarUpload}
-            />
-            <div className="w-32 h-32 mx-auto rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 relative overflow-hidden">
-              <img
-                src={facultyData.profilePhoto || "/src/assets/prathap.png"}
-                alt={facultyData.name}
-                className="w-32 h-32 rounded-full object-cover border-2 border-white"
-              />
-              <div
-                className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+          <div className="text-center">
+            <div className="relative w-32 h-32 mx-auto mb-4 group">
+              <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center overflow-hidden border-4 border-white shadow-lg">
+                <img
+                  src={user?.avatar || "/src/assets/prathap.png"}
+                  alt={facultyData.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <button
                 onClick={() => fileInputRef.current?.click()}
+                className="absolute inset-0 flex items-center justify-center bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
               >
                 <Edit2 className="w-6 h-6 text-white" />
-              </div>
-              {loading && editingField === null && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                  <div className="h-6 w-6 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                </div>
-              )}
+              </button>
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/*"
+                className="hidden"
+              />
             </div>
-
-            {editingField === "name" ? (
-              <div className="mb-2">
-                <input
-                  type="text"
-                  value={tempValue}
-                  onChange={(e) => setTempValue(e.target.value)}
-                  className="input input-bordered w-full text-center font-bold"
-                  autoFocus
-                />
-                <div className="flex gap-2 justify-center mt-2">
-                  <Button size="sm" onClick={() => handleSaveField("name")} disabled={loading}>Save</Button>
-                  <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-2 group/name">
-                <h2 className="font-serif text-xl font-bold text-foreground">{facultyData.name}</h2>
-                <button
-                  onClick={() => handleEditField("name", facultyData.name)}
-                  className="opacity-0 group-hover/name:opacity-100 transition p-1"
-                >
-                  <Edit2 className="w-3 h-3 text-muted-foreground" />
-                </button>
-              </div>
-            )}
-
+            <h2 className="font-serif text-xl font-bold text-foreground">{facultyData.name}</h2>
             <p className="text-secondary font-medium">{facultyData.designation}</p>
             <p className="text-sm text-muted-foreground mt-1">{facultyData.department}</p>
             <div className="mt-4 p-3 bg-muted rounded-lg">
@@ -1222,195 +2123,237 @@ export default function Profile() {
 
           <div className="mt-6 space-y-4">
             {/* AICTE ID */}
-            <div className="flex items-center gap-3 text-sm">
-              <Building className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground line-clamp-2">AICTE ID: {facultyData.aicteId}</span>
-            </div>
+            {facultyData.aicteId ? (
+              <div className="flex items-center gap-3 text-sm">
+                <Building className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-muted-foreground line-clamp-2">AICTE ID: {facultyData.aicteId}</span>
+              </div>
+            ) : null}
             {/* COE ID */}
-            <div className="flex items-center gap-3 text-sm">
-              <Building className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground line-clamp-2">COE ID: {facultyData.coeId}</span>
-            </div>
+            {facultyData.coeId ? (
+              <div className="flex items-center gap-3 text-sm">
+                <Building className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-muted-foreground line-clamp-2">COE ID: {facultyData.coeId}</span>
+              </div>
+            ) : null}
+
             {/* ORCID ID */}
-            <div className="flex items-center gap-3 text-sm">
-              <Globe className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground line-clamp-2">ORCID ID: {facultyData.orcidId}</span>
-            </div>
+            {facultyData.orcidId ? (
+              <div className="flex items-center gap-3 text-sm">
+                <Globe className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-muted-foreground line-clamp-2">ORCID ID: {facultyData.orcidId}</span>
+              </div>
+            ) : null}
+
+            {/* DOB & Age */}
+            {facultyData.dateOfBirth ? (
+              <div className="flex items-center gap-3 text-sm">
+                <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-muted-foreground">DOB:</span>
+                <span className="font-medium">{facultyData.dateOfBirth} {facultyData.age ? `(Age: ${facultyData.age})` : ''}</span>
+              </div>
+            ) : null}
+
+            {/* Date of Joining */}
+            {facultyData.dateOfJoining ? (
+              <div className="flex items-center gap-3 text-sm">
+                <Briefcase className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-muted-foreground">Date of Joined:</span>
+                <span className="font-medium">{facultyData.dateOfJoining}</span>
+              </div>
+            ) : null}
 
             {/* LinkedIn URL */}
-            <div className="flex items-center gap-3 text-sm">
+            <div className="flex items-start gap-3 text-sm group">
               <div className="w-8 h-8 rounded-full bg-[#0077B5]/10 flex items-center justify-center flex-shrink-0">
                 <Linkedin className="w-4 h-4 text-[#0077B5]" />
               </div>
-              <a
-                href={facultyData.linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 hover:underline font-medium truncate"
-              >
-                LinkedIn Profile
-              </a>
+              {editingField === 'linkedin_url' ? (
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="url"
+                    value={tempValue}
+                    onChange={(e) => {
+                      setTempValue(e.target.value);
+                      setFieldError("");
+                    }}
+                    placeholder="https://www.linkedin.com/in/yourprofile"
+                    className="input input-bordered input-sm w-full text-sm"
+                    disabled={loading}
+                    autoFocus
+                  />
+                  {fieldError && (
+                    <p className="text-xs text-red-500 font-medium">{fieldError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleSaveField('linkedin_url')}
+                      disabled={loading}
+                      className="h-8 px-3 bg-green-600 hover:bg-green-700"
+                    >
+                      {loading ? (
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <Check className="w-3 h-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={loading}
+                      className="h-8 px-3"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-between">
+                  {facultyData.linkedinUrl ? (
+                    <a
+                      href={facultyData.linkedinUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline font-medium truncate"
+                    >
+                      LinkedIn Profile
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground">LinkedIn Profile</span>
+                  )}
+                  <button
+                    onClick={() => handleEditField('linkedin_url', facultyData.linkedinUrl)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded ml-2 flex-shrink-0"
+                    title="Edit LinkedIn URL"
+                  >
+                    <Edit2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* DOB & Age */}
-            <div className="flex items-center gap-3 text-sm">
-              <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground">DOB:</span>
-              <span className="font-medium">{facultyData.dateOfBirth} (Age: {facultyData.age})</span>
-            </div>
-
-            {/* Date of Joining */}
-            <div className="flex items-center gap-3 text-sm">
-              <Briefcase className="w-4 h-4 text-primary flex-shrink-0" />
-              <span className="text-muted-foreground">Joined:</span>
-              <span className="font-medium">{facultyData.dateOfJoining}</span>
-            </div>
-
-            {/* Email - Individual Edit */}
-            <div className="flex items-start gap-3 text-sm">
+            {/* Email */}
+            <div className="flex items-start gap-3 text-sm group">
               <Mail className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
-              <div className="flex-1">
-                {editingField === "email" ? (
-                  <div className="space-y-2">
-                    <input
-                      type="email"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      className="input input-bordered w-full text-sm"
+              {editingField === 'email' ? (
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="email"
+                    value={tempValue}
+                    onChange={(e) => {
+                      setTempValue(e.target.value);
+                      setFieldError("");
+                    }}
+                    placeholder="Enter email address"
+                    className="input input-bordered input-sm w-full text-sm"
+                    disabled={loading}
+                    autoFocus
+                  />
+                  {fieldError && (
+                    <p className="text-xs text-red-500 font-medium">{fieldError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleSaveField('email')}
                       disabled={loading}
-                      autoFocus
-                    />
-                    {fieldError && <span className="text-xs text-red-500">{fieldError}</span>}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSaveField("email")}
-                        disabled={loading}
-                        className="p-1 hover:bg-green-100 rounded transition"
-                        title="Save"
-                      >
-                        <Check className="w-4 h-4 text-green-600" />
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        className="p-1 hover:bg-red-100 rounded transition"
-                        title="Cancel"
-                      >
-                        <X className="w-4 h-4 text-red-600" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-sm break-all">{facultyData.email}</span>
-                    <button
-                      onClick={() => handleEditField("email", facultyData.email)}
-                      className="p-1 hover:bg-muted rounded transition flex-shrink-0"
-                      title="Edit email"
+                      className="h-8 px-3 bg-green-600 hover:bg-green-700"
                     >
-                      <Edit2 className="w-3 h-3 text-muted-foreground" />
-                    </button>
+                      {loading ? (
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <Check className="w-3 h-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={loading}
+                      className="h-8 px-3"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-between">
+                  <span className="font-medium text-sm break-all">{facultyData.email}</span>
+                  <button
+                    onClick={() => handleEditField('email', facultyData.email)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded ml-2 flex-shrink-0"
+                    title="Edit email"
+                  >
+                    <Edit2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Phone - Individual Edit */}
-            <div className="flex items-start gap-3 text-sm">
+            {/* Phone */}
+            <div className="flex items-start gap-3 text-sm group">
               <Phone className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
-              <div className="flex-1">
-                {editingField === "phone" ? (
-                  <div className="space-y-2">
-                    <input
-                      type="tel"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      className="input input-bordered w-full text-sm"
+              {editingField === 'phone' ? (
+                <div className="flex-1 space-y-2">
+                  <input
+                    type="tel"
+                    value={tempValue}
+                    onChange={(e) => {
+                      setTempValue(e.target.value);
+                      setFieldError("");
+                    }}
+                    placeholder="Enter phone number"
+                    className="input input-bordered input-sm w-full text-sm"
+                    disabled={loading}
+                    autoFocus
+                  />
+                  {fieldError && (
+                    <p className="text-xs text-red-500 font-medium">{fieldError}</p>
+                  )}
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      onClick={() => handleSaveField('phone')}
                       disabled={loading}
-                      autoFocus
-                    />
-                    {fieldError && <span className="text-xs text-red-500">{fieldError}</span>}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSaveField("phone")}
-                        disabled={loading}
-                        className="p-1 hover:bg-green-100 rounded transition"
-                        title="Save"
-                      >
-                        <Check className="w-4 h-4 text-green-600" />
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        className="p-1 hover:bg-red-100 rounded transition"
-                        title="Cancel"
-                      >
-                        <X className="w-4 h-4 text-red-600" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium">{facultyData.phone}</span>
-                    <button
-                      onClick={() => handleEditField("phone", facultyData.phone)}
-                      className="p-1 hover:bg-muted rounded transition flex-shrink-0"
-                      title="Edit phone"
+                      className="h-8 px-3 bg-green-600 hover:bg-green-700"
                     >
-                      <Edit2 className="w-3 h-3 text-muted-foreground" />
-                    </button>
+                      {loading ? (
+                        <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                      ) : (
+                        <Check className="w-3 h-3" />
+                      )}
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={handleCancelEdit}
+                      disabled={loading}
+                      className="h-8 px-3"
+                    >
+                      <X className="w-3 h-3" />
+                    </Button>
                   </div>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="flex-1 flex items-center justify-between">
+                  <span className="font-medium">{facultyData.phone}</span>
+                  <button
+                    onClick={() => handleEditField('phone', facultyData.phone)}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-muted rounded ml-2 flex-shrink-0"
+                    title="Edit phone"
+                  >
+                    <Edit2 className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Address - Individual Edit */}
+            {/* Address */}
             <div className="flex items-start gap-3 text-sm">
               <MapPin className="w-4 h-4 text-primary flex-shrink-0 mt-1" />
-              <div className="flex-1">
-                {editingField === "address" ? (
-                  <div className="space-y-2">
-                    <input
-                      type="text"
-                      value={tempValue}
-                      onChange={(e) => setTempValue(e.target.value)}
-                      className="input input-bordered w-full text-sm"
-                      disabled={loading}
-                      autoFocus
-                    />
-                    {fieldError && <span className="text-xs text-red-500">{fieldError}</span>}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleSaveField("address")}
-                        disabled={loading}
-                        className="p-1 hover:bg-green-100 rounded transition"
-                        title="Save"
-                      >
-                        <Check className="w-4 h-4 text-green-600" />
-                      </button>
-                      <button
-                        onClick={handleCancelEdit}
-                        disabled={loading}
-                        className="p-1 hover:bg-red-100 rounded transition"
-                        title="Cancel"
-                      >
-                        <X className="w-4 h-4 text-red-600" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="font-medium text-sm">{facultyData.address}</span>
-                    <button
-                      onClick={() => handleEditField("address", facultyData.address)}
-                      className="p-1 hover:bg-muted rounded transition flex-shrink-0"
-                      title="Edit address"
-                    >
-                      <Edit2 className="w-3 h-3 text-muted-foreground" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              <span className="font-medium text-sm">{facultyData.address}</span>
             </div>
           </div>
 
@@ -1491,32 +2434,116 @@ export default function Profile() {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Degree *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Ph.D., M.E., B.E."
-                          value={newEducation.degree}
-                          onChange={(e) => handleNewEducationChange('degree', e.target.value)}
-                          className="input input-bordered text-sm"
-                          disabled={loading}
-                        />
+                        {newDegreeIsOther ? (
+                          <div className="relative flex items-center">
+                            <input
+                              type="text"
+                              placeholder="Type your degree"
+                              value={newEducation.degree}
+                              onChange={(e) => handleNewEducationChange('degree', e.target.value)}
+                              className="input input-bordered text-sm h-10 pr-8 w-full"
+                              disabled={loading}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setNewDegreeIsOther(false); handleNewEducationChange('degree', ''); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Back to dropdown"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={newEducation.degree}
+                            onValueChange={(value) => {
+                              if (value === "Other") {
+                                setNewDegreeIsOther(true);
+                                handleNewEducationChange('degree', '');
+                              } else {
+                                handleNewEducationChange('degree', value);
+                              }
+                            }}
+                            disabled={loading}
+                          >
+                            <SelectTrigger className="h-10 text-sm">
+                              <SelectValue placeholder="Select Degree" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Ph.D.">Ph.D.</SelectItem>
+                              <SelectItem value="M.E.">M.E.</SelectItem>
+                              <SelectItem value="B.E.">B.E.</SelectItem>
+                              <SelectItem value="B.Tech">B.Tech</SelectItem>
+                              <SelectItem value="M.Tech">M.Tech</SelectItem>
+                              <SelectItem value="M.S.">M.S.</SelectItem>
+                              <SelectItem value="Diploma">Diploma</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Branch *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Computer Science"
-                          value={newEducation.branch}
-                          onChange={(e) => handleNewEducationChange('branch', e.target.value)}
-                          className="input input-bordered text-sm"
-                          disabled={loading}
-                        />
+                        {newBranchIsOther ? (
+                          <div className="relative flex items-center">
+                            <input
+                              type="text"
+                              placeholder="Type your branch"
+                              value={newEducation.branch}
+                              onChange={(e) => handleNewEducationChange('branch', e.target.value)}
+                              className="input input-bordered text-sm h-10 pr-8 w-full"
+                              disabled={loading}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setNewBranchIsOther(false); handleNewEducationChange('branch', ''); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Back to dropdown"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={newEducation.branch}
+                            onValueChange={(value) => {
+                              if (value === "Other") {
+                                setNewBranchIsOther(true);
+                                handleNewEducationChange('branch', '');
+                              } else {
+                                handleNewEducationChange('branch', value);
+                              }
+                            }}
+                            disabled={loading}
+                          >
+                            <SelectTrigger className="h-10 text-sm">
+                              <SelectValue placeholder="Select Branch" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Computer Science Engineering">Computer Science Engineering</SelectItem>
+                              <SelectItem value="Electronics & Communication Engineering">Electronics & Communication Engineering</SelectItem>
+                              <SelectItem value="Electrical & Electronics Engineering">Electrical & Electronics Engineering</SelectItem>
+                              <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                              <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                              <SelectItem value="Information Technology">Information Technology</SelectItem>
+                              <SelectItem value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</SelectItem>
+                              <SelectItem value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</SelectItem>
+                              <SelectItem value="Cyber Security">Cyber Security</SelectItem>
+                              <SelectItem value="Internet of Things">Internet of Things</SelectItem>
+                              <SelectItem value="Data Science">Data Science</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
                     </div>
                     <div className="flex flex-col gap-1">
                       <label className="text-xs font-medium">College</label>
                       <input
                         type="text"
-                        placeholder="e.g., Anna University"
+                        placeholder="Nadar saraswathi college of engineering and technology"
                         value={newEducation.college}
                         onChange={(e) => handleNewEducationChange('college', e.target.value)}
                         className="input input-bordered text-sm"
@@ -1539,7 +2566,7 @@ export default function Profile() {
                         <label className="text-xs font-medium">Year</label>
                         <input
                           type="text"
-                          placeholder="e.g., 2023 or Pursuing"
+                          placeholder="e.g., 2023"
                           value={newEducation.year}
                           onChange={(e) => handleNewEducationChange('year', e.target.value)}
                           className="input input-bordered text-sm"
@@ -1598,7 +2625,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Degree:</label>
                           <input
                             type="text"
-                            value={tempEducation.degree}
+                            value={tempEducation!.degree}
                             onChange={(e) => handleEducationFieldChange('degree', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1608,7 +2635,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Branch:</label>
                           <input
                             type="text"
-                            value={tempEducation.branch}
+                            value={tempEducation!.branch}
                             onChange={(e) => handleEducationFieldChange('branch', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1618,7 +2645,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">College:</label>
                           <input
                             type="text"
-                            value={tempEducation.college}
+                            value={tempEducation!.college}
                             onChange={(e) => handleEducationFieldChange('college', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1628,7 +2655,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">University:</label>
                           <input
                             type="text"
-                            value={tempEducation.university}
+                            value={tempEducation!.university}
                             onChange={(e) => handleEducationFieldChange('university', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1639,7 +2666,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-24">Year:</label>
                             <input
                               type="text"
-                              value={tempEducation.year}
+                              value={tempEducation!.year}
                               onChange={(e) => handleEducationFieldChange('year', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -1649,7 +2676,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-24">Percentage:</label>
                             <input
                               type="text"
-                              value={tempEducation.percentage}
+                              value={tempEducation!.percentage}
                               onChange={(e) => handleEducationFieldChange('percentage', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -1704,11 +2731,6 @@ export default function Profile() {
                               <span className="text-secondary font-semibold">
                                 {edu.percentage}
                               </span>
-                            )}
-                            {edu.url && (
-                              <a href={edu.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium ml-2">
-                                <FileText className="w-3.5 h-3.5" /> View Certificate
-                              </a>
                             )}
                           </div>
                         </div>
@@ -1768,8 +2790,8 @@ export default function Profile() {
                       <input
                         type="text"
                         placeholder="e.g., IEEE, ACM, IAENG"
-                        value={newMembership.society}
-                        onChange={(e) => handleNewMembershipChange('society', e.target.value)}
+                        value={newMembership.society_name}
+                        onChange={(e) => handleNewMembershipChange('society_name', e.target.value)}
                         className="input input-bordered text-sm"
                         disabled={loading}
                       />
@@ -1779,8 +2801,8 @@ export default function Profile() {
                       <input
                         type="text"
                         placeholder="e.g., 123456"
-                        value={newMembership.id}
-                        onChange={(e) => handleNewMembershipChange('id', e.target.value)}
+                        value={newMembership.membership_id}
+                        onChange={(e) => handleNewMembershipChange('membership_id', e.target.value)}
                         className="input input-bordered text-sm"
                         disabled={loading}
                       />
@@ -1838,8 +2860,8 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Society:</label>
                           <input
                             type="text"
-                            value={tempMembership.society}
-                            onChange={(e) => handleMembershipFieldChange('society', e.target.value)}
+                            value={tempMembership!.society_name}
+                            onChange={(e) => handleMembershipFieldChange('society_name', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
                           />
@@ -1848,8 +2870,8 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">ID:</label>
                           <input
                             type="text"
-                            value={tempMembership.id}
-                            onChange={(e) => handleMembershipFieldChange('id', e.target.value)}
+                            value={tempMembership!.membership_id}
+                            onChange={(e) => handleMembershipFieldChange('membership_id', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
                           />
@@ -1857,7 +2879,7 @@ export default function Profile() {
                         <div className="flex items-center gap-3">
                           <label className="text-sm font-medium w-24">Status:</label>
                           <select
-                            value={tempMembership.status}
+                            value={tempMembership!.status}
                             onChange={(e) => handleMembershipFieldChange('status', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1896,13 +2918,8 @@ export default function Profile() {
                             <Award className="w-5 h-5 text-secondary" />
                           </div>
                           <div>
-                            <p className="font-semibold text-foreground">{membership.society}</p>
-                            <p className="text-sm text-muted-foreground">ID: {membership.id}</p>
-                            {membership.url && (
-                              <a href={membership.url} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary hover:underline mt-1 flex items-center gap-1 font-medium">
-                                <FileText className="w-3.5 h-3.5" /> View Card
-                              </a>
-                            )}
+                            <p className="font-semibold text-foreground">{membership.society_name}</p>
+                            <p className="text-sm text-muted-foreground">ID: {membership.membership_id}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1965,17 +2982,55 @@ export default function Profile() {
                       Add New Teaching Experience
                     </h4>
                     <div className="space-y-3">
+                      {/* Designation dropdown */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Designation *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Assistant Professor"
-                          value={newTeachingExp.designation}
-                          onChange={(e) => handleNewTeachingExpChange('designation', e.target.value)}
-                          className="input input-bordered text-sm"
-                          disabled={loading}
-                        />
+                        {newDesignationIsOther ? (
+                          <div className="relative flex items-center">
+                            <input
+                              type="text"
+                              placeholder="Type your designation"
+                              value={newTeachingExp.designation}
+                              onChange={(e) => handleNewTeachingExpChange('designation', e.target.value)}
+                              className="input input-bordered text-sm h-10 pr-8 w-full"
+                              disabled={loading}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setNewDesignationIsOther(false); handleNewTeachingExpChange('designation', ''); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Back to dropdown"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={newTeachingExp.designation}
+                            onValueChange={(value) => {
+                              if (value === "Other") {
+                                setNewDesignationIsOther(true);
+                                handleNewTeachingExpChange('designation', '');
+                              } else {
+                                handleNewTeachingExpChange('designation', value);
+                              }
+                            }}
+                            disabled={loading}
+                          >
+                            <SelectTrigger className="h-10 text-sm">
+                              <SelectValue placeholder="Select Designation" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Professor">Professor</SelectItem>
+                              <SelectItem value="Assistant Professor">Assistant Professor</SelectItem>
+                              <SelectItem value="Non-Teaching Faculty">Non-Teaching Faculty</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
+                      {/* Institution Name */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Institution Name *</label>
                         <input
@@ -1987,6 +3042,7 @@ export default function Profile() {
                           disabled={loading}
                         />
                       </div>
+                      {/* University */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">University *</label>
                         <input
@@ -1998,23 +3054,68 @@ export default function Profile() {
                           disabled={loading}
                         />
                       </div>
+                      {/* Department dropdown */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Department *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Computer Science"
-                          value={newTeachingExp.department}
-                          onChange={(e) => handleNewTeachingExpChange('department', e.target.value)}
-                          className="input input-bordered text-sm"
-                          disabled={loading}
-                        />
+                        {newTeachingDeptIsOther ? (
+                          <div className="relative flex items-center">
+                            <input
+                              type="text"
+                              placeholder="Type your department"
+                              value={newTeachingExp.department}
+                              onChange={(e) => handleNewTeachingExpChange('department', e.target.value)}
+                              className="input input-bordered text-sm h-10 pr-8 w-full"
+                              disabled={loading}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setNewTeachingDeptIsOther(false); handleNewTeachingExpChange('department', ''); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Back to dropdown"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={newTeachingExp.department}
+                            onValueChange={(value) => {
+                              if (value === "Other") {
+                                setNewTeachingDeptIsOther(true);
+                                handleNewTeachingExpChange('department', '');
+                              } else {
+                                handleNewTeachingExpChange('department', value);
+                              }
+                            }}
+                            disabled={loading}
+                          >
+                            <SelectTrigger className="h-10 text-sm">
+                              <SelectValue placeholder="Select Department" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Computer Science Engineering">Computer Science Engineering</SelectItem>
+                              <SelectItem value="Electronics & Communication Engineering">Electronics & Communication Engineering</SelectItem>
+                              <SelectItem value="Electrical & Electronics Engineering">Electrical & Electronics Engineering</SelectItem>
+                              <SelectItem value="Mechanical Engineering">Mechanical Engineering</SelectItem>
+                              <SelectItem value="Civil Engineering">Civil Engineering</SelectItem>
+                              <SelectItem value="Information Technology">Information Technology</SelectItem>
+                              <SelectItem value="Artificial Intelligence & Data Science">Artificial Intelligence & Data Science</SelectItem>
+                              <SelectItem value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</SelectItem>
+                              <SelectItem value="Cyber Security">Cyber Security</SelectItem>
+                              <SelectItem value="Internet of Things">Internet of Things</SelectItem>
+                              <SelectItem value="Data Science">Data Science</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
+                      {/* From / To date pickers */}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1">
                           <label className="text-xs font-medium">From Date</label>
                           <input
-                            type="text"
-                            placeholder="DD.MM.YYYY"
+                            type="date"
                             value={newTeachingExp.from}
                             onChange={(e) => handleNewTeachingExpChange('from', e.target.value)}
                             className="input input-bordered text-sm"
@@ -2024,15 +3125,15 @@ export default function Profile() {
                         <div className="flex flex-col gap-1">
                           <label className="text-xs font-medium">To Date</label>
                           <input
-                            type="text"
-                            placeholder="DD.MM.YYYY or Present"
+                            type="date"
                             value={newTeachingExp.to}
                             onChange={(e) => handleNewTeachingExpChange('to', e.target.value)}
                             className="input input-bordered text-sm"
-                            disabled={loading}
+                            disabled={loading || newTeachingExp.current}
                           />
                         </div>
                       </div>
+                      {/* Period */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Period</label>
                         <input
@@ -2098,7 +3199,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Designation:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.designation}
+                              value={tempTeachingExp!.designation}
                               onChange={(e) => handleTeachingExpFieldChange('designation', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2108,7 +3209,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Institution:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.institutionName}
+                              value={tempTeachingExp!.institutionName}
                               onChange={(e) => handleTeachingExpFieldChange('institutionName', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2118,7 +3219,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">University:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.university}
+                              value={tempTeachingExp!.university}
                               onChange={(e) => handleTeachingExpFieldChange('university', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2128,7 +3229,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Department:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.department}
+                              value={tempTeachingExp!.department}
                               onChange={(e) => handleTeachingExpFieldChange('department', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2139,7 +3240,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">From:</label>
                               <input
                                 type="text"
-                                value={tempTeachingExp.from}
+                                value={tempTeachingExp!.from}
                                 onChange={(e) => handleTeachingExpFieldChange('from', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2149,7 +3250,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">To:</label>
                               <input
                                 type="text"
-                                value={tempTeachingExp.to}
+                                value={tempTeachingExp!.to}
                                 onChange={(e) => handleTeachingExpFieldChange('to', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2160,7 +3261,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Period:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.period}
+                              value={tempTeachingExp!.period}
                               onChange={(e) => handleTeachingExpFieldChange('period', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2169,13 +3270,13 @@ export default function Profile() {
                           <div className="flex items-center gap-2">
                             <input
                               type="checkbox"
-                              id={`edit-teaching-current-${index}`}
-                              checked={tempTeachingExp.current}
+                              id={`edit - teaching - current - ${index}`}
+                              checked={tempTeachingExp!.current}
                               onChange={(e) => handleTeachingExpFieldChange('current', e.target.checked)}
                               className="checkbox checkbox-sm"
                               disabled={loading}
                             />
-                            <label htmlFor={`edit-teaching-current-${index}`} className="text-sm">Current Position</label>
+                            <label htmlFor={`edit - teaching - current - ${index}`} className="text-sm">Current Position</label>
                           </div>
                           <div className="flex gap-2 justify-end pt-2">
                             <Button
@@ -2225,11 +3326,6 @@ export default function Profile() {
                                   </span>
                                 </div>
                                 <Badge variant="outline">{exp.period}</Badge>
-                                {exp.url && (
-                                  <a href={exp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1 font-medium ml-2">
-                                    <FileText className="w-3.5 h-3.5" /> View Certificate
-                                  </a>
-                                )}
                               </div>
                             </div>
                             <div className="flex gap-1">
@@ -2283,17 +3379,58 @@ export default function Profile() {
                       Add New Industry Experience
                     </h4>
                     <div className="space-y-3">
+                      {/* Job Title dropdown */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Job Title *</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., Software Engineer"
-                          value={newIndustryExp.jobTitle}
-                          onChange={(e) => handleNewIndustryExpChange('jobTitle', e.target.value)}
-                          className="input input-bordered text-sm"
-                          disabled={loading}
-                        />
+                        {newJobTitleIsOther ? (
+                          <div className="relative flex items-center">
+                            <input
+                              type="text"
+                              placeholder="Type your job title"
+                              value={newIndustryExp.jobTitle}
+                              onChange={(e) => handleNewIndustryExpChange('jobTitle', e.target.value)}
+                              className="input input-bordered text-sm h-10 pr-8 w-full"
+                              disabled={loading}
+                              autoFocus
+                            />
+                            <button
+                              type="button"
+                              onClick={() => { setNewJobTitleIsOther(false); handleNewIndustryExpChange('jobTitle', ''); }}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                              title="Back to dropdown"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <Select
+                            value={newIndustryExp.jobTitle}
+                            onValueChange={(value) => {
+                              if (value === "Other") {
+                                setNewJobTitleIsOther(true);
+                                handleNewIndustryExpChange('jobTitle', '');
+                              } else {
+                                handleNewIndustryExpChange('jobTitle', value);
+                              }
+                            }}
+                            disabled={loading}
+                          >
+                            <SelectTrigger className="h-10 text-sm">
+                              <SelectValue placeholder="Select Job Title" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Software Engineer">Software Engineer</SelectItem>
+                              <SelectItem value="Data Analyst">Data Analyst</SelectItem>
+                              <SelectItem value="Web Developer">Web Developer</SelectItem>
+                              <SelectItem value="System Administrator">System Administrator</SelectItem>
+                              <SelectItem value="Network Engineer">Network Engineer</SelectItem>
+                              <SelectItem value="Project Manager">Project Manager</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
                       </div>
+                      {/* Company */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Company *</label>
                         <input
@@ -2305,6 +3442,7 @@ export default function Profile() {
                           disabled={loading}
                         />
                       </div>
+                      {/* Location */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Location</label>
                         <input
@@ -2316,12 +3454,12 @@ export default function Profile() {
                           disabled={loading}
                         />
                       </div>
+                      {/* From / To date pickers */}
                       <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1">
                           <label className="text-xs font-medium">From Date</label>
                           <input
-                            type="text"
-                            placeholder="DD.MM.YYYY"
+                            type="date"
                             value={newIndustryExp.from}
                             onChange={(e) => handleNewIndustryExpChange('from', e.target.value)}
                             className="input input-bordered text-sm"
@@ -2331,15 +3469,15 @@ export default function Profile() {
                         <div className="flex flex-col gap-1">
                           <label className="text-xs font-medium">To Date</label>
                           <input
-                            type="text"
-                            placeholder="DD.MM.YYYY or Present"
+                            type="date"
                             value={newIndustryExp.to}
                             onChange={(e) => handleNewIndustryExpChange('to', e.target.value)}
                             className="input input-bordered text-sm"
-                            disabled={loading}
+                            disabled={loading || newIndustryExp.current}
                           />
                         </div>
                       </div>
+                      {/* Period */}
                       <div className="flex flex-col gap-1">
                         <label className="text-xs font-medium">Period</label>
                         <input
@@ -2405,7 +3543,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Job Title:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.jobTitle}
+                              value={tempIndustryExp!.jobTitle}
                               onChange={(e) => handleIndustryExpFieldChange('jobTitle', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2415,7 +3553,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Company:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.company}
+                              value={tempIndustryExp!.company}
                               onChange={(e) => handleIndustryExpFieldChange('company', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2425,7 +3563,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Location:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.location}
+                              value={tempIndustryExp!.location}
                               onChange={(e) => handleIndustryExpFieldChange('location', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2436,7 +3574,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">From:</label>
                               <input
                                 type="text"
-                                value={tempIndustryExp.from}
+                                value={tempIndustryExp!.from}
                                 onChange={(e) => handleIndustryExpFieldChange('from', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2446,7 +3584,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">To:</label>
                               <input
                                 type="text"
-                                value={tempIndustryExp.to}
+                                value={tempIndustryExp!.to}
                                 onChange={(e) => handleIndustryExpFieldChange('to', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2457,7 +3595,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Period:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.period}
+                              value={tempIndustryExp!.period}
                               onChange={(e) => handleIndustryExpFieldChange('period', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2466,13 +3604,13 @@ export default function Profile() {
                           <div className="flex items-center gap-2">
                             <input
                               type="checkbox"
-                              id={`edit-industry-current-${index}`}
-                              checked={tempIndustryExp.current}
+                              id={`edit - industry - current - ${index}`}
+                              checked={tempIndustryExp!.current}
                               onChange={(e) => handleIndustryExpFieldChange('current', e.target.checked)}
                               className="checkbox checkbox-sm"
                               disabled={loading}
                             />
-                            <label htmlFor={`edit-industry-current-${index}`} className="text-sm">Current Position</label>
+                            <label htmlFor={`edit - industry - current - ${index}`} className="text-sm">Current Position</label>
                           </div>
                           <div className="flex gap-2 justify-end pt-2">
                             <Button
@@ -2520,11 +3658,6 @@ export default function Profile() {
                                   </span>
                                 </div>
                                 <Badge variant="outline">{exp.period}</Badge>
-                                {exp.url && (
-                                  <a href={exp.url} target="_blank" rel="noopener noreferrer" className="text-xs text-secondary hover:underline flex items-center gap-1 font-medium ml-2">
-                                    <FileText className="w-3.5 h-3.5" /> View Proof
-                                  </a>
-                                )}
                               </div>
                             </div>
                             <div className="flex gap-1">
@@ -2558,41 +3691,84 @@ export default function Profile() {
                 <BookOpen className="w-5 h-5 text-secondary" />
                 Subjects Handled & Results
               </h3>
+
+              {/* Filter Buttons */}
+              <div className="mb-6 flex items-center gap-3 flex-wrap">
+                <Button
+                  variant={selectedSubjectFilter === null ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedSubjectFilter(null)}
+                  className={selectedSubjectFilter === null ? "" : "hover:bg-muted"}
+                >
+                  All
+                </Button>
+                <Button
+                  variant={selectedSubjectFilter === "T" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedSubjectFilter("T")}
+                  className={selectedSubjectFilter === "T" ? "bg-blue-600 hover:bg-blue-700 text-white border-0" : "hover:bg-blue-50"}
+                >
+                  <span className={selectedSubjectFilter === "T" ? "" : "text-blue-600 font-semibold"}>T</span>
+                </Button>
+                <Button
+                  variant={selectedSubjectFilter === "P" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedSubjectFilter("P")}
+                  className={selectedSubjectFilter === "P" ? "bg-green-600 hover:bg-green-700 text-white border-0" : "hover:bg-green-50"}
+                >
+                  <span className={selectedSubjectFilter === "P" ? "" : "text-green-600 font-semibold"}>P</span>
+                </Button>
+                <Button
+                  variant={selectedSubjectFilter === "TCL" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setSelectedSubjectFilter("TCL")}
+                  className={selectedSubjectFilter === "TCL" ? "bg-orange-500 hover:bg-orange-600 text-white border-0" : "hover:bg-orange-50"}
+                >
+                  <span className={selectedSubjectFilter === "TCL" ? "" : "text-orange-500 font-semibold"}>TCL</span>
+                </Button>
+              </div>
+
               <div className="space-y-4">
-                {subjectsHandled.map((subject, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary/30 transition-colors"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <Badge variant="secondary">{subject.program}</Badge>
-                          <span className="text-xs text-muted-foreground">
-                            Semester {subject.semester}
-                          </span>
+                {subjectsHandled
+                  .filter((subject) => selectedSubjectFilter === null || subject.category === selectedSubjectFilter)
+                  .map((subject, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="p-4 bg-muted/30 rounded-lg border border-border hover:border-primary/30 transition-colors"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Badge variant="secondary">{subject.program}</Badge>
+                            <Badge
+                              className={`text-white ${subject.category === "T" ? "bg-blue-600" :
+                                subject.category === "P" ? "bg-green-600" :
+                                  subject.category === "TCL" ? "bg-orange-500" :
+                                    "bg-gray-600"
+                                }`}
+                            >
+                              {subject.category}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              Semester {subject.semester}
+                            </span>
+                          </div>
+                          <p className="font-semibold text-foreground">{subject.subject}</p>
                         </div>
-                        <p className="font-semibold text-foreground">{subject.subject}</p>
-                        {subject.url && (
-                          <a href={subject.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline mt-2 flex items-center gap-1 font-medium">
-                            <FileText className="w-3.5 h-3.5" /> View Result Proof
-                          </a>
-                        )}
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground">Result</p>
+                          <p className={`text - lg font - bold ${parseInt(subject.result) >= 90 ? "text-success" :
+                            parseInt(subject.result) >= 80 ? "text-secondary" : "text-warning"
+                            } `}>
+                            {subject.result}
+                          </p>
+                        </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">Result</p>
-                        <p className={`text-lg font-bold ${parseInt(subject.result) >= 90 ? "text-success" :
-                          parseInt(subject.result) >= 80 ? "text-secondary" : "text-warning"
-                          }`}>
-                          {subject.result}
-                        </p>
-                      </div>
-                    </div>
-                  </motion.div>
-                ))}
+                    </motion.div>
+                  ))}
               </div>
 
               <div className="mt-6 p-4 bg-secondary/10 rounded-lg border border-secondary/30">
@@ -2668,15 +3844,53 @@ export default function Profile() {
                         className="input input-bordered w-full bg-white text-foreground"
                       />
                     </div>
-                    <div className="space-y-1">
+                    <div className="space-y-1 md:col-span-2">
                       <label className="text-xs font-semibold text-muted-foreground ml-1">Organizer</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., IIT Bombay"
-                        value={newEvent.organizer}
-                        onChange={(e) => setNewEvent({ ...newEvent, organizer: e.target.value })}
-                        className="input input-bordered w-full bg-white text-foreground"
-                      />
+                      {newEventOrganizerType === "participated" ? (
+                        <div className="relative flex items-center">
+                          <input
+                            type="text"
+                            placeholder="Enter organizer name / organization / institute"
+                            value={newEvent.organizer}
+                            onChange={(e) => setNewEvent({ ...newEvent, organizer: e.target.value })}
+                            className="input input-bordered w-full bg-white text-foreground pr-8"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={() => { setNewEventOrganizerType(""); setNewEvent({ ...newEvent, organizer: "" }); }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                            title="Back to dropdown"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ) : (
+                        <Select
+                          value={newEventOrganizerType}
+                          onValueChange={(value: "organized" | "participated") => {
+                            setNewEventOrganizerType(value);
+                            if (value === "organized") {
+                              setNewEvent({ ...newEvent, organizer: facultyData.name });
+                            } else {
+                              setNewEvent({ ...newEvent, organizer: "" });
+                            }
+                          }}
+                        >
+                          <SelectTrigger className="h-10 text-sm bg-white">
+                            <SelectValue placeholder="Select organizer type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="organized">Organized</SelectItem>
+                            <SelectItem value="participated">Participated</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
+                      {newEventOrganizerType === "organized" && (
+                        <p className="text-xs text-muted-foreground mt-1 ml-1 flex items-center gap-1">
+                          <span className="font-medium text-foreground">{facultyData.name}</span>
+                        </p>
+                      )}
                     </div>
                     <div className="space-y-1">
                       <label className="text-xs font-semibold text-muted-foreground ml-1">URL (Optional)</label>
@@ -2697,7 +3911,7 @@ export default function Profile() {
                     </div>
                   </div>
                   <div className="flex gap-3 justify-end mt-6">
-                    <Button size="sm" variant="outline" onClick={() => setAddingEvent(false)}>Cancel</Button>
+                    <Button size="sm" variant="outline" onClick={() => { setAddingEvent(false); setNewEventOrganizerType(""); setNewEvent({ name: "", date: "", organizer: "", url: "" }); }}>Cancel</Button>
                     <Button size="sm" onClick={handleSaveNewEvent} className="bg-green-600 hover:bg-green-700">Save Event</Button>
                   </div>
                 </motion.div>
@@ -3016,17 +4230,15 @@ export default function Profile() {
                   <GraduationCap className="w-6 h-6 text-secondary" />
                   PhD Status
                 </h3>
-                {!editingPhd && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex items-center gap-2 border-secondary/30 text-secondary hover:bg-secondary/10"
-                    onClick={handleEditPhd}
-                  >
-                    <Edit2 className="w-4 h-4" />
-                    Edit Details
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  className="flex items-center gap-2 bg-secondary text-white hover:bg-secondary/90"
+                  onClick={handleAddPhd}
+                  disabled={addingPhd}
+                >
+                  <Plus className="w-4 h-4" />
+                  Add PhD
+                </Button>
               </div>
 
               {editingPhd ? (
@@ -3115,71 +4327,260 @@ export default function Profile() {
                   </div>
                 </motion.div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="p-6 bg-card rounded-xl border border-border shadow-sm space-y-4"
-                  >
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-6 bg-card rounded-xl border border-border shadow-sm space-y-4"
+                >
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
                         <Target className="w-6 h-6" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PhD Status</p>
-                        <Badge variant={facultyData.phdStatus === "Completed" ? "default" : "secondary"} className="mt-1">
-                          {facultyData.phdStatus || "Pursuing"}
-                        </Badge>
+                        {facultyData.phdStatus ? (
+                          <Badge variant={facultyData.phdStatus === "Completed" ? "default" : "secondary"} className="mt-1">
+                            {facultyData.phdStatus}
+                          </Badge>
+                        ) : null}
                       </div>
                     </div>
-
+                    <div className="flex items-center gap-2">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-secondary" onClick={handleEditPhd}>
+                        <Edit2 className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive" onClick={() => handleDeletePrimaryPhd()} title="Delete primary PhD record">
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  {facultyData.thesisTitle ? (
                     <div className="pt-2">
                       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Thesis Title / Research Field</p>
-                      <p className="text-foreground font-medium italic">"{facultyData.thesisTitle || "Advanced Machine Learning Algorithms for Predictive Analytics"}"</p>
+                      <p className="text-foreground font-medium italic">{facultyData.thesisTitle}</p>
                     </div>
+                  ) : null}
 
+                  {(facultyData.registerNo || facultyData.guideName) ? (
                     <div className="grid grid-cols-2 gap-4 pt-2">
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Register No</p>
-                        <p className="text-foreground font-mono">{facultyData.registerNo || "PHD2023101"}</p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Guide Name</p>
-                        <p className="text-foreground">{facultyData.guideName || "Dr. S. Ramasamy"}</p>
-                      </div>
+                      {facultyData.registerNo ? (
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Register No</p>
+                          <p className="text-foreground font-mono">{facultyData.registerNo}</p>
+                        </div>
+                      ) : null}
+                      {facultyData.guideName ? (
+                        <div>
+                          <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Guide Name</p>
+                          <p className="text-foreground">{facultyData.guideName}</p>
+                        </div>
+                      ) : null}
                     </div>
+                  ) : null}
 
+                  {facultyData.orcidId ? (
                     <div className="pt-2">
                       <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">ORCID ID</p>
                       <div className="flex items-center gap-2 text-primary">
                         <Globe className="w-4 h-4" />
-                        <span className="font-mono">{facultyData.orcidId || "0000-0001-5391-3610"}</span>
+                        <span className="font-mono">{facultyData.orcidId}</span>
                       </div>
                     </div>
-                  </motion.div>
+                  ) : null}
+                </motion.div>
+              )}
 
-                  <div className="space-y-4">
-                    <div className="p-5 bg-secondary/5 rounded-xl border border-secondary/20 h-full flex flex-col justify-center">
-                      <h4 className="font-bold text-secondary mb-3 flex items-center gap-2">
-                        <Star className="w-5 h-5" /> Research Summary
-                      </h4>
-                      <p className="text-sm text-foreground leading-relaxed">
-                        Currently focusing on deep learning architectures and their applications in real-time data processing.
-                        Actively collaborating with international research teams for publications in high-impact journals.
-                      </p>
-                      <div className="mt-6 flex flex-wrap gap-2">
-                        <Badge variant="outline" className="bg-white">Machine Learning</Badge>
-                        <Badge variant="outline" className="bg-white">Data Science</Badge>
-                        <Badge variant="outline" className="bg-white">Deep Learning</Badge>
-                      </div>
+              {/* Add New PhD Form */}
+              {addingPhd && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="p-5 mt-6 bg-primary/5 rounded-xl border-2 border-primary/30 shadow-sm"
+                >
+                  <h4 className="font-bold text-sm mb-4 flex items-center gap-2 text-primary">
+                    <Plus className="w-4 h-4" /> Add New PhD Record
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-muted-foreground ml-1">PhD Status</label>
+                      <select
+                        value={newPhd.phdStatus}
+                        onChange={(e) => setNewPhd(prev => ({ ...prev, phdStatus: e.target.value }))}
+                        className="select select-bordered w-full bg-white text-foreground"
+                      >
+                        <option value="Pursuing">Pursuing</option>
+                        <option value="Completed">Completed</option>
+                      </select>
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-muted-foreground ml-1">ORCID ID</label>
+                      <input
+                        type="text"
+                        value={newPhd.orcidId}
+                        onChange={(e) => setNewPhd(prev => ({ ...prev, orcidId: e.target.value }))}
+                        className="input input-bordered w-full bg-white text-foreground"
+                        placeholder="0000-0000-0000-0000"
+                      />
+                    </div>
+                    <div className="space-y-1 md:col-span-2">
+                      <label className="text-xs font-semibold text-muted-foreground ml-1">Thesis Title / Field of Research</label>
+                      <input
+                        type="text"
+                        value={newPhd.thesisTitle}
+                        onChange={(e) => setNewPhd(prev => ({ ...prev, thesisTitle: e.target.value }))}
+                        className="input input-bordered w-full bg-white text-foreground"
+                        placeholder="e.g., Deep Learning for Medical Imaging"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-muted-foreground ml-1">Register No</label>
+                      <input
+                        type="text"
+                        value={newPhd.registerNo}
+                        onChange={(e) => setNewPhd(prev => ({ ...prev, registerNo: e.target.value }))}
+                        className="input input-bordered w-full bg-white text-foreground"
+                        placeholder="e.g., PHD2024001"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-muted-foreground ml-1">Guide Name</label>
+                      <input
+                        type="text"
+                        value={newPhd.guideName}
+                        onChange={(e) => setNewPhd(prev => ({ ...prev, guideName: e.target.value }))}
+                        className="input input-bordered w-full bg-white text-foreground"
+                        placeholder="e.g., Dr. A. Kumar"
+                      />
                     </div>
                   </div>
+                  <div className="flex gap-3 justify-end mt-4">
+                    <Button size="sm" variant="outline" onClick={handleCancelAddPhd}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" className="bg-green-600 hover:bg-green-700" onClick={handleSaveNewPhd}>
+                      <Check className="w-4 h-4 mr-1" /> Add
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Additional PhD Records */}
+              {phdList.length > 0 && (
+                <div className="space-y-4 mt-6">
+                  {phdList.map((phd, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.05 }}
+                      className="p-6 bg-card rounded-xl border border-border shadow-sm space-y-4"
+                    >
+                      {editingPhdIndex === index ? (
+                        // Inline edit mode
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground ml-1">PhD Status</label>
+                              <select
+                                value={tempPhdEntry.phdStatus}
+                                onChange={(e) => setTempPhdEntry(prev => ({ ...prev, phdStatus: e.target.value }))}
+                                className="select select-bordered w-full bg-white text-foreground"
+                              >
+                                <option value="Pursuing">Pursuing</option>
+                                <option value="Completed">Completed</option>
+                              </select>
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground ml-1">ORCID ID</label>
+                              <input type="text" value={tempPhdEntry.orcidId} onChange={(e) => setTempPhdEntry(prev => ({ ...prev, orcidId: e.target.value }))} className="input input-bordered w-full bg-white text-foreground" placeholder="0000-0000-0000-0000" />
+                            </div>
+                            <div className="space-y-1 md:col-span-2">
+                              <label className="text-xs font-semibold text-muted-foreground ml-1">Thesis Title / Field of Research</label>
+                              <input type="text" value={tempPhdEntry.thesisTitle} onChange={(e) => setTempPhdEntry(prev => ({ ...prev, thesisTitle: e.target.value }))} className="input input-bordered w-full bg-white text-foreground" />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground ml-1">Register No</label>
+                              <input type="text" value={tempPhdEntry.registerNo} onChange={(e) => setTempPhdEntry(prev => ({ ...prev, registerNo: e.target.value }))} className="input input-bordered w-full bg-white text-foreground" />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-xs font-semibold text-muted-foreground ml-1">Guide Name</label>
+                              <input type="text" value={tempPhdEntry.guideName} onChange={(e) => setTempPhdEntry(prev => ({ ...prev, guideName: e.target.value }))} className="input input-bordered w-full bg-white text-foreground" />
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end">
+                            <Button size="sm" variant="outline" onClick={() => setEditingPhdIndex(null)}>Cancel</Button>
+                            <Button size="sm" className="bg-secondary text-white hover:bg-secondary/90 flex items-center gap-2" onClick={() => handleSavePhdEntry(index)}>
+                              <Check className="w-4 h-4" /> Save
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        // View mode — same layout as main card
+                        <>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <Target className="w-6 h-6" />
+                              </div>
+                              <div>
+                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">PhD Status</p>
+                                <Badge variant={phd.phdStatus === "Completed" ? "default" : "secondary"} className="mt-1">
+                                  {phd.phdStatus}
+                                </Badge>
+                              </div>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-secondary" onClick={() => handleEditPhdEntry(index)}>
+                                <Edit2 className="w-4 h-4" />
+                              </Button>
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive" onClick={() => handleDeleteAdditionalPhd(index)}>
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+
+                          {phd.thesisTitle && (
+                            <div className="pt-2">
+                              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Thesis Title / Research Field</p>
+                              <p className="text-foreground font-medium italic">{phd.thesisTitle}</p>
+                            </div>
+                          )}
+
+                          <div className="grid grid-cols-2 gap-4 pt-2">
+                            {phd.registerNo && (
+                              <div>
+                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Register No</p>
+                                <p className="text-foreground font-mono">{phd.registerNo}</p>
+                              </div>
+                            )}
+                            {phd.guideName && (
+                              <div>
+                                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">Guide Name</p>
+                                <p className="text-foreground">{phd.guideName}</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {phd.orcidId && (
+                            <div className="pt-2">
+                              <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider mb-1">ORCID ID</p>
+                              <div className="flex items-center gap-2 text-primary">
+                                <Globe className="w-4 h-4" />
+                                <span className="font-mono">{phd.orcidId}</span>
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </TabsContent>
           </Tabs>
         </motion.div>
       </div>
-    </MainLayout>
+    </MainLayout >
   );
 }

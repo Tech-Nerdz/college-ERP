@@ -13,7 +13,7 @@ import {
 import { Button } from '@/pages/admin/executive/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/pages/admin/executive/lib/utils';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 interface ForwardedLeave {
     id: string;

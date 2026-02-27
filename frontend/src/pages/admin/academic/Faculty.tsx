@@ -6,7 +6,7 @@ import { ProfileModal } from '@/pages/admin/academic/components/modals/ProfileMo
 import { mockFaculty as initialFaculty } from '@/data/mockData';
 import { Faculty } from '@/types/auth';
 import { Badge } from '@/pages/admin/academic/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 // Academic Admin has semi-CRUD (can add and edit, but not delete)
 export default function AcademicFaculty() {

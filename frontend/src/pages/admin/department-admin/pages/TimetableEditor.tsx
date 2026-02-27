@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Grid3x3, Plus, Trash2, Save, Clock, Edit2, X } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/pages/admin/department-admin/components/layout/MainLayout';
 import { motion } from 'framer-motion';
