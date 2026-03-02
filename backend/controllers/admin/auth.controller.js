@@ -282,11 +282,28 @@ export const login = asyncHandler(async (req, res, next) => {
         return next(new ErrorResponse('Your account has been deactivated', 401));
       }
 
-      // If this user is a department admin (role_id 7), try both users table and faculty_profiles
+      // If this user is a department admin (role_id 7), treat specially so that
+      // we can carry over a department_id even if the account exists only in users
+      // table.  We also allow falling back to the faculty_profiles record if the
+      // password is stored there.
       if (user.role && user.role.role_id === 7) {
         // First try validating with the user's password from users table
         const isUserMatch = await user.matchPassword(password);
         if (isUserMatch) {
+          // ensure department_id is populated; if not, look up faculty_profiles
+          if (!user.department_id) {
+            const deptFac = await Faculty.findOne({
+              where: { email },
+              attributes: ['department_id']
+            });
+            if (deptFac && deptFac.department_id) {
+              user.department_id = deptFac.department_id;
+              // persist back to users table for future requests
+              await User.update({ department_id: deptFac.department_id }, { where: { id: user.id } });
+            } else {
+              console.warn(`Department-admin login: no faculty profile found for ${email}`);
+            }
+          }
           userType = 'admin';
           return sendTokenResponse(user, 200, res);
         }
@@ -295,12 +312,20 @@ export const login = asyncHandler(async (req, res, next) => {
         const deptAdminFaculty = await Faculty.findOne({
           where: { email },
           attributes: { include: ['password'] },
-          include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
+          include: [{ model: models.Department, as: 'department', attributes: ['id','short_name', 'full_name'] }]
         });
 
         if (deptAdminFaculty) {
           const isFacultyMatch = await deptAdminFaculty.matchPassword(password);
           if (isFacultyMatch && deptAdminFaculty.status === 'active') {
+            // Ensure department_id is synced to users table for consistency
+            if (deptAdminFaculty.department_id && user) {
+              await User.update(
+                { department_id: deptAdminFaculty.department_id },
+                { where: { id: user.id } }
+              );
+              user.department_id = deptAdminFaculty.department_id;
+            }
             return sendTokenResponse(deptAdminFaculty, 200, res);
           }
         }

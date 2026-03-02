@@ -37,6 +37,7 @@ const sendTokenResponse = (user, statusCode, res) => {
       role: isDeptAdmin ? 'department-admin' : 'faculty',
       designation: user.designation || null,
       department: user.department,
+      department_id: user.department_id || (user.department && user.department.id) || null,
       avatar: user.profile_image_url || null,
       is_timetable_incharge: user.is_timetable_incharge || false,
       is_placement_coordinator: user.is_placement_coordinator || false

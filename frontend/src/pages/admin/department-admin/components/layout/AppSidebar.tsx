@@ -27,6 +27,8 @@ const menuItems = [
   { title: "Coordinators", url: "/admin/department-admin/coordinators", icon: Users },
   { title: "Subjects", url: "/admin/department-admin/subjects", icon: Book },
   { title: "Timetable", url: "/admin/department-admin/timetable", icon: Calendar },
+  { title: "Create Timetable", url: "/admin/department-admin/timetable/create", icon: CalendarDays, roles: ['department-admin'] },
+  { title: "Substitutions", url: "/admin/department-admin/timetable/substitutions", icon: CalendarDays, roles: ['department-admin'] },
   { title: "Attendance", url: "/admin/department-admin/attendance", icon: ClipboardCheck },
   { title: "Academics", url: "/admin/department-admin/academics", icon: BookOpen },
   { title: "Leave Management", url: "/admin/department-admin/leave", icon: CalendarDays },
@@ -51,6 +53,18 @@ export function AppSidebar() {
   const getInitials = (name: string) => {
     return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'DA';
   };
+
+  // Filter menu items based on user role
+  const isDepartmentAdmin = user?.role === 'department-admin';
+  const isTimetableIncharge = user?.is_timetable_incharge === true;
+
+  const filteredMenuItems = menuItems.filter(item => {
+    // If item has roles restriction, check if user has required role
+    if (item.roles) {
+      return item.roles.includes('department-admin') && (isDepartmentAdmin || isTimetableIncharge);
+    }
+    return true;
+  });
 
   return (
     <motion.aside
@@ -77,10 +91,13 @@ export function AppSidebar() {
                   className="w-12 h-12 rounded-full object-cover border-2 border-white"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
                   }}
                 />
-                <div className="hidden w-12 h-12 rounded-full bg-gradient-to-br from-sidebar-accent to-secondary flex items-center justify-center flex-shrink-0 text-white font-bold text-sm border-2 border-white">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-sidebar-accent to-secondary flex items-center justify-center flex-shrink-0 text-white font-bold text-sm border-2 border-white" style={{ display: 'none' }}>
                   {getInitials(user?.name || 'DA')}
                 </div>
                 {/* Name and Role */}
@@ -110,7 +127,7 @@ export function AppSidebar() {
       {/* Navigation */}
       <nav className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-1 px-3">
-          {menuItems.map((item, index) => {
+          {filteredMenuItems.map((item, index) => {
             const isActive = location.pathname.startsWith(item.url);
             return (
               <motion.li

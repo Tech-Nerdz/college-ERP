@@ -91,10 +91,16 @@ export function AppSidebar() {
                   className="w-12 h-12 rounded-full object-cover border-2 border-white"
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) {
+                      fallback.style.display = 'flex';
+                    }
                   }}
                 />
-                <div className="hidden w-12 h-12 rounded-full bg-gradient-to-br from-sidebar-accent to-secondary flex items-center justify-center flex-shrink-0 text-white font-bold text-sm border-2 border-white">
+                <div 
+                  className="w-12 h-12 rounded-full bg-gradient-to-br from-sidebar-accent to-secondary flex items-center justify-center flex-shrink-0 text-white font-bold text-sm border-2 border-white"
+                  style={{ display: 'none' }}
+                >
                   {getInitials(user?.name || 'F')}
                 </div>
                 {/* Name and Role */}
@@ -197,6 +203,47 @@ export function AppSidebar() {
                       className="font-medium text-sm whitespace-nowrap overflow-hidden"
                     >
                       Timetable Alteration
+                    </motion.span>
+                  )}
+                </AnimatePresence>
+              </NavLink>
+            </motion.li>
+          )}
+
+          {/* Conditional: Create Timetable - shows only if faculty is timetable incharge */}
+          {isTimetableIncharge && (
+            <motion.li
+              key="create-timetable"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.52 }}
+            >
+              <NavLink
+                to="/faculty/create-timetable"
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group",
+                  location.pathname.startsWith("/faculty/create-timetable")
+                    ? "bg-sidebar-accent text-white"
+                    : "text-white/70 hover:bg-sidebar-accent/50 hover:text-white"
+                )}
+              >
+                <Calendar
+                  className={cn(
+                    "w-5 h-5 flex-shrink-0 transition-colors",
+                    location.pathname.startsWith("/faculty/create-timetable")
+                      ? "text-secondary"
+                      : "text-white/70 group-hover:text-secondary"
+                  )}
+                />
+                <AnimatePresence>
+                  {!collapsed && (
+                    <motion.span
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      className="font-medium text-sm whitespace-nowrap overflow-hidden"
+                    >
+                      Create Timetable
                     </motion.span>
                   )}
                 </AnimatePresence>

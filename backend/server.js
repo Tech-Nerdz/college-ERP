@@ -95,7 +95,11 @@ const startServer = () => {
   }
 
   // File uploading
-  app.use(fileupload());
+  app.use(fileupload({
+    useTempFiles: true,
+    tempFileDir: '/tmp/',
+    createParentPath: true
+  }));
 
   // Simple request logger to help debug unexpected 500s from endpoints
   app.use((req, res, next) => {

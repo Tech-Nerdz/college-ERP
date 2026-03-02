@@ -32,10 +32,12 @@ async function run() {
       email,
       password,
       role_id: roleId,
+      department_id: process.env.DEPARTMENT_ID ? parseInt(process.env.DEPARTMENT_ID, 10) : null,
       isActive: true
     });
 
     console.log('Created department-admin user:', newUser.email);
+    if (newUser.department_id) console.log('  assigned to department id', newUser.department_id);
     process.exit(0);
   } catch (err) {
     console.error('Error creating user:', err.message || err);

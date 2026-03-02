@@ -188,6 +188,15 @@ export const createTimetable = asyncHandler(async (req, res, next) => {
   });
 
   if (Array.isArray(req.body.slots) && req.body.slots.length > 0) {
+    // Delete existing slots belonging to the timetable before bulkCreate
+    // This prevents duplicate constraint errors (UNIQUE: timetable_id, day, start_time)
+    await TimetableSlot.destroy({
+      where: {
+        timetableId: timetable.id
+      },
+      force: true
+    });
+
     const rows = req.body.slots.map((slot) => ({
       timetableId: timetable.id,
       day: slot.day,

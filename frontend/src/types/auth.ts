@@ -25,6 +25,8 @@ export interface User {
 	role: UserRole;
 	avatar?: string;
 	department?: Department | string;
+	/** numeric department id, available for staff/admin accounts */
+	department_id?: number | null;
 	designation?: string;
 	rollNo?: string;
 	year?: number;

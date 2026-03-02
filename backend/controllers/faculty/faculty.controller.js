@@ -316,7 +316,7 @@ export const updateFacultyProfile = asyncHandler(async (req, res, next) => {
   // Only allow updating specific fields
   const allowedFields = ['email', 'phone', 'linkedin_url'];
   const fieldsToUpdate = {};
-  
+
   allowedFields.forEach(field => {
     if (req.body[field] !== undefined && req.body[field] !== null) {
       fieldsToUpdate[field] = req.body[field];
@@ -353,4 +353,53 @@ export const updateFacultyProfile = asyncHandler(async (req, res, next) => {
     console.error('[UPDATE PROFILE ERROR]', error);
     return next(new ErrorResponse('Failed to update profile', 500));
   }
+});
+
+// @desc      Get logged in faculty's timetable
+// @route     GET /api/v1/faculty/me/timetable
+// @access    Private/Faculty
+export const getMyTimetable = asyncHandler(async (req, res, next) => {
+  if (!req.user || !req.user.faculty_id) {
+    return next(new ErrorResponse('Not authorized to access this route', 401));
+  }
+
+  const { year, semester } = req.query;
+
+  let whereClause = { faculty_id: req.user.faculty_id };
+
+  // If we need to filter by year and semester at the Timetable level
+  let timetableWhere = {};
+  if (year) timetableWhere.academic_year = year;
+  if (semester) timetableWhere.semester = semester;
+
+  const slots = await models.TimetableSlot.findAll({
+    where: whereClause,
+    include: [
+      {
+        model: models.Subject,
+        as: 'subject',
+        attributes: ['id', 'name', 'code']
+      },
+      {
+        model: models.Timetable,
+        as: 'timetable',
+        where: Object.keys(timetableWhere).length > 0 ? timetableWhere : undefined,
+        attributes: ['id', 'name', 'academic_year', 'semester']
+      },
+      {
+        model: models.Class,
+        as: 'class',
+        attributes: ['id', 'name']
+      }
+    ],
+    order: [
+      ['day', 'ASC'],
+      ['start_time', 'ASC']
+    ]
+  });
+
+  res.status(200).json({
+    success: true,
+    data: slots
+  });
 });

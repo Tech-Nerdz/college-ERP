@@ -15,8 +15,8 @@ const router = express.Router();
 router.use(protect);
 router.use(authorize('faculty'));
 
-// Timetable alteration routes (only for timetable incharge)
-router.use(checkTimetableIncharge);
+// Timetable alteration routes (any faculty can request an alteration now)
+// router.use(checkTimetableIncharge); // Removed this restriction
 
 router.get('/', getTimetableAlterations);
 router.post('/', createTimetableAlteration);

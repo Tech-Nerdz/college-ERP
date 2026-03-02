@@ -21,6 +21,8 @@ import { MentorDashboard } from "./pages/MentorDashboard";
 import { MenteesList } from "./pages/MenteesList";
 import { StudentProfileView } from "./pages/StudentProfileView";
 import TimetableEditor from "./pages/TimetableEditor";
+import CreateTimetable from "./pages/CreateTimetable";
+import Substitutions from "./pages/Substitutions";
 
 import './department-admin.css';
 
@@ -41,6 +43,8 @@ const DepartmentAdminRoutes = () => (
               <Route path="coordinators" element={<CoordinatorManagement />} />
               <Route path="subjects" element={<SubjectManagement />} />
               <Route path="timetable" element={<TimetableEditor />} />
+              <Route path="timetable/create" element={<CreateTimetable />} />
+              <Route path="timetable/substitutions" element={<Substitutions />} />
               <Route path="attendance" element={<Attendance />} />
               <Route path="academics" element={<Academics />} />
               <Route path="leave" element={<Leave />} />

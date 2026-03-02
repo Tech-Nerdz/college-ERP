@@ -10,7 +10,8 @@ import {
   assignClasses,
   updateFacultyStatus,
   getMyProfile,
-  updateFacultyProfile
+  updateFacultyProfile,
+  getMyTimetable
 } from '../../controllers/faculty/faculty.controller.js';
 import {
   getMyEducation,
@@ -29,6 +30,8 @@ router.use(protect);
 
 // Faculty can access their own profile
 router.get('/me/profile', authorize('faculty'), getMyProfile);
+// Faculty can fetch their own timetable
+router.get('/me/timetable', authorize('faculty'), getMyTimetable);
 // Faculty can update their own profile
 router.put('/update-profile', authorize('faculty'), updateFacultyProfile);
 // Route to download profile as DOCX

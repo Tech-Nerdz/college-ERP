@@ -246,7 +246,9 @@ export default function Profile() {
     name: user?.name || initialFacultyData.name,
     email: user?.email || initialFacultyData.email,
     profilePhoto: user?.avatar || initialFacultyData.profilePhoto,
-    department: user?.department?.short_name || user?.department?.full_name || initialFacultyData.department
+    department: (user?.department && typeof user.department === 'object')
+      ? (user.department.short_name || user.department.full_name || initialFacultyData.department)
+      : (user?.department || initialFacultyData.department)
   });
 
   useEffect(() => {
@@ -256,7 +258,7 @@ export default function Profile() {
         name: user.name || prev.name,
         email: user.email || prev.email,
         profilePhoto: user.avatar || prev.profilePhoto,
-        department: typeof user.department === 'object'
+        department: typeof user.department === 'object' && user.department !== null
           ? (user.department.short_name || user.department.full_name || prev.department)
           : (user.department || prev.department)
       }));
@@ -1205,7 +1207,11 @@ export default function Profile() {
             )}
 
             <p className="text-secondary font-medium">{facultyData.designation}</p>
-            <p className="text-sm text-muted-foreground mt-1">{facultyData.department}</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {typeof facultyData.department === 'object' 
+                ? (facultyData.department?.short_name || facultyData.department?.full_name) 
+                : facultyData.department}
+            </p>
             <div className="mt-4 p-3 bg-muted rounded-lg">
               <p className="text-xs text-muted-foreground">Employee ID</p>
               <p className="font-mono font-semibold text-foreground">{facultyData.employeeId}</p>
@@ -1598,7 +1604,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Degree:</label>
                           <input
                             type="text"
-                            value={tempEducation.degree}
+                            value={tempEducation?.degree || ''}
                             onChange={(e) => handleEducationFieldChange('degree', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1608,7 +1614,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Branch:</label>
                           <input
                             type="text"
-                            value={tempEducation.branch}
+                            value={tempEducation?.branch || ''}
                             onChange={(e) => handleEducationFieldChange('branch', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1618,7 +1624,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">College:</label>
                           <input
                             type="text"
-                            value={tempEducation.college}
+                            value={tempEducation?.college || ''}
                             onChange={(e) => handleEducationFieldChange('college', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1628,7 +1634,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">University:</label>
                           <input
                             type="text"
-                            value={tempEducation.university}
+                            value={tempEducation?.university || ''}
                             onChange={(e) => handleEducationFieldChange('university', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1639,7 +1645,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-24">Year:</label>
                             <input
                               type="text"
-                              value={tempEducation.year}
+                              value={tempEducation?.year || ''}
                               onChange={(e) => handleEducationFieldChange('year', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -1649,7 +1655,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-24">Percentage:</label>
                             <input
                               type="text"
-                              value={tempEducation.percentage}
+                              value={tempEducation?.percentage || ''}
                               onChange={(e) => handleEducationFieldChange('percentage', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -1838,7 +1844,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">Society:</label>
                           <input
                             type="text"
-                            value={tempMembership.society}
+                            value={tempMembership?.society || ''}
                             onChange={(e) => handleMembershipFieldChange('society', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1848,7 +1854,7 @@ export default function Profile() {
                           <label className="text-sm font-medium w-24">ID:</label>
                           <input
                             type="text"
-                            value={tempMembership.id}
+                            value={tempMembership?.id || ''}
                             onChange={(e) => handleMembershipFieldChange('id', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -1857,7 +1863,7 @@ export default function Profile() {
                         <div className="flex items-center gap-3">
                           <label className="text-sm font-medium w-24">Status:</label>
                           <select
-                            value={tempMembership.status}
+                            value={tempMembership?.status || ''}
                             onChange={(e) => handleMembershipFieldChange('status', e.target.value)}
                             className="input input-bordered flex-1 text-sm"
                             disabled={loading}
@@ -2098,7 +2104,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Designation:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.designation}
+                              value={tempTeachingExp?.designation || ''}
                               onChange={(e) => handleTeachingExpFieldChange('designation', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2108,7 +2114,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Institution:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.institutionName}
+                              value={tempTeachingExp?.institutionName || ''}
                               onChange={(e) => handleTeachingExpFieldChange('institutionName', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2118,7 +2124,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">University:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.university}
+                              value={tempTeachingExp?.university || ''}
                               onChange={(e) => handleTeachingExpFieldChange('university', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2128,7 +2134,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Department:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.department}
+                              value={tempTeachingExp?.department || ''}
                               onChange={(e) => handleTeachingExpFieldChange('department', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2139,7 +2145,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">From:</label>
                               <input
                                 type="text"
-                                value={tempTeachingExp.from}
+                                value={tempTeachingExp?.from || ''}
                                 onChange={(e) => handleTeachingExpFieldChange('from', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2149,7 +2155,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">To:</label>
                               <input
                                 type="text"
-                                value={tempTeachingExp.to}
+                                value={tempTeachingExp?.to || ''}
                                 onChange={(e) => handleTeachingExpFieldChange('to', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2160,7 +2166,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Period:</label>
                             <input
                               type="text"
-                              value={tempTeachingExp.period}
+                              value={tempTeachingExp?.period || ''}
                               onChange={(e) => handleTeachingExpFieldChange('period', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2170,7 +2176,7 @@ export default function Profile() {
                             <input
                               type="checkbox"
                               id={`edit-teaching-current-${index}`}
-                              checked={tempTeachingExp.current}
+                              checked={tempTeachingExp?.current || false}
                               onChange={(e) => handleTeachingExpFieldChange('current', e.target.checked)}
                               className="checkbox checkbox-sm"
                               disabled={loading}
@@ -2405,7 +2411,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Job Title:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.jobTitle}
+                              value={tempIndustryExp?.jobTitle || ''}
                               onChange={(e) => handleIndustryExpFieldChange('jobTitle', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2415,7 +2421,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Company:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.company}
+                              value={tempIndustryExp?.company || ''}
                               onChange={(e) => handleIndustryExpFieldChange('company', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2425,7 +2431,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Location:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.location}
+                              value={tempIndustryExp?.location || ''}
                               onChange={(e) => handleIndustryExpFieldChange('location', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2436,7 +2442,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">From:</label>
                               <input
                                 type="text"
-                                value={tempIndustryExp.from}
+                                value={tempIndustryExp?.from || ''}
                                 onChange={(e) => handleIndustryExpFieldChange('from', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2446,7 +2452,7 @@ export default function Profile() {
                               <label className="text-sm font-medium w-20">To:</label>
                               <input
                                 type="text"
-                                value={tempIndustryExp.to}
+                                value={tempIndustryExp?.to || ''}
                                 onChange={(e) => handleIndustryExpFieldChange('to', e.target.value)}
                                 className="input input-bordered flex-1 text-sm"
                                 disabled={loading}
@@ -2457,7 +2463,7 @@ export default function Profile() {
                             <label className="text-sm font-medium w-28">Period:</label>
                             <input
                               type="text"
-                              value={tempIndustryExp.period}
+                              value={tempIndustryExp?.period || ''}
                               onChange={(e) => handleIndustryExpFieldChange('period', e.target.value)}
                               className="input input-bordered flex-1 text-sm"
                               disabled={loading}
@@ -2467,7 +2473,7 @@ export default function Profile() {
                             <input
                               type="checkbox"
                               id={`edit-industry-current-${index}`}
-                              checked={tempIndustryExp.current}
+                              checked={tempIndustryExp?.current || false}
                               onChange={(e) => handleIndustryExpFieldChange('current', e.target.checked)}
                               className="checkbox checkbox-sm"
                               disabled={loading}

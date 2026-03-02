@@ -21,10 +21,23 @@ import NotFound from "./pages/NotFound";
 import { MentorDashboard } from "./pages/MentorDashboard";
 import { MenteesList } from "./pages/MenteesList";
 import { StudentProfileView } from "./pages/StudentProfileView";
+import { useAuth } from "@/contexts/AuthContext";
+import CreateTimetable from "@/pages/admin/department-admin/pages/CreateTimetable";
 
 import './faculty.css';
 
 const queryClient = new QueryClient();
+
+// Protected route wrapper for timetable incharge access
+const TimetableInchargeRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useAuth();
+  
+  if (!user?.is_timetable_incharge) {
+    return <Navigate to="/faculty/dashboard" replace />;
+  }
+  
+  return <>{children}</>;
+};
 
 const FacultyRoutes = () => (
   <MentorProvider>
@@ -41,6 +54,14 @@ const FacultyRoutes = () => (
               <Route path="change-password" element={<ChangePassword />} />
               <Route path="timetable" element={<Timetable />} />
               <Route path="timetable/alterations" element={<TimetableAlteration />} />
+              <Route 
+                path="create-timetable" 
+                element={
+                  <TimetableInchargeRoute>
+                    <CreateTimetable />
+                  </TimetableInchargeRoute>
+                } 
+              />
               <Route path="placement" element={<PlacementCoordinator />} />
               <Route path="attendance" element={<Attendance />} />
               <Route path="academics" element={<Academics />} />

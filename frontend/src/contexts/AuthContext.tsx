@@ -25,6 +25,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    try {
+      return localStorage.getItem('authToken');
+    } catch {
+      return null;
+    }
+  });
+
   const login = async (identifier: string, password: string, role: UserRole): Promise<boolean> => {
     const trimmedId = identifier.trim().toLowerCase();
     const trimmedPassword = password.trim();
@@ -79,6 +87,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             role: result.user.role as UserRole,
             avatar: result.user.avatar || '',
             department: departmentObj || null,
+            department_id: result.user.department_id || null,
             designation: result.user.designation || '',
             year: result.user.year,
             semester: result.user.semester,
@@ -119,6 +128,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         setUser(userObj);
+        setAuthToken(result.token);
         localStorage.setItem('eduvertex_user', JSON.stringify(userObj));
         localStorage.setItem('authToken', result.token);
         return true;
@@ -134,7 +144,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const logout = () => {
     setUser(null);
+    setAuthToken(null);
     localStorage.removeItem('eduvertex_user');
+    localStorage.removeItem('authToken');
   };
 
   const refreshUserData = useCallback(async () => {
@@ -184,6 +196,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               email: freshData.email || prev.email,
               designation: freshData.designation || prev.designation,
               avatar: freshData.avatar || freshData.profile_image_url || prev.avatar,
+              department_id: freshData.department_id || prev.department_id,
               is_timetable_incharge: freshData.is_timetable_incharge || false,
               is_placement_coordinator: freshData.is_placement_coordinator || false
             };
@@ -210,9 +223,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
-  // derive token from localStorage so it stays updated
-  const authToken = typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
-
+  // provider will supply the token stored in state
   return (
     <AuthContext.Provider value={{ user, authToken, login, logout, updateUserData, refreshUserData, isAuthenticated: !!user }}>
       {children}
