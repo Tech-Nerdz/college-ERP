@@ -10,13 +10,13 @@ const Subject = (sequelize) => {
     subject_name: {
       type: DataTypes.STRING(255),
       allowNull: false,
-      field: 'subject_name'
+      field: 'name'
     },
     subject_code: {
       type: DataTypes.STRING(20),
       allowNull: false,
       unique: true,
-      field: 'subject_code'
+      field: 'code'
     },
     department_id: {
       type: DataTypes.INTEGER,
@@ -30,19 +30,13 @@ const Subject = (sequelize) => {
         max: 8
       }
     },
-    sem_type: {
-      type: DataTypes.ENUM('odd', 'even'),
-      allowNull: true,
-      defaultValue: 'odd',
-      comment: 'Odd or Even semester type',
-    },
     credits: {
-      type: DataTypes.DECIMAL(4, 2),
+      type: DataTypes.INTEGER,
       allowNull: true,
-      defaultValue: 4.00,
+      defaultValue: 4,
     },
     type: {
-      type: DataTypes.ENUM('Theory', 'Practical', 'Theory+Practical', 'Project', 'Seminar', 'Internship'),
+      type: DataTypes.ENUM('Theory', 'Practical', 'Theory+Practical'),
       defaultValue: 'Theory',
     },
     is_elective: {
@@ -58,21 +52,10 @@ const Subject = (sequelize) => {
       allowNull: true,
       comment: 'Specific class if subject is class-specific, NULL for department-wide',
     },
-    min_hours_per_week: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      defaultValue: 3,
-    },
-    max_students: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      comment: 'Maximum students allowed, NULL for no limit',
-    },
     created_by: {
       type: DataTypes.INTEGER,
-      allowNull: true,
+      allowNull: false,
       defaultValue: 1,
-      comment: 'Admin who created the subject',
     },
     description: {
       type: DataTypes.TEXT,

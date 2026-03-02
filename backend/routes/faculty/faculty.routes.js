@@ -41,23 +41,14 @@ const router = express.Router();
 // All routes require authentication
 router.use(protect);
 
-<<<<<<< HEAD
-// Faculty can access their own profile
-router.get('/me/profile', authorize('faculty'), getMyProfile);
-// Faculty can fetch their own timetable
-router.get('/me/timetable', authorize('faculty'), getMyTimetable);
-// Faculty can update their own profile
-router.put('/update-profile', authorize('faculty'), updateFacultyProfile);
-// Route to download profile as DOCX
-router.post('/download-profile', authorize('faculty', 'superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), handleDownloadProfile);
-=======
 // Faculty and department-admins can access their own profile
 router.get('/me/profile', authorize('faculty', 'department-admin'), getMyProfile);
+// Faculty can fetch their own timetable
+router.get('/me/timetable', authorize('faculty'), getMyTimetable);
 // Faculty and department-admins can update their own profile
 router.put('/update-profile', authorize('faculty', 'department-admin'), updateFacultyProfile);
 // Route to download profile as DOCX (allow department-admin alongside faculty)
 router.post('/download-profile', authorize('faculty', 'department-admin', 'superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), handleDownloadProfile);
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
 
 // Routes for admin
 router.route('/')

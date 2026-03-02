@@ -746,11 +746,11 @@ export const uploadTimetableCSV = asyncHandler(async (req, res, next) => {
     const adminId = req.user && req.user.id ? req.user.id : 0;
 
     const [subject, created] = await models.Subject.findOrCreate({
-      where: { code: subjectCode },
+      where: { subject_code: subjectCode },
       defaults: {
-        name: subjectName,
+        subject_name: subjectName,
         department_id,
-        credits: 3, // default
+        credits: 3,
         created_by: adminId
       }
     });

@@ -85,15 +85,6 @@ export default function Login() {
           }
         } else if (role === 'faculty') {
           const response = await fetch(`/api/v1/auth/faculty-details/${email.trim()}`);
-<<<<<<< HEAD
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.data) {
-              // normalize to same shape used by UI
-              setUserDetails({
-                name: result.data.name || result.data.Name,
-                rollNo: result.data.collegeId || result.data.college_id || result.data.faculty_college_code,
-=======
           const result = await response.json();
           if (result.success && result.data) {
             // If the returned faculty record is actually a department-admin
@@ -109,15 +100,11 @@ export default function Login() {
               setUserDetails({
                 name: result.data.name,
                 rollNo: result.data.collegeId || result.data.college_id || undefined,
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
                 department: result.data.department,
                 semester: undefined,
                 year: undefined,
                 designation: result.data.designation
               });
-<<<<<<< HEAD
-            } else {
-              setUserDetails(null);
             }
           } else {
             setUserDetails(null);
@@ -143,8 +130,6 @@ export default function Login() {
               }
             } else {
               setUserDetails(null);
-=======
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
             }
           } else {
             setUserDetails(null);

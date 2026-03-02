@@ -222,35 +222,26 @@ export const login = asyncHandler(async (req, res, next) => {
   let user = null;
   let userType = null; // 'admin', 'faculty', or 'student'
 
-<<<<<<< HEAD
   try {
     // 1. Check for faculty in faculty_profiles table FIRST (priority)
+    // If the request is NOT explicitly requesting an admin login (requestedRole
+    // containing 'admin'), exclude department-admins (role_id === 7) from this
+    // faculty lookup. This prevents department-admin credentials from being
+    // used to login via the faculty module.
+    const requestedRole = (req.body && req.body.requestedRole) ? req.body.requestedRole.toString().toLowerCase() : null;
+    const includeDeptAdmins = requestedRole && requestedRole.includes('admin');
+
+    const facultyWhere = { email };
+    if (!includeDeptAdmins) {
+      // exclude department-admins when not explicitly requested
+      facultyWhere.role_id = { [Op.ne]: 7 };
+    }
+
     user = await Faculty.findOne({
-      where: { email },
-      attributes: { include: ['password'] },
+      where: facultyWhere,
+      attributes: { include: ['password', 'role_id'] },
       include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
     });
-=======
-  // 1. Check for faculty in faculty_profiles table FIRST (priority)
-  // If the request is NOT explicitly requesting an admin login (requestedRole
-  // containing 'admin'), exclude department-admins (role_id === 7) from this
-  // faculty lookup. This prevents department-admin credentials from being
-  // used to login via the faculty module.
-  const requestedRole = (req.body && req.body.requestedRole) ? req.body.requestedRole.toString().toLowerCase() : null;
-  const includeDeptAdmins = requestedRole && requestedRole.includes('admin');
-
-  const facultyWhere = { email };
-  if (!includeDeptAdmins) {
-    // exclude department-admins when not explicitly requested
-    facultyWhere.role_id = { [Op.ne]: 7 };
-  }
-
-  user = await Faculty.findOne({
-    where: facultyWhere,
-    attributes: { include: ['password', 'role_id'] },
-    include: [{ model: models.Department, as: 'department', attributes: ['short_name', 'full_name'] }]
-  });
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
 
     if (user) {
       const isMatch = await user.matchPassword(password);
@@ -686,28 +677,6 @@ export const getAdminsByRole = asyncHandler(async (req, res, next) => {
     roleNames = ['superadmin', 'super-admin'];
   }
 
-<<<<<<< HEAD
-  console.log('getAdminsByRole called for role:', role);
-  try {
-    // Find the role_ids
-    const roles = await Role.findAll({
-      where: { role_name: { [Op.in]: roleNames } },
-      attributes: ['role_id']
-    });
-
-    const roleIds = roles.map(r => r.role_id).filter(Boolean);
-
-    if (roleIds.length === 0) {
-      return res.status(200).json({ success: true, data: [] });
-    }
-
-    const admins = await User.findAll({
-      where: {
-        role_id: { [Op.in]: roleIds }
-      },
-      attributes: ['name', 'email']
-    });
-=======
   // Find matching role_ids. The roles table may contain variants like
   // 'department_admin' or 'department admin', so fetch all roles and
   // normalize in JS to match requested role robustly.
@@ -748,20 +717,9 @@ export const getAdminsByRole = asyncHandler(async (req, res, next) => {
     ...admins.map(admin => ({ name: admin.name || 'Admin', email: admin.email })),
     ...facultyAdmins
   ];
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
 
-    // Map results to ensure each has a 'name' field for the frontend
-    const formattedAdmins = admins.map(admin => ({
-      name: admin.name || 'Admin',
-      email: admin.email
-    }));
-
-    res.status(200).json({
-      success: true,
-      data: formattedAdmins
-    });
-  } catch (err) {
-    console.error('getAdminsByRole error:', err.stack || err);
-    return next(new ErrorResponse('Failed to fetch admins', 500));
-  }
+  res.status(200).json({
+    success: true,
+    data: formattedAdmins
+  });
 });

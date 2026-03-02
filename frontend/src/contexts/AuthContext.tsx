@@ -27,7 +27,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
-<<<<<<< HEAD
   const [authToken, setAuthToken] = useState<string | null>(() => {
     try {
       return localStorage.getItem('authToken');
@@ -35,11 +34,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
   });
-=======
   const [loginError, setLoginError] = useState<string | null>(null);
 
   const clearLoginError = () => setLoginError(null);
->>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
 
   const login = async (identifier: string, password: string, role: UserRole): Promise<boolean> => {
     const trimmedId = identifier.trim().toLowerCase();
