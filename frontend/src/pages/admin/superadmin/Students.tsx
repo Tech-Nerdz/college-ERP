@@ -5,7 +5,7 @@ import { DataTable } from '@/pages/admin/superadmin/components/dashboard/DataTab
 import { UserFormModal } from '@/pages/admin/superadmin/components/modals/UserFormModal';
 import { Student } from '@/types/auth';
 import { Badge } from '@/pages/admin/superadmin/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { Input } from '@/pages/admin/superadmin/components/ui/input';
 import {
   Select,

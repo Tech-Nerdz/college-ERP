@@ -4,7 +4,7 @@ import { DataTable } from '@/pages/admin/academic/components/dashboard/DataTable
 import { DepartmentFormModal } from '@/pages/admin/academic/components/modals/DepartmentFormModal';
 import { mockDepartments as initialDepartments } from '@/data/mockData';
 import { Department } from '@/types/auth';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 
 // Academic Admin can create departments but not delete
 export default function AcademicDepartments() {

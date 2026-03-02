@@ -13,7 +13,17 @@ import {
   SelectValue,
 } from '@/pages/admin/superadmin/components/ui/select';
 import { GraduationCap, Lock, Mail, Users, User as UserIcon, Calendar, Building } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/pages/admin/superadmin/components/ui/alert-dialog';
 
 const roleRoutes: Partial<Record<UserRole, string>> = {
   'department-admin': '/admin/department-admin',
@@ -36,6 +46,7 @@ export default function Login() {
     designation?: string;
   } | null>(null);
   const { login, isAuthenticated, user } = useAuth();
+  const { loginError, clearLoginError } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -74,6 +85,7 @@ export default function Login() {
           }
         } else if (role === 'faculty') {
           const response = await fetch(`/api/v1/auth/faculty-details/${email.trim()}`);
+<<<<<<< HEAD
           if (response.ok) {
             const result = await response.json();
             if (result.success && result.data) {
@@ -81,11 +93,29 @@ export default function Login() {
               setUserDetails({
                 name: result.data.name || result.data.Name,
                 rollNo: result.data.collegeId || result.data.college_id || result.data.faculty_college_code,
+=======
+          const result = await response.json();
+          if (result.success && result.data) {
+            // If the returned faculty record is actually a department-admin
+            // (role_id === 7 or role contains 'admin'), ignore it for the
+            // faculty login/details flow so department-admins are not revealed
+            // on the faculty login page.
+            const roleId = result.data.role_id || result.data.roleId || result.data.role?.role_id;
+            const roleName = (result.data.role && typeof result.data.role === 'string') ? result.data.role : result.data.role?.role_name;
+            if (parseInt(roleId, 10) === 7 || (roleName && roleName.toString().toLowerCase().includes('admin'))) {
+              setUserDetails(null);
+            } else {
+              // normalize to same shape used by UI
+              setUserDetails({
+                name: result.data.name,
+                rollNo: result.data.collegeId || result.data.college_id || undefined,
+>>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
                 department: result.data.department,
                 semester: undefined,
                 year: undefined,
                 designation: result.data.designation
               });
+<<<<<<< HEAD
             } else {
               setUserDetails(null);
             }
@@ -113,6 +143,8 @@ export default function Login() {
               }
             } else {
               setUserDetails(null);
+=======
+>>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
             }
           } else {
             setUserDetails(null);
@@ -306,6 +338,20 @@ export default function Login() {
               )}
             </Button>
           </form>
+          <AlertDialog open={!!loginError} onOpenChange={(open) => { if (!open) clearLoginError(); }}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>User not found</AlertDialogTitle>
+                <AlertDialogDescription>
+                  {loginError || 'Invalid credentials or user not found.'}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel onClick={() => clearLoginError()}>Close</AlertDialogCancel>
+                <AlertDialogAction onClick={() => clearLoginError()}>OK</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
     </div>

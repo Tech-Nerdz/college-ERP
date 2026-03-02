@@ -13,8 +13,18 @@ import {
     SelectValue,
 } from '@/pages/admin/superadmin/components/ui/select';
 import { GraduationCap, Lock, Mail, Users, User as UserIcon } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { mockAdmins } from '@/data/mockData';
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from '@/pages/admin/superadmin/components/ui/alert-dialog';
 
 const adminRoles = [
     { value: 'superadmin', label: 'Super Admin' },
@@ -28,6 +38,7 @@ const adminRoles = [
 const roleRoutes: Partial<Record<UserRole, string>> = {
     superadmin: '/admin/superadmin',
     'super-admin': '/admin/superadmin',
+    'department-admin': '/admin/department-admin',
     executive: '/admin/executive',
     executiveadmin: '/admin/executive',
     academic: '/admin/academic',
@@ -47,7 +58,7 @@ export default function AdminLogin() {
     const [isLoading, setIsLoading] = useState(false);
     const [isFetchingNames, setIsFetchingNames] = useState(false);
 
-    const { login, isAuthenticated, user } = useAuth();
+    const { login, isAuthenticated, user, loginError, clearLoginError } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -228,6 +239,20 @@ export default function AdminLogin() {
                             )}
                         </Button>
                     </form>
+                    <AlertDialog open={!!loginError} onOpenChange={(open) => { if (!open) clearLoginError(); }}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>User not found</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    {loginError || 'Invalid credentials or user not found.'}
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => clearLoginError()}>Close</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => clearLoginError()}>OK</AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
                 </div>
             </div>
         </div>

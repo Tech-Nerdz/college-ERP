@@ -25,7 +25,7 @@ const menuItems = [
   { title: "Dashboard", url: "/admin/department-admin/dashboard", icon: LayoutDashboard },
   { title: "Profile", url: "/admin/department-admin/profile", icon: User },
   { title: "Coordinators", url: "/admin/department-admin/coordinators", icon: Users },
-  { title: "Subjects", url: "/admin/department-admin/subjects", icon: Book },
+  { title: "Subject Allocations", url: "/admin/department-admin/faculty-allocations", icon: BookOpen },
   { title: "Timetable", url: "/admin/department-admin/timetable", icon: Calendar },
   { title: "Create Timetable", url: "/admin/department-admin/timetable/create", icon: CalendarDays, roles: ['department-admin'] },
   { title: "Substitutions", url: "/admin/department-admin/timetable/substitutions", icon: CalendarDays, roles: ['department-admin'] },

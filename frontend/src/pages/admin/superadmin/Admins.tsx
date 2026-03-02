@@ -4,7 +4,7 @@ import { DataTable } from '@/pages/admin/superadmin/components/dashboard/DataTab
 import { UserFormModal } from '@/pages/admin/superadmin/components/modals/UserFormModal';
 import { Admin } from '@/types/auth';
 import { Badge } from '@/pages/admin/superadmin/components/ui/badge';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -50,6 +50,34 @@ export default function SuperAdminAdmins() {
                         avatar: user.avatar,
                         status: user.isActive ? 'active' : 'inactive',
                     }));
+                // Also fetch faculty list and include department-admins (role_id === 7)
+                try {
+                    const fResp = await fetch('/api/v1/faculty');
+                    const fRes = await fResp.json();
+                    if (fRes.success) {
+                        const deptAdmins = fRes.data
+                            .filter((f: any) => parseInt(f.role_id, 10) === 7 || f.role_id === 7)
+                            .map((f: any) => ({
+                                id: String(f.faculty_id || f.id),
+                                name: f.Name || f.name || f.firstName || 'N/A',
+                                email: f.email,
+                                role: 'department-admin',
+                                role_id: 7,
+                                department: (f.department && typeof f.department === 'object')
+                                    ? (f.department.short_name || f.department.full_name || f.department.name)
+                                    : (f.department || null),
+                                avatar: f.profile_image_url || f.avatar,
+                                status: f.status === 'inactive' ? 'inactive' : 'active',
+                            }));
+
+                        setAdmins([...adminUsers, ...deptAdmins]);
+                        setLoading(false);
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Failed to fetch faculty for department-admins', err);
+                }
+
                 setAdmins(adminUsers);
             }
         } catch (error) {

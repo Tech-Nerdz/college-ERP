@@ -80,8 +80,7 @@ const Faculty = (sequelize) => {
       allowNull: true,
     },
     status: {
-      // simplified to three states as per new requirement
-      type: DataTypes.ENUM('active', 'completed', 'inactive'),
+      type: DataTypes.ENUM('active', 'on_leave', 'retired'),
       defaultValue: 'active',
     },
     blood_group: {
@@ -160,13 +159,39 @@ const Faculty = (sequelize) => {
       through: 'faculty_subject_assignments',
       foreignKey: 'faculty_id',
       otherKey: 'subject_id',
-      as: 'assignedSubjects',
+      as: 'subjects',
     });
 
     // Faculty has many subject assignments
     FacultyModel.hasMany(models.FacultySubjectAssignment, {
       foreignKey: 'faculty_id',
       as: 'subjectAssignments',
+    });
+
+    // Faculty can be assigned to many classes through the faculty_subject_assignments table (class_id exists in that table)
+    FacultyModel.belongsToMany(models.Class, {
+      through: models.FacultySubjectAssignment || 'faculty_subject_assignments',
+      foreignKey: 'faculty_id',
+      otherKey: 'class_id',
+      as: 'assignedClasses',
+    });
+
+    // Faculty has many education qualifications
+    FacultyModel.hasMany(models.FacultyEduQualification, {
+      foreignKey: 'faculty_id',
+      as: 'eduQualifications',
+    });
+
+    // Faculty has many experiences
+    FacultyModel.hasMany(models.FacultyExperience, {
+      foreignKey: 'faculty_id',
+      as: 'experiences',
+    });
+
+    // Faculty has many industry experiences (separate table)
+    FacultyModel.hasMany(models.FacultyIndustryExperience, {
+      foreignKey: 'faculty_id',
+      as: 'industryExperiences',
     });
   };
 

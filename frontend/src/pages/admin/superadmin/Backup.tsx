@@ -5,7 +5,7 @@ import { Button } from '@/pages/admin/superadmin/components/ui/button';
 import { Checkbox } from '@/pages/admin/superadmin/components/ui/checkbox';
 import { Label } from '@/pages/admin/superadmin/components/ui/label';
 import { Database, Download, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
+import { toast } from '@/components/ui/sonner';
 import { Progress } from '@/pages/admin/superadmin/components/ui/progress';
 
 interface BackupOption {

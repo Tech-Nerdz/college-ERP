@@ -9,6 +9,8 @@ interface AuthContextType {
   logout: () => void;
   updateUserData: (newData: Partial<User>) => void;
   refreshUserData: () => Promise<void>;
+  loginError: string | null;
+  clearLoginError: () => void;
   isAuthenticated: boolean;
 }
 
@@ -25,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   });
 
+<<<<<<< HEAD
   const [authToken, setAuthToken] = useState<string | null>(() => {
     try {
       return localStorage.getItem('authToken');
@@ -32,6 +35,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return null;
     }
   });
+=======
+  const [loginError, setLoginError] = useState<string | null>(null);
+
+  const clearLoginError = () => setLoginError(null);
+>>>>>>> 7820d2c4530fc98d2e67ca5e5562e8148e17bebf
 
   const login = async (identifier: string, password: string, role: UserRole): Promise<boolean> => {
     const trimmedId = identifier.trim().toLowerCase();
@@ -48,7 +56,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch('/api/v1/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmedId, password: trimmedPassword }),
+        body: JSON.stringify({ email: trimmedId, password: trimmedPassword, requestedRole: role }),
       });
 
       // Check if response is OK, handle error responses with proper error messages
@@ -75,6 +83,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const result = await response.json();
 
       if (result.success && result.user) {
+        setLoginError(null);
           let departmentObj = result.user.department;
           // If department is a string, convert to object with short_name
           if (departmentObj && typeof departmentObj === 'string') {
@@ -104,23 +113,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               headers: { 'Authorization': `Bearer ${result.token}` }
             });
             if (profileRes.ok) {
-              const profileJson = await profileRes.json();
-              const prof = profileJson.data || profileJson;
-              // Merge selected faculty profile fields into userObj
-              userObj.name = prof.Name || prof.name || userObj.name;
-              userObj.email = prof.email || userObj.email;
-              userObj.avatar = prof.avatar || prof.profile_image_url || userObj.avatar;
-              userObj.designation = prof.designation || userObj.designation;
-              // Normalize department to a short string to avoid rendering objects
-              if (prof.department) {
-                userObj.department = typeof prof.department === 'object'
-                  ? (prof.department.short_name || prof.department.full_name)
-                  : prof.department;
+              const ct = profileRes.headers.get('content-type') || '';
+              let profileJson: any = null;
+              if (ct.includes('application/json')) {
+                try {
+                  profileJson = await profileRes.json();
+                } catch (e) {
+                  console.warn('Failed to parse JSON profile response', e);
+                }
               } else {
-                userObj.department = userObj.department;
+                console.warn('Non-JSON profile response, content-type=', ct);
               }
-              userObj.is_timetable_incharge = prof.is_timetable_incharge || userObj.is_timetable_incharge;
-              userObj.is_placement_coordinator = prof.is_placement_coordinator || userObj.is_placement_coordinator;
+              const prof = profileJson ? (profileJson.data || profileJson) : null;
+              // Merge selected faculty profile fields into userObj
+              if (prof) {
+                userObj.name = prof.Name || prof.name || userObj.name;
+                userObj.email = prof.email || userObj.email;
+                userObj.avatar = prof.avatar || prof.profile_image_url || userObj.avatar;
+                userObj.designation = prof.designation || userObj.designation;
+                // Normalize department to a short string to avoid rendering objects
+                if (prof.department) {
+                  userObj.department = typeof prof.department === 'object'
+                    ? (prof.department.short_name || prof.department.full_name)
+                    : prof.department;
+                }
+                userObj.is_timetable_incharge = prof.is_timetable_incharge || userObj.is_timetable_incharge;
+                userObj.is_placement_coordinator = prof.is_placement_coordinator || userObj.is_placement_coordinator;
+              }
             }
           } catch (err) {
             console.error('Failed to fetch faculty profile for department-admin:', err);
@@ -134,10 +153,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return true;
       }
 
-      console.log('Login failed:', result.error || 'Unknown error');
+      const errMsg = result.error || 'Invalid credentials';
+      setLoginError(errMsg);
+      console.log('Login failed:', errMsg);
       return false;
     } catch (error) {
       console.error('Login error:', error);
+      setLoginError('Invalid credentials');
       return false;
     }
   };
@@ -185,8 +207,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
+        const ct = response.headers.get('content-type') || '';
+        let result: any = null;
+        if (ct.includes('application/json')) {
+          try {
+            result = await response.json();
+          } catch (e) {
+            console.warn('Failed to parse refresh response JSON', e);
+          }
+        } else {
+          console.warn('Non-JSON refresh response, content-type=', ct);
+        }
+        if (result && result.success && result.data) {
           const freshData = result.data;
           setUser(prev => {
             if (!prev) return null;
@@ -225,7 +257,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // provider will supply the token stored in state
   return (
-    <AuthContext.Provider value={{ user, authToken, login, logout, updateUserData, refreshUserData, isAuthenticated: !!user }}>
+    <AuthContext.Provider value={{ user, authToken, login, logout, updateUserData, refreshUserData, loginError, clearLoginError, isAuthenticated: !!user }}>
       {children}
     </AuthContext.Provider>
   );
