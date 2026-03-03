@@ -6,12 +6,15 @@ import { LeaveSnapshot } from "@/pages/faculty/components/dashboard/LeaveSnapsho
 import { IntegratedNotificationBell } from "@/components/common/IntegratedNotificationBell";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   BookOpen,
   Calendar,
   Award,
   Clock,
   GraduationCap,
+  Plus,
 } from "lucide-react";
 
 // Mock data
@@ -47,6 +50,7 @@ const leaveBalance = [
 ];
 
 export default function Dashboard() {
+  const { user } = useAuth();
   const [selectedSubject, setSelectedSubject] = useState<any>({
     id: 0,
     name: currentClass.subject,
@@ -155,6 +159,33 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 gap-6 mb-6">
         <PendingTasksList tasks={pendingTasks} />
       </div>
+
+      {/* Timetable Incharge Section - Only visible if faculty is assigned as timetable incharge */}
+      {user?.is_timetable_incharge && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
+          className="mb-6"
+        >
+          <Link to="/faculty/create-timetable" className="block no-underline">
+            <div className="widget-card bg-gradient-to-br from-primary/10 to-primary/5 hover:shadow-lg transition-all duration-300 border-primary/30 hover:border-primary/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-primary/20 p-3 rounded-lg">
+                    <Plus className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-foreground">Create Timetable</h3>
+                    <p className="text-sm text-muted-foreground">Upload and manage class timetables</p>
+                  </div>
+                </div>
+                <div className="text-primary text-sm font-medium">Access →</div>
+              </div>
+            </div>
+          </Link>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 gap-6">
         <LeaveSnapshot leaves={leaveBalance} />

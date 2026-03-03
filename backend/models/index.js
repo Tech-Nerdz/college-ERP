@@ -32,6 +32,7 @@ import FacultyEduQualification from './FacultyEduQualification.model.js';
 import FacultyExperience from './FacultyExperience.model.js';
 import FacultyIndustryExperience from './FacultyIndustryExperience.model.js';
 import FacultyPhd from './FacultyPhd.model.js';
+import TimetableSimple from './TimetableSimple.model.js';
 
 // Initialize models
 const models = {
@@ -65,6 +66,7 @@ const models = {
   FacultyExperience: FacultyExperience(sequelize),
   FacultyIndustryExperience: FacultyIndustryExperience(sequelize),
   FacultyPhd: FacultyPhd(sequelize),
+  TimetableSimple: TimetableSimple,
 };
 
 // Define associations
@@ -77,4 +79,4 @@ Object.keys(models).forEach((modelName) => {
 const initModels = () => ({...models, sequelize});
 
 export default initModels;
-export { models, sequelize };
+export { models, sequelize, TimetableSimple };

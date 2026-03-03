@@ -7,6 +7,20 @@ const errorHandler = (err, req, res, next) => {
   // Log to console for dev
   console.log(err.stack.red);
 
+  // Handle Multer errors
+  if (err.name === 'MulterError') {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        error: 'File size exceeds the limit'
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      error: err.message
+    });
+  }
+
   if (err.name === 'SequelizeUniqueConstraintError') {
     const message = 'Duplicate field value entered';
     error = new ErrorResponse(message, 400);

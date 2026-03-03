@@ -219,6 +219,10 @@ export const login = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse('Please provide an email and password', 400));
   }
 
+  // normalize identifier for case-insensitive lookup
+  const identifier = email.toString().trim();
+  const lowerId = identifier.toLowerCase();
+
   let user = null;
   let userType = null; // 'admin', 'faculty', or 'student'
 
@@ -231,7 +235,10 @@ export const login = asyncHandler(async (req, res, next) => {
     const requestedRole = (req.body && req.body.requestedRole) ? req.body.requestedRole.toString().toLowerCase() : null;
     const includeDeptAdmins = requestedRole && requestedRole.includes('admin');
 
-    const facultyWhere = { email };
+    const facultyWhere = {
+      // case-insensitive email comparison
+      [Op.and]: sequelize.where(sequelize.fn('lower', sequelize.col('email')), lowerId)
+    };
     if (!includeDeptAdmins) {
       // exclude department-admins when not explicitly requested
       facultyWhere.role_id = { [Op.ne]: 7 };
@@ -249,6 +256,7 @@ export const login = asyncHandler(async (req, res, next) => {
         userType = 'faculty';
         return sendTokenResponse(user, 200, res);
       }
+      console.warn('[AUTH] Faculty found but password mismatch or inactive:', identifier);
       // If password doesn't match or inactive, fall through to check other tables
       user = null;
     }
@@ -261,8 +269,10 @@ export const login = asyncHandler(async (req, res, next) => {
     user = await Student.findOne({
       where: {
         [Op.or]: [
-          { email },
-          { studentId: email } // 'email' variable really holds the identifier string
+          // case-insensitive email match
+          sequelize.where(sequelize.fn('lower', sequelize.col('email')), lowerId),
+          // studentId might be case-sensitive; compare raw identifier
+          { studentId: identifier }
         ]
       },
       attributes: { exclude: ['userId'] },
@@ -275,6 +285,7 @@ export const login = asyncHandler(async (req, res, next) => {
         userType = 'student';
         return sendTokenResponse(user, 200, res);
       }
+      console.warn('[AUTH] Student found but password mismatch or inactive:', identifier);
       // If password doesn't match or inactive, fall through to check admin
       user = null;
     }
@@ -285,7 +296,7 @@ export const login = asyncHandler(async (req, res, next) => {
   try {
     // 3. Check for admin user in users table (lowest priority)
     user = await User.findOne({
-      where: { email },
+      where: sequelize.where(sequelize.fn('lower', sequelize.col('email')), lowerId),
       attributes: { include: ['password'] },
       include: [{ model: Role, as: 'role' }]
     });
@@ -294,10 +305,7 @@ export const login = asyncHandler(async (req, res, next) => {
       if (!user.isActive) {
         return next(new ErrorResponse('Your account has been deactivated', 401));
       }
-
-      // If this user is a department admin (role_id 7), treat specially so that
-      // we can carry over a department_id even if the account exists only in users
-      // table.  We also allow falling back to the faculty_profiles record if the
+      // continue login for admin
       // password is stored there.
       if (user.role && user.role.role_id === 7) {
         // First try validating with the user's password from users table
@@ -358,6 +366,7 @@ export const login = asyncHandler(async (req, res, next) => {
   }
 
   // If no user found or password doesn't match in any table
+  console.warn('[AUTH] Login failed for identifier:', identifier, 'requestedRole:', requestedRole);
   return next(new ErrorResponse('Invalid credentials', 401));
 });
 

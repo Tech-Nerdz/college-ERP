@@ -39,12 +39,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const clearLoginError = () => setLoginError(null);
 
   const login = async (identifier: string, password: string, role: UserRole): Promise<boolean> => {
-    const trimmedId = identifier.trim().toLowerCase();
+    const trimmedId = identifier.trim();
     const trimmedPassword = password.trim();
 
     console.log('Login attempt:', {
       identifier: trimmedId,
-      password: trimmedPassword,
       passwordLength: trimmedPassword.length,
       role
     });

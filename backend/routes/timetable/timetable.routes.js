@@ -15,15 +15,42 @@ import {
   getTodaySchedule
 } from '../../controllers/timetable/timetable.controller.js';
 
+import { bulkUploadTimetable, getPersonalTimetable, getMyTimetable, getMyStudentTimetable } from '../../controllers/timetable/timetable-bulk.controller.js';
+
 import { protect, authorize } from '../../middleware/auth.js';
+import upload from '../../middleware/upload.js';
 
 const router = express.Router();
+
+// Multer error handler for bulk upload
+const handleMulterError = (err, req, res, next) => {
+  if (err) {
+    console.error('Multer error in route:', err.message);
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({ success: false, error: 'File size exceeds limit' });
+    }
+    return res.status(400).json({ success: false, error: err.message });
+  }
+  next();
+};
 
 // All routes require authentication
 router.use(protect);
 
 // Get today's schedule for logged in user
 router.get('/today', getTodaySchedule);
+
+// Bulk upload timetable (with file upload)
+router.post('/bulk-upload', upload.single('file'), handleMulterError, bulkUploadTimetable);
+
+// Get personal timetable for logged-in faculty (protected, faculty role only)
+router.get('/faculty/me', authorize('faculty'), getMyTimetable);
+
+// Get personal timetable for logged-in student (protected, student role only)
+router.get('/student/me', authorize('student'), getMyStudentTimetable);
+
+// Get personal timetable for a faculty
+router.get('/personal/:facultyId', getPersonalTimetable);
 
 // Period configuration routes
 router.route('/config/periods')

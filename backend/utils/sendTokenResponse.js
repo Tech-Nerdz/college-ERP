@@ -22,7 +22,7 @@ const sendTokenResponse = (user, statusCode, res) => {
       name: `${user.firstName} ${user.lastName}`,
       email: user.email,
       role: 'student',
-      department: user.department,
+      department: user.department?.short_name || null,
       year: user.year,
       semester: user.semester,
       rollNo: user.studentId,

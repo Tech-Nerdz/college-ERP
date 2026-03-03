@@ -1,13 +1,13 @@
 import React, { useState, useRef } from "react";
-import { MainLayout } from "../components/layout/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MainLayout } from "@/pages/faculty/components/layout/MainLayout";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/pages/faculty/components/ui/card";
+import { Label } from "@/pages/faculty/components/ui/label";
+import { Button } from "@/pages/faculty/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/pages/faculty/components/ui/select";
 import { Upload, CheckCircle2, FileText, Loader2, X } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/pages/faculty/components/ui/use-toast";
 import { useAuth } from '@/contexts/AuthContext';
-import { cn } from "@/lib/utils";
+import { cn } from "@/pages/faculty/lib/utils";
 
 interface TimetablePreview {
   facultyId: string;
@@ -21,7 +21,7 @@ interface TimetablePreview {
   academicYear: string;
 }
 
-export const CreateTimetable = () => {
+export default function CreateTimetable() {
   const [academicYear, setAcademicYear] = useState("2025-2026");
   const [semester, setSemester] = useState("odd");
   const [file, setFile] = useState<File | null>(null);
@@ -363,9 +363,6 @@ export const CreateTimetable = () => {
                   </p>
                   <div className="space-y-2 font-mono text-sm">
                     <div className="bg-background p-2 rounded border">
-                      <span className="text-primary font-semibold">id</span>
-                    </div>
-                    <div className="bg-background p-2 rounded border">
                       <span className="text-primary font-semibold">facultyId</span>
                     </div>
                     <div className="bg-background p-2 rounded border">
@@ -392,15 +389,9 @@ export const CreateTimetable = () => {
                     <div className="bg-background p-2 rounded border">
                       <span className="text-primary font-semibold">academicYear</span>
                     </div>
-                    <div className="bg-background p-2 rounded border">
-                      <span className="text-primary font-semibold">createdAt</span>
-                    </div>
-                    <div className="bg-background p-2 rounded border">
-                      <span className="text-primary font-semibold">updatedAt</span>
-                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-4 italic">
-                    Note: Column names must match exactly. The id, createdAt, and updatedAt fields are auto-generated if not provided.
+                    Note: Column names must match exactly as shown above.
                   </p>
                 </div>
 
@@ -410,9 +401,9 @@ export const CreateTimetable = () => {
                   <div className="bg-muted/50 rounded-lg p-4 overflow-x-auto">
                     <pre className="text-xs font-mono whitespace-pre">
 {`facultyId,facultyName,department,year,section,day,hour,subject,academicYear
-FAC001,John Smith,CSE,1st,A,Monday,1,Math,2025-2026
-FAC001,John Smith,CSE,1st,A,Monday,2,Physics,2025-2026
-FAC002,Jane Doe,CSE,2nd,B,Tuesday,1,Chemistry,2025-2026`}
+FAC001,John Smith,CSE,1,A,Monday,1,Math,2025-2026
+FAC001,John Smith,CSE,1,A,Monday,2,Physics,2025-2026
+FAC002,Jane Doe,CSE,2,B,Tuesday,1,Chemistry,2025-2026`}
                     </pre>
                   </div>
                 </div>
@@ -423,6 +414,4 @@ FAC002,Jane Doe,CSE,2nd,B,Tuesday,1,Chemistry,2025-2026`}
       </div>
     </MainLayout>
   );
-};
-
-export default CreateTimetable;
+}

@@ -21,8 +21,8 @@ import NotFound from "./pages/NotFound";
 import { MentorDashboard } from "./pages/MentorDashboard";
 import { MenteesList } from "./pages/MenteesList";
 import { StudentProfileView } from "./pages/StudentProfileView";
+import CreateTimetable from "./pages/CreateTimetable";
 import { useAuth } from "@/contexts/AuthContext";
-import CreateTimetable from "@/pages/admin/department-admin/pages/CreateTimetable";
 
 import './faculty.css';
 

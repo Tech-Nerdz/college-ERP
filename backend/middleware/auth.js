@@ -68,10 +68,16 @@ export const protect = asyncHandler(async (req, res, next) => {
 
       // Add role info for student and extract department code
       req.user.role = 'student';
-      req.user.departmentCode = req.user.department?.short_name || null;
+      req.user.departmentCode = decoded.department || req.user.department?.short_name || null;
+      req.user.department = decoded.department || req.user.department?.short_name || null;
       // normalize department id properties for compatibility
       req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
+      // Set year, section, academicYear from JWT for timetable lookup
+      req.user.year = decoded.year || req.user.year || null;
+      req.user.section = decoded.section || req.user.section || null;
+      req.user.academicYear = decoded.academicYear || req.user.batch || null;
+      console.log('[AUTH] Student logged in - department:', req.user.department, 'year:', req.user.year, 'section:', req.user.section, 'academicYear:', req.user.academicYear);
       return next();
     }
 
@@ -98,7 +104,11 @@ export const protect = asyncHandler(async (req, res, next) => {
       // normalize department id and faculty id properties for compatibility
       req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
-      req.user.faculty_id = req.user.faculty_id || req.user.facultyId || req.user.id || null;
+      // Set both faculty_id and facultyId for compatibility
+      // Use decoded.facultyId (faculty_college_code from JWT) for timetable lookup
+      req.user.faculty_id = decoded.id;
+      req.user.facultyId = decoded.facultyId || String(decoded.id);
+      console.log('[AUTH] Faculty logged in - faculty_id:', req.user.faculty_id, 'facultyId:', req.user.facultyId);
       return next();
     }
 
@@ -125,7 +135,10 @@ export const protect = asyncHandler(async (req, res, next) => {
       // normalize ids
       req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
-      req.user.faculty_id = req.user.faculty_id || req.user.facultyId || req.user.id || null;
+      // Set both faculty_id and facultyId for compatibility
+      req.user.faculty_id = req.user.faculty_id || req.user.id || null;
+      req.user.facultyId = String(req.user.faculty_id); // facultyId as string for timetable table
+      console.log('[AUTH] Department-admin logged in - faculty_id:', req.user.faculty_id, 'facultyId:', req.user.facultyId);
       return next();
     }
 

@@ -14,55 +14,35 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 
 const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-const timeSlots = [
-  "09:00",
-  "10:00",
-  "11:00",
-  "12:00",
-  "14:00",
-  "15:00",
-  "16:00",
-];
+const hours = [1, 2, 3, 4, 5, 6, 7]; // 7 periods per day
 
-// Helper to convert 24-hour to 12-hour format for display
-const formatTimeForDisplay = (time24: string): string => {
-  const hour = parseInt(time24.split(':')[0], 10);
-  if (hour === 9) return "9:00 AM";
-  if (hour === 10) return "10:00 AM";
-  if (hour === 11) return "11:00 AM";
-  if (hour === 12) return "12:00 PM";
-  if (hour === 13) return "1:00 PM";
-  if (hour === 14) return "2:00 PM";
-  if (hour === 15) return "3:00 PM";
-  if (hour === 16) return "4:00 PM";
-  if (hour === 17) return "5:00 PM";
-  return time24;
+// Helper to convert hour number to display time
+const formatHourForDisplay = (hour: number): string => {
+  const timeMap: { [key: number]: string } = {
+    1: "09:00 - 10:00",
+    2: "10:00 - 11:00",
+    3: "11:00 - 12:00",
+    4: "12:00 - 13:00",
+    5: "14:00 - 15:00",
+    6: "15:00 - 16:00",
+    7: "16:00 - 17:00"
+  };
+  return timeMap[hour] || `Hour ${hour}`;
 };
 
 interface ClassSlot {
   id: number;
   subject: string;
   section: string;
-  room: string;
-  type: "lecture" | "lab" | "tutorial";
+  department: string;
+  year: string;
+  academicYear: string;
 }
 
 type TimetableData = {
   [key: string]: {
-    [key: string]: ClassSlot[];
+    [key: number]: ClassSlot[];
   };
-};
-
-const typeStyles = {
-  lecture: "bg-primary/10 border-primary/30 hover:bg-primary/20",
-  lab: "bg-secondary/10 border-secondary/30 hover:bg-secondary/20",
-  tutorial: "bg-warning/10 border-warning/30 hover:bg-warning/20",
-};
-
-const typeColors = {
-  lecture: "text-primary",
-  lab: "text-secondary",
-  tutorial: "text-warning",
 };
 
 export default function Timetable() {
@@ -119,40 +99,32 @@ export default function Timetable() {
   const fetchTimetable = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/faculty/me/timetable');
+      const response = await fetch('/api/v1/timetable/faculty/me');
       const data = await response.json();
 
-      if (data.success) {
-        console.log("API Response - Total slots:", data.data.length);
-        console.log("API Response - Sample slot:", data.data[0]);
+      console.log('[DEBUG] fetchTimetable - Response status:', response.status);
+      console.log('[DEBUG] fetchTimetable - Response data:', data);
+
+      if (data.success && data.timetable && data.timetable.length > 0) {
+        console.log("API Response - Total slots:", data.timetable.length);
+        console.log("API Response - Sample slot:", data.timetable[0]);
         
-        // Create a lookup map for O(1) access instead of searching arrays
+        // Create a lookup map for O(1) access
         const timetableMap: { [key: string]: any } = {};
 
-        data.data.forEach((slot: any) => {
-          // Normalize start time: support formats like "09:00-10:00" or "09:00:00"
-          const rawTime = slot.start_time || slot.time || '';
-          let startTime = '';
-          
-          if (rawTime.includes('-')) {
-            // Format: "09:00-10:00"
-            startTime = rawTime.split('-')[0].trim();
-          } else if (rawTime.includes(':')) {
-            // Format: "09:00:00" or "09:00"
-            // Ensure we always get HH:MM format (24-hour)
-            startTime = rawTime.substring(0, 5).trim();
-          }
-          
-          // Normalize day to lowercase for consistent matching
-          const dayKey = slot.day ? slot.day.toLowerCase().trim() : '';
-          const key = `${dayKey}_${startTime}`;
+        data.timetable.forEach((slot: any) => {
+          // Normalize day
+          const dayKey = slot.day ? slot.day.trim() : '';
+          const hourKey = parseInt(slot.hour, 10);
+          const key = `${dayKey}_${hourKey}`;
           
           timetableMap[key] = {
-            id: slot.id,
-            subject: slot.subject ? slot.subject.name : 'Unknown',
-            section: slot.class ? slot.class.name : '',
-            room: slot.room || 'TBA',
-            type: slot.type
+            id: slot.id || Math.random(),
+            subject: slot.subject || 'Unknown',
+            section: slot.section || '',
+            department: slot.department || '',
+            year: slot.year || '',
+            academicYear: slot.academicYear || ''
           };
         });
 
@@ -163,31 +135,47 @@ export default function Timetable() {
           Monday: {}, Tuesday: {}, Wednesday: {}, Thursday: {}, Friday: {}, Saturday: {}
         };
 
-        // Initialize all day/time combinations with empty arrays
+        // Initialize all day/hour combinations with empty arrays
         days.forEach(day => {
-          timeSlots.forEach(time => {
-            formattedData[day][time] = [];
+          hours.forEach(hour => {
+            formattedData[day][hour] = [];
           });
         });
 
         // Populate the formatted data from the map
-        // Use exact matching with lowercase day and 24-hour time format
         Object.entries(timetableMap).forEach(([key, slot]: [string, any]) => {
-          const [dayKey, timeStr] = key.split('_');
+          const [dayKey, hourStr] = key.split('_');
+          const hourKey = parseInt(hourStr, 10);
           
-          // Find the matching day (case-insensitive)
-          const day = days.find(d => d.toLowerCase() === dayKey);
+          // Find the matching day
+          const day = days.find(d => d === dayKey);
           
-          // Use exact 24-hour time format match
-          const timeSlot = timeSlots.find(t => t === timeStr);
+          // Use exact hour match
+          const hourSlot = hours.find(h => h === hourKey);
 
-          if (day && timeSlot && formattedData[day] && formattedData[day][timeSlot]) {
-            formattedData[day][timeSlot].push(slot);
+          if (day && hourSlot && formattedData[day] && formattedData[day][hourSlot]) {
+            formattedData[day][hourSlot].push(slot);
           }
         });
 
-        console.log("Formatted Data - Monday 09:00:", formattedData['Monday']?.['09:00']);
+        console.log("Formatted Data - Monday Hour 1:", formattedData['Monday']?.[1]);
         setTimetableData(formattedData);
+      } else if (!response.ok) {
+        // Handle error responses
+        console.error('Error response:', data);
+        if (response.status === 401) {
+          toast.error('Please login to view your timetable');
+        } else if (response.status === 403) {
+          toast.error('You are not authorized to view this timetable');
+        } else {
+          toast.error(data.error || 'Failed to load timetable');
+        }
+        setTimetableData({});
+      } else {
+        // No timetable found - this is expected for new faculty
+        console.log("No timetable found for this faculty");
+        console.log("Message from server:", data.message);
+        setTimetableData({});
       }
     } catch (error) {
       console.error('Failed to fetch timetable:', error);
@@ -291,15 +279,7 @@ export default function Timetable() {
       >
         <div className="flex items-center gap-2">
           <div className="w-4 h-4 rounded bg-primary/20 border border-primary/30" />
-          <span className="text-sm text-muted-foreground">Lecture</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-secondary/20 border border-secondary/30" />
-          <span className="text-sm text-muted-foreground">Lab</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-warning/20 border border-warning/30" />
-          <span className="text-sm text-muted-foreground">Tutorial</span>
+          <span className="text-sm text-muted-foreground">Assigned Class</span>
         </div>
       </motion.div>
 
@@ -314,45 +294,52 @@ export default function Timetable() {
           <div className="flex items-center justify-center h-full pt-12">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
+        ) : Object.keys(timetableData).length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64 text-center">
+            <CalendarIcon className="w-16 h-16 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold text-muted-foreground">Timetable not yet assigned.</h3>
+            <p className="text-sm text-muted-foreground mt-2">
+              Please contact your department admin to assign your timetable.
+            </p>
+          </div>
         ) : (
           <table className="w-full min-w-[900px]">
             <thead>
               <tr>
                 <th className="p-3 text-left text-sm font-semibold text-muted-foreground border-b">
-                  <CalendarIcon className="w-4 h-4 inline mr-2" />
-                  Day
+                  <Clock className="w-4 h-4 inline mr-2" />
+                  Time
                 </th>
-                {timeSlots.map((time) => (
+                {days.map((day) => (
                   <th
-                    key={time}
+                    key={day}
                     className="p-3 text-center text-sm font-semibold text-muted-foreground border-b"
                   >
-                    <Clock className="w-4 h-4 inline mr-2" />
-                    {formatTimeForDisplay(time)}
+                    {day}
                   </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {days.map((day, dayIndex) => (
+              {hours.map((hour, hourIndex) => (
                 <motion.tr
-                  key={day}
+                  key={hour}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 + dayIndex * 0.05 }}
-                  className={cn(day === currentDay && "bg-primary/5")}
+                  transition={{ delay: 0.3 + hourIndex * 0.05 }}
+                  className={cn("1" === currentDay && "bg-primary/5")}
                 >
                   <td className={cn(
                     "p-3 text-sm font-medium border-b whitespace-nowrap",
-                    day === currentDay ? "text-primary font-bold" : "text-muted-foreground"
+                    "text-muted-foreground"
                   )}>
-                    {day}
+                    {formatHourForDisplay(hour)}
                   </td>
-                  {timeSlots.map((time) => {
-                    const slots = timetableData[day]?.[time];
+                  {days.map((day) => {
+                    const slots = timetableData[day]?.[hour];
                     return (
                       <td
-                        key={`${day}-${time}`}
+                        key={`${day}-${hour}`}
                         className="p-2 border-b"
                       >
                         {slots && slots.length > 0 ? (
@@ -361,31 +348,20 @@ export default function Timetable() {
                               <div key={slot.id} className="relative group">
                                 <motion.div
                                   whileHover={{ scale: 1.02 }}
-                                  className={cn(
-                                    "p-3 rounded-lg border cursor-pointer transition-all",
-                                    typeStyles[slot.type]
-                                  )}
+                                  className="p-3 rounded-lg border bg-primary/10 border-primary/30 hover:bg-primary/20 cursor-pointer transition-all"
                                 >
-                                  <p className={cn("font-semibold text-sm", typeColors[slot.type])}>
+                                  <p className="font-semibold text-sm text-primary">
                                     {slot.subject}
                                   </p>
                                   <p className="text-xs text-muted-foreground mt-1">
-                                    {slot.section} {slot.room}
+                                    {slot.section} {slot.department && `- ${slot.department}`}
                                   </p>
+                                  {slot.year && (
+                                    <p className="text-xs text-muted-foreground">
+                                      Year: {slot.year}
+                                    </p>
+                                  )}
                                 </motion.div>
-
-                                {/* Hover Action to Mark Absent */}
-                                <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Button
-                                    size="icon"
-                                    variant="destructive"
-                                    className="h-6 w-6 rounded-full"
-                                    title="Mark Absent & Request Substitute"
-                                    onClick={() => openSubstituteDialog(day, time, slot)}
-                                  >
-                                    <UserX className="h-3 w-3" />
-                                  </Button>
-                                </div>
                               </div>
                             ))}
                           </div>

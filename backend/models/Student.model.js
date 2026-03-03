@@ -123,7 +123,14 @@ const Student = (sequelize) => {
   };
 
   StudentModel.prototype.getSignedJwtToken = function () {
-    return jwt.sign({ id: this.id, type: 'student' }, process.env.JWT_SECRET, {
+    return jwt.sign({ 
+      id: this.id, 
+      type: 'student',
+      department: this.department?.short_name || null,
+      year: this.year || null,
+      section: this.section || null,
+      academicYear: this.batch || null
+    }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRE
     });
   };

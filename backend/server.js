@@ -75,8 +75,16 @@ const startServer = () => {
 
   const app = express();
 
-  // Body parser
-  app.use(express.json());
+  // Body parser - but skip for multipart/form-data
+  app.use((req, res, next) => {
+    if (req.headers['content-type'] && req.headers['content-type'].includes('multipart/form-data')) {
+      return next();
+    }
+    express.json({ limit: '10mb' })(req, res, next);
+  });
+
+  // URL encoded parser for form data
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
   // Handle invalid JSON payloads from clients to avoid unhandled exceptions
   // This must be registered immediately after `express.json()` so parse errors
@@ -97,12 +105,13 @@ const startServer = () => {
     app.use(morgan('dev'));
   }
 
-  // File uploading
-  app.use(fileupload({
-    useTempFiles: true,
-    tempFileDir: '/tmp/',
-    createParentPath: true
-  }));
+  // NOTE: Disabled express-fileupload - using multer for file uploads instead
+  // If you need express-fileupload for other routes, add it back but only for non-multipart requests
+  // app.use(fileupload({
+  //   useTempFiles: true,
+  //   tempFileDir: '/tmp/',
+  //   createParentPath: true
+  // }));
 
   // Simple request logger to help debug unexpected 500s from endpoints
   app.use((req, res, next) => {
@@ -164,6 +173,23 @@ const startServer = () => {
   // Health check
   app.get('/api/v1/health', (req, res) => {
     res.status(200).json({ success: true, message: 'Eduvertex ERP API is running' });
+  });
+
+  // Global error handler for multer
+  app.use((err, req, res, next) => {
+    if (err) {
+      console.error('Multer error:', err.message);
+      if (err.message === 'Unexpected end of form') {
+        return res.status(400).json({ success: false, error: 'File upload failed. Please try again.' });
+      }
+      if (err.message === 'Only CSV files allowed') {
+        return res.status(400).json({ success: false, error: err.message });
+      }
+      if (err.message && err.message.includes('File too large')) {
+        return res.status(400).json({ success: false, error: 'File size exceeds the limit (10MB)' });
+      }
+    }
+    next(err);
   });
 
   app.use(errorHandler);
