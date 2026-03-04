@@ -24,10 +24,6 @@ import departmentRoutes from './routes/admin/department.routes.js';
 import adminSubjectRoutes from './routes/admin/subject.routes.js';
 import facultyRoutes from './routes/faculty/faculty.routes.js';
 import studentRoutes from './routes/student/student.routes.js';
-import studentBioRoutes from './routes/student/studentBio.routes.js';
-import studentAttendanceRoutes from './routes/student/studentAttendance.routes.js';
-import studentEventRoutes from './routes/student/studentEvent.routes.js';
-import studentSportRoutes from './routes/student/studentSport.routes.js';
 import timetableRoutes from './routes/timetable/timetable.routes.js';
 import timetableManagementAdminRoutes from './routes/admin/timetable-management.routes.js';
 import leaveRoutes from './routes/leave-attendance/leave.routes.js';
@@ -160,10 +156,6 @@ const startServer = () => {
   app.use('/api/v1/admin/subjects', adminSubjectRoutes);
   app.use('/api/v1/faculty', facultyRoutes);
   app.use('/api/v1/students', studentRoutes);
-  app.use('/api/v1/student/bio', studentBioRoutes);
-  app.use('/api/v1/student/attendance', studentAttendanceRoutes);
-  app.use('/api/v1/student/events', studentEventRoutes);
-  app.use('/api/v1/student/sports', studentSportRoutes);
   app.use('/api/v1/subjects', generalSubjectRoutes);
   app.use('/api/v1/classes', classRoutes);
   app.use('/api/v1/timetable', timetableRoutes);
@@ -202,8 +194,7 @@ const startServer = () => {
 
   app.use(errorHandler);
 
-  // prefer using environment variable, but default to 3005 as requested
-  const PORT = process.env.PORT || 3005;
+  const PORT = process.env.PORT || 5000;
 
   const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);
