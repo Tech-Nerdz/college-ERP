@@ -1993,7 +1993,8 @@ export default function Profile() {
       setLoading(true);
       const token = localStorage.getItem('authToken');
 
-      const response = await fetch('http://localhost:5000/api/v1/faculty/download-profile', {
+      // use proxy path rather than hardcoding host/port
+      const response = await fetch('/api/v1/faculty/download-profile', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

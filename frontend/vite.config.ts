@@ -11,17 +11,18 @@ export default defineConfig({
     },
   },
   server: {
-    port: 8087,
+    // frontend development server must run on 8086 per requirement
+    port: 8086,
     strictPort: true,
     open: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:8086',
+        target: 'http://localhost:3005',
         changeOrigin: true,
         secure: false,
       },
       '/uploads': {
-        target: 'http://localhost:8086',
+        target: 'http://localhost:3005',
         changeOrigin: true,
         secure: false,
       },
