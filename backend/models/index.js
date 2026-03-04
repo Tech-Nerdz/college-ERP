@@ -33,6 +33,16 @@ import FacultyExperience from './FacultyExperience.model.js';
 import FacultyIndustryExperience from './FacultyIndustryExperience.model.js';
 import FacultyPhd from './FacultyPhd.model.js';
 import TimetableSimple from './TimetableSimple.model.js';
+import StudentBio from './StudentBio.model.js';
+import StudentAttendance from './StudentAttendance.model.js';
+import StudentMarks from './StudentMarks.model.js';
+import StudentInternalMarks from './StudentInternalMarks.model.js';
+import StudentCertification from './StudentCertification.model.js';
+import StudentEvent from './StudentEvent.model.js';
+import StudentDisciplinary from './StudentDisciplinary.model.js';
+import StudentProject from './StudentProject.model.js';
+import StudentSport from './StudentSport.model.js';
+import StudentNotification from './StudentNotification.model.js';
 
 // Initialize models
 const models = {
@@ -67,6 +77,16 @@ const models = {
   FacultyIndustryExperience: FacultyIndustryExperience(sequelize),
   FacultyPhd: FacultyPhd(sequelize),
   TimetableSimple: TimetableSimple,
+  StudentBio: StudentBio(sequelize),
+  StudentAttendance: StudentAttendance(sequelize),
+  StudentMarks: StudentMarks(sequelize),
+  StudentInternalMarks: StudentInternalMarks(sequelize),
+  StudentCertification: StudentCertification(sequelize),
+  StudentEvent: StudentEvent(sequelize),
+  StudentDisciplinary: StudentDisciplinary(sequelize),
+  StudentProject: StudentProject(sequelize),
+  StudentSport: StudentSport(sequelize),
+  StudentNotification: StudentNotification(sequelize),
 };
 
 // Define associations
