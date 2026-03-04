@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 25, 2026 at 07:08 PM
+-- Generation Time: Mar 03, 2026 at 04:43 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,7 +49,9 @@ CREATE TABLE `announcements` (
 --
 
 INSERT INTO `announcements` (`id`, `title`, `message`, `type`, `priority`, `targetRole`, `department`, `attachments`, `isActive`, `createdById`, `creatorRole`, `expiresAt`, `createdAt`, `updatedAt`) VALUES
-(5, 'Welcome to eduvertex', 'The Eduvertex is a real time ERP Enterpersise Resource Planning ', 'general', 'low', '[\"all\"]', NULL, '[]', 1, 109, 'super-admin', NULL, '2026-02-25 16:30:00', '2026-02-25 16:30:00');
+(1, 'Welcome to Eduvertex ERP', 'Welcome to the new Eduvertex ERP system. This system will help manage all academic and administrative activities.', 'general', 'medium', '[\"all\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
+(2, 'Semester 6 Timetable Released', 'The timetable for Semester 6 has been released. Please check the timetable section for details.', 'academic', 'high', '[\"student\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
+(3, 'Faculty Meeting Tomorrow', 'All faculty members are requested to attend the meeting tomorrow at 10 AM in the conference hall.', 'general', 'medium', '[\"faculty\"]', NULL, '[]', 1, 1, 'superadmin', NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -156,46 +158,11 @@ CREATE TABLE `faculty_experience` (
   `from_date` date DEFAULT NULL,
   `to_date` date DEFAULT NULL,
   `period` varchar(50) DEFAULT NULL,
-  `is_current` tinyint(1) DEFAULT 0
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `faculty_experience`
---
-
-INSERT INTO `faculty_experience` (`exp_id`, `faculty_id`, `designation`, `institution_name`, `university`, `department`, `from_date`, `to_date`, `period`, `is_current`) VALUES
-(2, 406, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'akka university', 'Electronics & Communication Engineering', '2026-02-24', '2026-02-24', '4M', 0),
-(4, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'asdfasf', 'Internet of Things', '2026-02-25', '2026-02-17', '232', 0),
-(5, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0),
-(6, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0),
-(7, 101, 'Assistant Professor', 'Nadar Saraswathi College of Engineering and Technology', 'Anna University', 'Computer Science Engineering', '2020-01-01', '2023-12-31', '3 years', 0);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `faculty_industry_experience`
---
-
-CREATE TABLE `faculty_industry_experience` (
-  `exp_id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `job_title` varchar(150) DEFAULT NULL,
-  `company` varchar(255) DEFAULT NULL,
-  `location` varchar(255) DEFAULT NULL,
-  `from_date` date DEFAULT NULL,
-  `to_date` date DEFAULT NULL,
-  `period` varchar(50) DEFAULT NULL,
   `is_current` tinyint(1) DEFAULT 0,
-  `status` enum('active','inactive') DEFAULT 'active'
+  `job_title` varchar(150) NOT NULL,
+  `company` varchar(255) NOT NULL,
+  `location` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `faculty_industry_experience`
---
-
-INSERT INTO `faculty_industry_experience` (`exp_id`, `faculty_id`, `job_title`, `company`, `location`, `from_date`, `to_date`, `period`, `is_current`, `status`) VALUES
-(3, 406, 'Data Analyst', 'Ematix private Limited', 'Theni', '2026-02-24', '2026-03-14', '2m', 0, 'active'),
-(5, 101, 'Project Manager', 'dsfgfhg', 'dfgf', '0000-00-00', '0000-00-00', '', 0, 'active');
 
 -- --------------------------------------------------------
 
@@ -216,24 +183,6 @@ CREATE TABLE `faculty_leaves` (
   `applied_on` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `faculty_leave_schedules`
---
-
-CREATE TABLE `faculty_leave_schedules` (
-  `id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `leave_id` int(11) DEFAULT NULL,
-  `from_date` date NOT NULL,
-  `to_date` date NOT NULL,
-  `is_active` tinyint(1) DEFAULT 1,
-  `reason` text DEFAULT NULL,
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -271,7 +220,6 @@ CREATE TABLE `faculty_profiles` (
   `department_id` int(11) DEFAULT NULL,
   `designation` varchar(100) DEFAULT NULL,
   `educational_qualification` varchar(255) DEFAULT NULL,
-  `phd_status` enum('Yes','No','Pursuing') DEFAULT 'No',
   `gender` enum('Male','Female','Other') DEFAULT NULL,
   `date_of_birth` date DEFAULT NULL,
   `date_of_joining` date DEFAULT NULL,
@@ -284,115 +232,119 @@ CREATE TABLE `faculty_profiles` (
   `curr_address` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `linkedin_url` varchar(255) DEFAULT NULL,
-  `is_timetable_incharge` tinyint(1) NOT NULL DEFAULT 0,
-  `is_placement_coordinator` tinyint(1) NOT NULL DEFAULT 0
+  `phd_status` enum('Yes','No','Pursuing') DEFAULT 'No',
+  `linkedin_url` text DEFAULT NULL,
+  `is_timetable_incharge` tinyint(1) DEFAULT 0,
+  `is_placement_coordinator` tinyint(1) DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `faculty_profiles`
 --
 
-INSERT INTO `faculty_profiles` (`faculty_id`, `faculty_college_code`, `coe_id`, `AICTE_ID`, `Anna_University_ID`, `Name`, `email`, `phone_number`, `password`, `role_id`, `department_id`, `designation`, `educational_qualification`, `phd_status`, `gender`, `date_of_birth`, `date_of_joining`, `profile_image_url`, `status`, `blood_group`, `aadhar_number`, `pan_number`, `perm_address`, `curr_address`, `created_at`, `updated_at`, `linkedin_url`, `is_timetable_incharge`, `is_placement_coordinator`) VALUES
-(101, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'drmathalai.raj@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 7, 1, 'HEAD OF THE DEPARTMENT', NULL, '', NULL, NULL, NULL, '/uploads/faculty/dr_mathalai_raj__j.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-24 15:44:58', NULL, 0, 0),
-(111, 'SH1', NULL, NULL, NULL, 'DR.B.MALLAIYASAMY', 'drbmallaiyasamy.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(121, 'SH10', NULL, NULL, NULL, 'DR.DAVID MATHAN.N', 'drdavid.mathann@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(124, 'ME11', NULL, NULL, NULL, 'VEMBATHURAJESH.A', 'vembathurajesha.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(131, 'AA2', NULL, NULL, NULL, 'Dr.C.MATHALAI SUNDARAM', 'drcmathalai.sundaram@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(132, 'ME12', NULL, NULL, NULL, 'SANTHASEELAN.R', 'santhaseelanr.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(133, 'ME14', NULL, NULL, NULL, 'SIVAGANESAN.V', 'sivaganesanv.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(134, 'ME16', NULL, NULL, NULL, 'NAGARAJA.R', 'nagarajar.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(135, 'ME18', NULL, NULL, NULL, 'NAGARAJAN.B', 'nagarajanb.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(137, 'CS4', NULL, NULL, NULL, 'UDHAYA KUMAR.R', 'udhaya.kumarr@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, 'Assistant Professor', NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-21 14:52:40', NULL, 0, 0),
-(149, 'CS10', NULL, NULL, NULL, 'VIGNESH.L.S', 'vigneshls.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, 'HEAD OF THE DEPARTMENT', NULL, 'No', NULL, NULL, NULL, '/uploads/faculty/vignesh_l_s.png', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-21 14:52:29', NULL, 0, 0),
-(166, 'EC4', NULL, NULL, NULL, 'IDHAYACHANDRAN M', 'idhayachandran.m@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(167, 'EC10', NULL, NULL, NULL, 'DR. N MATHAVAN', 'dr2.n@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(168, 'EC11', NULL, NULL, NULL, 'TAMIL SELVI T', 'tamil.selvi@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(169, 'EC13', NULL, NULL, NULL, 'PRATHAP S', 'prathap.s@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(170, 'EC14', NULL, NULL, NULL, 'BHARATHI KANNAN K', 'bharathi.kannan@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', NULL, 0, 0),
-(345, 'NS1105T18', NULL, NULL, NULL, 'NAGARATHINAM.N', 'ns1105t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(346, 'NS10T18', NULL, NULL, NULL, 'GAYATHRI S', 'ns10t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(347, 'NS303NT06', NULL, NULL, NULL, 'SHANMUGAPRIYAN.R', 'ns303nt06@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(348, 'NS10T21', NULL, NULL, NULL, 'SINDHU M', 'ns10t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(349, 'NS10T27', NULL, NULL, NULL, 'DR.E.ANANTHA KRISHNAN', 'ns10t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(350, 'NS10T29', NULL, NULL, NULL, 'SOWMIYA B', 'ns10t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(351, 'NS10T30', NULL, NULL, NULL, 'KANIMOZHI M', 'ns10t30@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-21 18:35:32', NULL, 0, 0),
-(352, 'NS10T31', NULL, NULL, NULL, 'BENITA MERLIN ISABELLA K', 'ns10t31@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(353, 'NS10T32', NULL, NULL, NULL, 'ARUL JEBARAJ P', 'ns10t32@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(354, 'NS10T33', NULL, NULL, NULL, 'NATHIRUN SABINASH', 'ns10t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(355, 'NS10T34', NULL, NULL, NULL, 'MANOJ PRABAKAR R', 'ns10t34@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(356, 'NS10T35', NULL, NULL, NULL, 'HARI PRASATH T', 'ns10t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(357, 'NS20T35', NULL, NULL, NULL, 'ABIRAMI KAYATHIRI S', 'ns20t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-25 18:05:03', NULL, 1, 0),
-(358, 'NS20T41', NULL, NULL, NULL, 'ANUSUYA V', 'ns20t41@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(360, 'NS20T25', NULL, NULL, NULL, 'VELKUMAR K', 'ns20t25@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(361, 'NS20T33', NULL, NULL, NULL, 'DEEPIGA K', 'ns20t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(362, 'NS20T40', NULL, NULL, NULL, 'VENKATALAKSHMI M', 'ns20t40@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(363, 'NS20T29', NULL, NULL, NULL, 'ARCHANA R', 'ns20t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(364, 'NS70T01', NULL, NULL, NULL, 'DR.M SATHYA', 'ns70t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(365, 'NS61T20', NULL, NULL, NULL, 'ARULVIZHI M', 'ns61t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(366, 'NS22T21', NULL, NULL, NULL, 'PREETHA J', 'ns22t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(367, 'NS61T16', NULL, NULL, NULL, 'Dr.C.CHITHRA', 'ns61t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(368, 'NS61T09', NULL, NULL, NULL, 'KARUNYAH R', 'ns61t09@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(369, 'SH1', NULL, NULL, NULL, 'DR.B.MALLAIYASAMY', 'sh1@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(370, 'NS61T23', NULL, NULL, NULL, 'MUFEENA S', 'ns61t23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(371, 'NS6606T17', NULL, NULL, NULL, 'SUBATHAMANI T', 'ns6606t17@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(372, 'NS6606T18', NULL, NULL, NULL, 'DR. MALARVIZHI P', 'ns6606t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(373, 'NS6606T19', NULL, NULL, NULL, 'DR. VALARMATHI R', 'ns6606t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(374, 'NS60T07', NULL, NULL, NULL, 'RICHARD BRITTO.R.C', 'ns60t07@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(375, 'NS7706T06', NULL, NULL, NULL, 'DR. M VEERA KUMAR', 'ns7706t06@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(376, 'NS62T11', NULL, NULL, NULL, 'DHANDAYUTHAPANI', 'ns62t11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(377, 'NS62T10', NULL, NULL, NULL, 'RAJAGURU K', 'ns62t10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(378, 'NS7706T04', NULL, NULL, NULL, 'Dr.S.R.KRISHNAMOORTHI', 'ns7706t04@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(379, 'SH10', NULL, NULL, NULL, 'DR.DAVID MATHAN.N', 'sh10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(380, 'NS63T13', NULL, NULL, NULL, 'ABINAYA B', 'ns63t13@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(381, 'NS63T16', NULL, NULL, NULL, 'DR R SARAVANANKUMAR', 'ns63t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(382, 'ME11', NULL, NULL, NULL, 'VEMBATHURAJESH.A', 'me11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(383, 'NS67T03', NULL, NULL, NULL, 'THISHA N', 'ns67t03@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(384, 'NS50T16', NULL, NULL, NULL, 'HARIKISHORE.S', 'ns50t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(385, 'NS50T21', NULL, NULL, NULL, 'VENNIMALAI RAJAN A', 'ns50t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(386, 'NS50T22', NULL, NULL, NULL, 'ARUN KUMAR.G', 'ns50t22@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(387, 'NS50T24', NULL, NULL, NULL, 'DR.B.RADHAKRISHNAN', 'ns50t24@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(388, 'NS4407T020', NULL, NULL, NULL, 'SURULIMANI. P', 'ns4407t020@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(389, 'AA2', NULL, NULL, NULL, 'Dr.C.MATHALAI SUNDARAM', 'aa2@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(390, 'ME12', NULL, NULL, NULL, 'SANTHASEELAN.R', 'me12@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(391, 'ME14', NULL, NULL, NULL, 'SIVAGANESAN.V', 'me14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(392, 'ME16', NULL, NULL, NULL, 'NAGARAJA.R', 'me16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(393, 'ME18', NULL, NULL, NULL, 'NAGARAJAN.B', 'me18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(394, 'NS50T19', NULL, NULL, NULL, 'CHAKRAVARTHY SAMY DURAI J', 'ns50t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(395, 'CS4', NULL, NULL, NULL, 'UDHAYA KUMAR.R', 'cs4@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(396, 'NS70T07', NULL, NULL, NULL, 'JASMINE JOSE P', 'ns70t07@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(397, 'NS20T34', NULL, NULL, NULL, 'KESAVAMOORTHY N', 'ns20t34@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(398, 'NS20T14', NULL, NULL, NULL, 'ARUL JOTHI.S', 'ns20t14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(399, 'NS70T05', NULL, NULL, NULL, 'MAHALAKSHMI S', 'ns70t05@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(400, 'NS20T39', NULL, NULL, NULL, 'BHAVANI M', 'ns20t39@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(401, 'NS70T04', NULL, NULL, NULL, 'SAI SUGANYA B', 'ns70t04@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(403, 'NS20T37', NULL, NULL, NULL, 'GEERTHIGA G', 'ns20t37@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:37:47', NULL, 0, 0),
-(404, 'NS20T32', NULL, NULL, NULL, 'VINOTH KUMAR J', 'ns20t32@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(405, 'NS70T02', NULL, NULL, NULL, 'KANIMOLI J', 'ns70t02@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:26:34', NULL, 0, 0),
-(406, 'NS80T01', NULL, NULL, NULL, 'NAGAJOTHI P', 'ns80t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'Pursuing', NULL, NULL, NULL, '/uploads/faculty/nagajothi_p.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-24 14:46:06', 'https://www.linkedin.com/in/prathap/', 1, 0),
-(408, 'NS2207T15', NULL, NULL, NULL, 'PRATHAP. C', 'ns2207t15@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-23 20:38:00', NULL, 0, 1),
-(409, 'NS30T03', NULL, NULL, NULL, 'GANESH.K', 'ns30t03@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(410, 'NS40T16', NULL, NULL, NULL, 'Dr.R.ATHILINGAM', 'ns40t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(411, 'NS30T19', NULL, NULL, NULL, 'RAJA KARTHICK R', 'ns30t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(412, 'NS30T20', NULL, NULL, NULL, 'NISHETHA JEFLIN NIXON A', 'ns30t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(413, 'NS30T25', NULL, NULL, NULL, 'VIJAYALAKSHMI M', 'ns30t25@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(414, 'NS30T26', NULL, NULL, NULL, 'SHIVA C', 'ns30t26@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(415, 'NS30T27', NULL, NULL, NULL, 'ABIRAMI N', 'ns30t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(416, 'NS30T30', NULL, NULL, NULL, 'DR N PANDISELVI', 'ns30t30@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(417, 'NS30T29', NULL, NULL, NULL, 'JURIYA BANU H', 'ns30t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(418, 'NS40T24', NULL, NULL, NULL, 'KALAIVANI S', 'ns40t24@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(419, 'NS40T23', NULL, NULL, NULL, 'GOWTHAMI P', 'ns40t23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(420, 'NS3306T14', NULL, NULL, NULL, 'PRADEEP KUMAR R', 'ns3306t14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(421, 'NS40NT16', NULL, NULL, NULL, 'CHITRA R', 'ns40nt16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(422, 'NS40T19', NULL, NULL, NULL, 'SHANTHA DEVI P', 'ns40t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(423, 'NS40T20', NULL, NULL, NULL, 'DR. T. VENISH KUMAR', 'ns40t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(424, 'EC4', NULL, NULL, NULL, 'IDHAYACHANDRAN M', 'ec4@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(425, 'EC10', NULL, NULL, NULL, 'DR. N MATHAVAN', 'ec10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(426, 'EC11', NULL, NULL, NULL, 'TAMIL SELVI T', 'ec11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(427, 'EC13', NULL, NULL, NULL, 'PRATHAP S', 'ec13@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(428, 'EC14', NULL, NULL, NULL, 'BHARATHI KANNAN K', 'ec14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(429, 'NS40T27', NULL, NULL, NULL, 'RAJESHSHREE S', 'ns40t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0),
-(430, 'NS20NT23', NULL, NULL, NULL, 'MUTHURAJ', 'ns20nt23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, 'No', NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', NULL, 0, 0);
+INSERT INTO `faculty_profiles` (`faculty_id`, `faculty_college_code`, `coe_id`, `AICTE_ID`, `Anna_University_ID`, `Name`, `email`, `phone_number`, `password`, `role_id`, `department_id`, `designation`, `educational_qualification`, `gender`, `date_of_birth`, `date_of_joining`, `profile_image_url`, `status`, `blood_group`, `aadhar_number`, `pan_number`, `perm_address`, `curr_address`, `created_at`, `updated_at`, `phd_status`, `linkedin_url`, `is_timetable_incharge`, `is_placement_coordinator`) VALUES
+(101, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'drmathalai.raj@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 7, 1, NULL, NULL, NULL, NULL, NULL, '/uploads/faculty/dr_mathalai_raj__j.jpg', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-25 04:39:53', 'No', NULL, 0, 0),
+(111, 'SH1', NULL, NULL, NULL, 'DR.B.MALLAIYASAMY', 'drbmallaiyasamy.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(121, 'SH10', NULL, NULL, NULL, 'DR.DAVID MATHAN.N', 'drdavid.mathann@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(124, 'ME11', NULL, NULL, NULL, 'VEMBATHURAJESH.A', 'vembathurajesha.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(131, 'AA2', NULL, NULL, NULL, 'Dr.C.MATHALAI SUNDARAM', 'drcmathalai.sundaram@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(132, 'ME12', NULL, NULL, NULL, 'SANTHASEELAN.R', 'santhaseelanr.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(133, 'ME14', NULL, NULL, NULL, 'SIVAGANESAN.V', 'sivaganesanv.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(134, 'ME16', NULL, NULL, NULL, 'NAGARAJA.R', 'nagarajar.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(135, 'ME18', NULL, NULL, NULL, 'NAGARAJAN.B', 'nagarajanb.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(137, 'CS4', NULL, NULL, NULL, 'UDHAYA KUMAR.R', 'udhaya.kumarr@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(149, 'CS10', NULL, NULL, NULL, 'VIGNESH.L.S', 'vigneshls.faculty@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, '/uploads/faculty/vignesh_l_s.png', 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:52:49', 'No', NULL, 0, 0),
+(166, 'EC4', NULL, NULL, NULL, 'IDHAYACHANDRAN M', 'idhayachandran.m@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(167, 'EC10', NULL, NULL, NULL, 'DR. N MATHAVAN', 'dr2.n@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(168, 'EC11', NULL, NULL, NULL, 'TAMIL SELVI T', 'tamil.selvi@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(169, 'EC13', NULL, NULL, NULL, 'PRATHAP S', 'prathap.s@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(170, 'EC14', NULL, NULL, NULL, 'BHARATHI KANNAN K', 'bharathi.kannan@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:38:21', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(345, 'NS1105T18', NULL, NULL, NULL, 'NAGARATHINAM.N', 'ns1105t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(346, 'NS10T18', NULL, NULL, NULL, 'GAYATHRI S', 'ns10t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(347, 'NS303NT06', NULL, NULL, NULL, 'SHANMUGAPRIYAN.R', 'ns303nt06@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(348, 'NS10T21', NULL, NULL, NULL, 'SINDHU M', 'ns10t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(349, 'NS10T27', NULL, NULL, NULL, 'DR.E.ANANTHA KRISHNAN', 'ns10t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(350, 'NS10T29', NULL, NULL, NULL, 'SOWMIYA B', 'ns10t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(351, 'NS10T30', NULL, NULL, NULL, 'KANIMOZHI M', 'ns10t30@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(352, 'NS10T31', NULL, NULL, NULL, 'BENITA MERLIN ISABELLA K', 'ns10t31@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(353, 'NS10T32', NULL, NULL, NULL, 'ARUL JEBARAJ P', 'ns10t32@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(354, 'NS10T33', NULL, NULL, NULL, 'NATHIRUN SABINASH', 'ns10t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(355, 'NS10T34', NULL, NULL, NULL, 'MANOJ PRABAKAR R', 'ns10t34@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(356, 'NS10T35', NULL, NULL, NULL, 'HARI PRASATH T', 'ns10t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(357, 'NS20T35', NULL, NULL, NULL, 'ABIRAMI KAYATHIRI S', 'ns20t35@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-03-03 15:33:30', 'No', NULL, 1, 0),
+(358, 'NS20T41', NULL, NULL, NULL, 'ANUSUYA V', 'ns20t41@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(359, 'CS12', NULL, NULL, NULL, 'Dr.MATHALAI RAJ. J', 'cs12@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(360, 'NS20T25', NULL, NULL, NULL, 'VELKUMAR K', 'ns20t25@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-03-03 15:04:55', 'No', NULL, 0, 0),
+(361, 'NS20T33', NULL, NULL, NULL, 'DEEPIGA K', 'ns20t33@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-03-03 15:19:30', 'No', NULL, 0, 0),
+(362, 'NS20T40', NULL, NULL, NULL, 'VENKATALAKSHMI M', 'ns20t40@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(363, 'NS20T29', NULL, NULL, NULL, 'ARCHANA R', 'ns20t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(364, 'NS70T01', NULL, NULL, NULL, 'DR.M SATHYA', 'ns70t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 1, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(365, 'NS61T20', NULL, NULL, NULL, 'ARULVIZHI M', 'ns61t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(366, 'NS22T21', NULL, NULL, NULL, 'PREETHA J', 'ns22t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(367, 'NS61T16', NULL, NULL, NULL, 'Dr.C.CHITHRA', 'ns61t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(368, 'NS61T09', NULL, NULL, NULL, 'KARUNYAH R', 'ns61t09@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(369, 'SH1', NULL, NULL, NULL, 'DR.B.MALLAIYASAMY', 'sh1@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(370, 'NS61T23', NULL, NULL, NULL, 'MUFEENA S', 'ns61t23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(371, 'NS6606T17', NULL, NULL, NULL, 'SUBATHAMANI T', 'ns6606t17@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(372, 'NS6606T18', NULL, NULL, NULL, 'DR. MALARVIZHI P', 'ns6606t18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(373, 'NS6606T19', NULL, NULL, NULL, 'DR. VALARMATHI R', 'ns6606t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(374, 'NS60T07', NULL, NULL, NULL, 'RICHARD BRITTO.R.C', 'ns60t07@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(375, 'NS7706T06', NULL, NULL, NULL, 'DR. M VEERA KUMAR', 'ns7706t06@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(376, 'NS62T11', NULL, NULL, NULL, 'DHANDAYUTHAPANI', 'ns62t11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(377, 'NS62T10', NULL, NULL, NULL, 'RAJAGURU K', 'ns62t10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(378, 'NS7706T04', NULL, NULL, NULL, 'Dr.S.R.KRISHNAMOORTHI', 'ns7706t04@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(379, 'SH10', NULL, NULL, NULL, 'DR.DAVID MATHAN.N', 'sh10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(380, 'NS63T13', NULL, NULL, NULL, 'ABINAYA B', 'ns63t13@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(381, 'NS63T16', NULL, NULL, NULL, 'DR R SARAVANANKUMAR', 'ns63t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(382, 'ME11', NULL, NULL, NULL, 'VEMBATHURAJESH.A', 'me11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(383, 'NS67T03', NULL, NULL, NULL, 'THISHA N', 'ns67t03@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 10, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(384, 'NS50T16', NULL, NULL, NULL, 'HARIKISHORE.S', 'ns50t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(385, 'NS50T21', NULL, NULL, NULL, 'VENNIMALAI RAJAN A', 'ns50t21@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(386, 'NS50T22', NULL, NULL, NULL, 'ARUN KUMAR.G', 'ns50t22@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(387, 'NS50T24', NULL, NULL, NULL, 'DR.B.RADHAKRISHNAN', 'ns50t24@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(388, 'NS4407T020', NULL, NULL, NULL, 'SURULIMANI. P', 'ns4407t020@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(389, 'AA2', NULL, NULL, NULL, 'Dr.C.MATHALAI SUNDARAM', 'aa2@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(390, 'ME12', NULL, NULL, NULL, 'SANTHASEELAN.R', 'me12@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(391, 'ME14', NULL, NULL, NULL, 'SIVAGANESAN.V', 'me14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(392, 'ME16', NULL, NULL, NULL, 'NAGARAJA.R', 'me16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(393, 'ME18', NULL, NULL, NULL, 'NAGARAJAN.B', 'me18@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(394, 'NS50T19', NULL, NULL, NULL, 'CHAKRAVARTHY SAMY DURAI J', 'ns50t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 5, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(395, 'CS4', NULL, NULL, NULL, 'UDHAYA KUMAR.R', 'cs4@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(396, 'NS70T07', NULL, NULL, NULL, 'JASMINE JOSE P', 'ns70t07@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(397, 'NS20T34', NULL, NULL, NULL, 'KESAVAMOORTHY N', 'ns20t34@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(398, 'NS20T14', NULL, NULL, NULL, 'ARUL JOTHI.S', 'ns20t14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(399, 'NS70T05', NULL, NULL, NULL, 'MAHALAKSHMI S', 'ns70t05@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(400, 'NS20T39', NULL, NULL, NULL, 'BHAVANI M', 'ns20t39@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(401, 'NS70T04', NULL, NULL, NULL, 'SAI SUGANYA B', 'ns70t04@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 7, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(402, 'NS20T38', NULL, NULL, NULL, 'PAVITHRA M', 'ns20t38@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(403, 'NS20T37', NULL, NULL, NULL, 'GEERTHIGA G', 'ns20t37@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(404, 'NS20T32', NULL, NULL, NULL, 'VINOTH KUMAR J', 'ns20t32@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(405, 'NS70T02', NULL, NULL, NULL, 'KANIMOLI J', 'ns70t02@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(406, 'NS80T01', NULL, NULL, NULL, 'NAGAJOTHI P', 'ns80t01@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(407, 'CS10', NULL, NULL, NULL, 'VIGNESH.L.S', 'lsvignesh@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(408, 'NS2207T15', NULL, NULL, NULL, 'PRATHAP. C', 'ns2207t15@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 6, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(409, 'NS30T03', NULL, NULL, NULL, 'GANESH.K', 'ns30t03@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(410, 'NS40T16', NULL, NULL, NULL, 'Dr.R.ATHILINGAM', 'ns40t16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(411, 'NS30T19', NULL, NULL, NULL, 'RAJA KARTHICK R', 'ns30t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(412, 'NS30T20', NULL, NULL, NULL, 'NISHETHA JEFLIN NIXON A', 'ns30t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(413, 'NS30T25', NULL, NULL, NULL, 'VIJAYALAKSHMI M', 'ns30t25@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(414, 'NS30T26', NULL, NULL, NULL, 'SHIVA C', 'ns30t26@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(415, 'NS30T27', NULL, NULL, NULL, 'ABIRAMI N', 'ns30t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(416, 'NS30T30', NULL, NULL, NULL, 'DR N PANDISELVI', 'ns30t30@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(417, 'NS30T29', NULL, NULL, NULL, 'JURIYA BANU H', 'ns30t29@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 4, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(418, 'NS40T24', NULL, NULL, NULL, 'KALAIVANI S', 'ns40t24@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(419, 'NS40T23', NULL, NULL, NULL, 'GOWTHAMI P', 'ns40t23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(420, 'NS3306T14', NULL, NULL, NULL, 'PRADEEP KUMAR R', 'ns3306t14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(421, 'NS40NT16', NULL, NULL, NULL, 'CHITRA R', 'ns40nt16@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(422, 'NS40T19', NULL, NULL, NULL, 'SHANTHA DEVI P', 'ns40t19@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(423, 'NS40T20', NULL, NULL, NULL, 'DR. T. VENISH KUMAR', 'ns40t20@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(424, 'EC4', NULL, NULL, NULL, 'IDHAYACHANDRAN M', 'ec4@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(425, 'EC10', NULL, NULL, NULL, 'DR. N MATHAVAN', 'ec10@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(426, 'EC11', NULL, NULL, NULL, 'TAMIL SELVI T', 'ec11@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(427, 'EC13', NULL, NULL, NULL, 'PRATHAP S', 'ec13@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(428, 'EC14', NULL, NULL, NULL, 'BHARATHI KANNAN K', 'ec14@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(429, 'NS40T27', NULL, NULL, NULL, 'RAJESHSHREE S', 'ns40t27@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 3, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0),
+(430, 'NS20NT23', NULL, NULL, NULL, 'MUTHURAJ', 'ns20nt23@nscet.org', NULL, '$2a$10$IlcgP8INGp8gPWVOAEloreSUEPPWVYQ.q5II/KWESGDGIlmzrzv0e', 5, 2, NULL, NULL, NULL, NULL, NULL, NULL, 'active', NULL, NULL, NULL, NULL, NULL, '2026-02-19 16:39:11', '2026-02-20 06:43:32', 'No', NULL, 0, 0);
 
 -- --------------------------------------------------------
 
@@ -432,51 +384,6 @@ CREATE TABLE `faculty_subjects_handled` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `faculty_subject_assignments`
---
-
-CREATE TABLE `faculty_subject_assignments` (
-  `id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
-  `assigned_by` int(11) DEFAULT NULL,
-  `assigned_at` datetime DEFAULT NULL,
-  `academic_year` varchar(9) NOT NULL,
-  `semester` tinyint(2) NOT NULL,
-  `class_id` int(11) DEFAULT NULL,
-  `allocation_date` date NOT NULL DEFAULT curdate(),
-  `status` enum('active','inactive','suspended') NOT NULL DEFAULT 'active',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `total_hours` int(11) DEFAULT 0 COMMENT 'Total hours for the subject',
-  `no_of_periods` int(11) DEFAULT 0 COMMENT 'Number of periods per week'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `faculty_substitutes`
---
-
-CREATE TABLE `faculty_substitutes` (
-  `id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `substitute_faculty_id` int(11) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `reason` text DEFAULT NULL,
-  `leave_id` int(11) DEFAULT NULL,
-  `status` enum('pending','approved','rejected','active','completed') NOT NULL DEFAULT 'pending',
-  `requested_by` int(11) NOT NULL,
-  `approved_by` int(11) DEFAULT NULL,
-  `approval_date` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `faculy_edu_qualification`
 --
 
@@ -492,57 +399,6 @@ CREATE TABLE `faculy_edu_qualification` (
   `society_name` varchar(255) NOT NULL,
   `status` enum('Active','Inactive') DEFAULT 'Active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `faculy_edu_qualification`
---
-
-INSERT INTO `faculy_edu_qualification` (`faculty_id`, `degree`, `branch`, `college`, `university`, `year`, `percentage`, `membership_id`, `society_name`, `status`) VALUES
-(406, 'B.E.', 'Computer Science Engineering', 'Nadar Saraswathi College of Engineering and Technology', 'Akka University', '2022', '60', 2, 'IEEE', 'Inactive'),
-(101, 'B.E.', 'Cyber Security', 'Nadar Saraswathi College of Engineering and Technology', 'akka', '2023', '58', 5, '', 'Active'),
-(101, 'M.Tech', 'Electrical & Electronics Engineering', 'Nadar Saraswathi College of Engineering and Technology', 'akkaa', '2025', '10', 20, '', 'Active'),
-(101, 'Membership', 'Professional Membership', '', 'Professional Organization', NULL, NULL, 21, 'IEEE', 'Inactive'),
-(101, 'Membership', 'Professional Membership', '', 'Professional Organization', NULL, NULL, 22, 'dsd', 'Active');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `period_config`
---
-
-CREATE TABLE `period_config` (
-  `id` int(11) NOT NULL,
-  `department_id` int(11) DEFAULT NULL,
-  `period_number` int(11) NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `duration_minutes` int(11) NOT NULL,
-  `is_break` tinyint(1) DEFAULT 0,
-  `break_name` varchar(100) DEFAULT NULL,
-  `status` enum('active','inactive') DEFAULT 'active',
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `period_config`
---
-
-INSERT INTO `period_config` (`id`, `department_id`, `period_number`, `start_time`, `end_time`, `duration_minutes`, `is_break`, `break_name`, `status`, `createdAt`, `updatedAt`) VALUES
-(1, NULL, 1, '09:00:00', '09:50:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(2, NULL, 2, '09:50:00', '10:40:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(3, NULL, 3, '10:40:00', '11:10:00', 30, 1, 'Tea Break', 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(4, NULL, 4, '11:10:00', '12:00:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(5, NULL, 5, '12:00:00', '12:50:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(6, NULL, 6, '12:50:00', '13:30:00', 40, 1, 'Lunch Break', 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(7, NULL, 7, '13:30:00', '14:20:00', 50, 0, NULL, 'active', '2026-02-25 18:00:28', '2026-02-25 18:00:28'),
-(8, NULL, 1, '09:00:00', '09:50:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(9, NULL, 2, '09:50:00', '10:40:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(10, NULL, 3, '10:40:00', '11:10:00', 30, 1, 'Tea Break', 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(11, NULL, 4, '11:10:00', '12:00:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(12, NULL, 5, '12:00:00', '12:50:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(13, NULL, 6, '12:50:00', '13:30:00', 40, 1, 'Lunch Break', 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(14, NULL, 7, '13:30:00', '14:20:00', 50, 0, NULL, 'active', '2026-02-25 18:01:10', '2026-02-25 18:01:10');
 
 -- --------------------------------------------------------
 
@@ -1545,7 +1401,7 @@ INSERT INTO `student_profile` (`id`, `role_id`, `studentId`, `rollNumber`, `firs
 (4004, 3, '921023205012', '921023205012', 'NITHYA', 'SRI M', '921023205012@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
 (4005, 3, '921023205013', '921023205013', 'NOORUL', 'NAFEELA A', '921023205013@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
 (4006, 3, '921023205014', '921023205014', 'PANDIYARAJAN', 'K', '921023205014@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
-(4007, 3, '921023205015', '921023205015', 'RISHIKESH', 'K', '921023205015@nscet.org', '9876543210', '/uploads/students/rishikesh_k.jpeg', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-23 18:16:30'),
+(4007, 3, '921023205015', '921023205015', 'RISHIKESH', 'K', '921023205015@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
 (4008, 3, '921023205016', '921023205016', 'SAFRIN', 'T', '921023205016@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
 (4009, 3, '921023205017', '921023205017', 'SAHANA', 'G', '921023205017@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
 (4010, 3, '921023205018', '921023205018', 'SHAHANA', 'V', '921023205018@nscet.org', '9876543210', 'default-student.png', 'male', 7, NULL, '2021-2025', 6, '3', NULL, '2026-02-19', 'regular', 'paid', 'active', '$2a$10$E6/X2KrSHWRQlXWvZR0ByOsGWhh.SgPcby.Jj.RLJlG22IAb5SPBO', '2026-02-19 22:09:11', '2026-02-20 11:08:17'),
@@ -1759,21 +1615,20 @@ CREATE TABLE `student_sports` (
 
 CREATE TABLE `subjects` (
   `id` int(11) NOT NULL,
-  `subject_code` varchar(20) NOT NULL,
-  `subject_name` varchar(255) NOT NULL,
+  `code` varchar(20) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `description` text DEFAULT NULL,
   `department_id` int(11) NOT NULL,
-  `semester` tinyint(2) NOT NULL COMMENT '1-8 semesters',
-  `sem_type` enum('odd','even') NOT NULL DEFAULT 'odd',
+  `semester` tinyint(2) DEFAULT NULL COMMENT '1-8 semesters',
   `class_id` int(11) DEFAULT NULL,
-  `credits` decimal(4,2) NOT NULL DEFAULT 4.00,
-  `type` enum('Theory','Practical','Theory+Practical','Project','Seminar','Internship') NOT NULL DEFAULT 'Theory',
+  `credits` int(11) DEFAULT NULL,
+  `type` enum('Theory','Practical','Theory+Practical') DEFAULT 'Theory',
   `is_elective` tinyint(1) NOT NULL DEFAULT 0,
   `is_laboratory` tinyint(1) NOT NULL DEFAULT 0,
   `min_hours_per_week` int(11) DEFAULT 3,
   `max_students` int(11) DEFAULT NULL,
-  `status` enum('active','inactive','archived') NOT NULL DEFAULT 'active',
-  `created_by` int(11) DEFAULT 1 COMMENT 'Department admin who created',
+  `status` enum('active','inactive','archived') DEFAULT 'active',
+  `created_by` int(11) NOT NULL DEFAULT 1,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -1782,201 +1637,49 @@ CREATE TABLE `subjects` (
 -- Dumping data for table `subjects`
 --
 
-INSERT INTO `subjects` (`id`, `subject_code`, `subject_name`, `description`, `department_id`, `semester`, `sem_type`, `class_id`, `credits`, `type`, `is_elective`, `is_laboratory`, `min_hours_per_week`, `max_students`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
-(7, 'ME101', 'Engineering Mechanics', 'Statics and Dynamics', 3, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(8, 'ME102', 'Thermodynamics', 'Laws of thermodynamics and applications', 3, 2, 'odd', NULL, 3.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-24 02:39:16', '2026-02-24 02:39:16'),
-(9, 'cs9210', 'c proramming', '', 6, 1, 'odd', NULL, 4.00, 'Theory+Practical', 1, 0, 3, NULL, 'active', 109, '2026-02-25 09:22:53', '2026-02-25 09:22:53'),
-(10, 'CS9584', 'C PROGRAMMING', '', 1, 1, 'even', NULL, 4.00, 'Theory', 0, 1, 3, NULL, 'active', 109, '2026-02-25 09:24:39', '2026-02-25 16:28:12'),
-(11, 'CSE101', 'Introduction to Programming', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(12, 'CSE102', 'Data Structures', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(13, 'CSE103', 'Digital Logic Design', NULL, 1, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(14, 'CSE104', 'Web Development Basics', NULL, 1, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(15, 'CSE105', 'Database Management Systems', NULL, 1, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(16, 'CSE106', 'Operating Systems', NULL, 1, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(17, 'CSE107', 'Computer Networks', NULL, 1, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(18, 'CSE108', 'Software Engineering', NULL, 1, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(19, 'CSE109', 'Algorithms and Complexity', NULL, 1, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(20, 'CSE110', 'Artificial Intelligence', NULL, 1, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(21, 'ECE101', 'Circuit Theory', NULL, 2, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(22, 'ECE102', 'Electronic Devices and Circuits', NULL, 2, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(23, 'ECE103', 'Digital Electronics', NULL, 2, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(24, 'ECE104', 'Signals and Systems', NULL, 2, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(25, 'ECE105', 'Electromagnetic Theory', NULL, 2, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(26, 'ECE106', 'Microprocessors and Microcontrollers', NULL, 2, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(27, 'ECE107', 'Communication Systems', NULL, 2, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(28, 'ECE108', 'Control Systems', NULL, 2, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(29, 'ECE109', 'Power Systems', NULL, 2, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(30, 'ECE110', 'VLSI Design', NULL, 2, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(31, 'ME103', 'Thermodynamics', NULL, 3, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(32, 'ME104', 'Fluid Mechanics', NULL, 3, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(33, 'ME105', 'Manufacturing Processes', NULL, 3, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(34, 'ME106', 'Heat Transfer', NULL, 3, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(35, 'ME107', 'Machine Design', NULL, 3, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(36, 'ME108', 'Dynamics of Machinery', NULL, 3, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(37, 'ME109', 'Power Plant Engineering', NULL, 3, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(38, 'ME110', 'Automobile Engineering', NULL, 3, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(39, 'CE101', 'Surveying', NULL, 4, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(40, 'CE102', 'Engineering Geology', NULL, 4, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(41, 'CE103', 'Structural Analysis', NULL, 4, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(42, 'CE104', 'Hydraulics and Fluid Mechanics', NULL, 4, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(43, 'CE105', 'Geotechnical Engineering', NULL, 4, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(44, 'CE106', 'Water Resources Engineering', NULL, 4, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(45, 'CE107', 'RCC Design', NULL, 4, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(46, 'CE108', 'Steel Design', NULL, 4, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(47, 'CE109', 'Transportation Engineering', NULL, 4, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(48, 'CE110', 'Environmental Engineering', NULL, 4, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(49, 'EEE101', 'Basic Electrical Engineering', NULL, 5, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(50, 'EEE102', 'AC and DC Circuits', NULL, 5, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(51, 'EEE103', 'Electromagnetic Induction', NULL, 5, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(52, 'EEE104', 'Electrical Machines', NULL, 5, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(53, 'EEE105', 'Power Systems', NULL, 5, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(54, 'EEE106', 'Power Generation', NULL, 5, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(55, 'EEE107', 'High Voltage Engineering', NULL, 5, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(56, 'EEE108', 'Power Distribution', NULL, 5, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(57, 'EEE109', 'Industrial Drives', NULL, 5, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(58, 'EEE110', 'Smart Grid Technology', NULL, 5, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(59, 'IT101', 'Introduction to IT', NULL, 6, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(60, 'IT102', 'Programming Languages', NULL, 6, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(61, 'IT103', 'Web Technologies', NULL, 6, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(62, 'IT104', 'Database Systems', NULL, 6, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(63, 'IT105', 'Cloud Computing', NULL, 6, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(64, 'IT106', 'Network Security', NULL, 6, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(65, 'IT107', 'Data Analytics', NULL, 6, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(66, 'IT108', 'Machine Learning', NULL, 6, 4, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(67, 'IT109', 'Mobile Application Development', NULL, 6, 5, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(68, 'IT110', 'IT Project Management', NULL, 6, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(69, 'CHE101', 'Physical Chemistry', NULL, 7, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(70, 'CHE102', 'Organic Chemistry', NULL, 7, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(71, 'CHE103', 'Inorganic Chemistry', NULL, 7, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(72, 'CHE104', 'Analytical Chemistry', NULL, 7, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(73, 'CHE105', 'Chemical Engineering Fundamentals', NULL, 7, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(74, 'CHE106', 'Process Engineering', NULL, 7, 3, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(75, 'CHE107', 'Industrial Chemistry', NULL, 7, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(76, 'CHE108', 'Polymer Science', NULL, 7, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(77, 'CHE109', 'Environmental Chemistry', NULL, 7, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(78, 'CHE110', 'Biochemistry', NULL, 7, 5, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(79, 'PHY101', 'Classical Mechanics', NULL, 10, 1, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(80, 'PHY102', 'Thermodynamics', NULL, 10, 1, 'odd', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(81, 'PHY103', 'Waves and Oscillations', NULL, 10, 2, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(82, 'PHY104', 'Optics', NULL, 10, 2, 'even', NULL, 4.00, 'Theory+Practical', 0, 1, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(83, 'PHY105', 'Electricity and Magnetism', NULL, 10, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(84, 'PHY106', 'Modern Physics', NULL, 10, 3, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(85, 'PHY107', 'Quantum Mechanics', NULL, 10, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(86, 'PHY108', 'Solid State Physics', NULL, 10, 4, 'even', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(87, 'PHY109', 'Astrophysics', NULL, 10, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50'),
-(88, 'PHY110', 'Nuclear Physics', NULL, 10, 5, 'odd', NULL, 4.00, 'Theory', 0, 0, 3, NULL, 'active', 1, '2026-02-25 16:42:50', '2026-02-25 16:42:50');
+INSERT INTO `subjects` (`id`, `code`, `name`, `description`, `department_id`, `semester`, `class_id`, `credits`, `type`, `is_elective`, `is_laboratory`, `min_hours_per_week`, `max_students`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(7, 'CS101', 'Data Structures', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31'),
+(8, 'CS102', 'Operating Systems', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31'),
+(9, 'CS201', 'Database Management Systems', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31'),
+(10, 'CS202', 'Computer Networks', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31'),
+(11, 'CS301', 'Machine Learning', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31'),
+(12, 'CS302', 'Artificial Intelligence', NULL, 1, NULL, NULL, 3, 'Theory', 0, 0, 3, NULL, 'active', 113, '2026-02-27 12:14:31', '2026-02-27 12:14:31');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `subject_class_mappings`
+-- Table structure for table `timetable`
 --
 
-CREATE TABLE `subject_class_mappings` (
+CREATE TABLE `timetable` (
   `id` int(11) NOT NULL,
-  `subject_id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL,
-  `department_id` int(11) NOT NULL,
-  `semester` tinyint(2) NOT NULL,
-  `academic_year` varchar(9) NOT NULL,
-  `is_core` tinyint(1) NOT NULL DEFAULT 1,
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetables`
---
-
-CREATE TABLE `timetables` (
-  `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL,
-  `academic_year` varchar(20) NOT NULL,
-  `semester` enum('odd','even') NOT NULL,
-  `department_id` int(11) DEFAULT NULL,
-  `class_id` int(11) DEFAULT NULL,
-  `status` enum('draft','active','inactive') DEFAULT 'draft',
-  `created_by` int(11) DEFAULT NULL,
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `timetables`
---
-
-INSERT INTO `timetables` (`id`, `name`, `academic_year`, `semester`, `department_id`, `class_id`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'CSE A Semester 6 - Odd 2024', '2024-2025', 'odd', 1, 1, 'active', 1, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
-(2, 'CSE B Semester 6 - Odd 2024', '2024-2025', 'odd', 1, 2, 'active', 1, '2024-01-01 00:00:00', '2024-01-01 00:00:00');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetable_details`
---
-
-CREATE TABLE `timetable_details` (
-  `id` int(11) NOT NULL,
-  `timetable_id` int(11) NOT NULL,
-  `class_id` int(11) NOT NULL,
-  `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday') NOT NULL,
-  `period_number` int(11) NOT NULL,
-  `subject_id` int(11) DEFAULT NULL,
-  `faculty_id` int(11) DEFAULT NULL,
-  `room_number` varchar(50) DEFAULT NULL,
-  `period_type` enum('lecture','practical','tutorial','break','lunch') DEFAULT 'lecture',
-  `is_break` tinyint(1) DEFAULT 0,
-  `status` enum('active','cancelled','pending') DEFAULT 'active',
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetable_incharge`
---
-
-CREATE TABLE `timetable_incharge` (
-  `id` int(11) NOT NULL,
-  `department_id` int(11) NOT NULL,
-  `faculty_id` int(11) NOT NULL,
-  `appointment_date` date NOT NULL,
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
-  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetable_master`
---
-
-CREATE TABLE `timetable_master` (
-  `id` int(11) NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `academic_year` varchar(20) NOT NULL,
-  `semester` enum('odd','even') NOT NULL,
-  `department_id` int(11) DEFAULT NULL,
-  `year` enum('1st','2nd','3rd','4th') DEFAULT NULL,
-  `timetable_incharge_id` int(11) DEFAULT NULL,
-  `status` enum('draft','pending_approval','active','inactive') DEFAULT 'draft',
-  `approved_by` int(11) DEFAULT NULL,
-  `approved_at` timestamp NULL DEFAULT NULL,
-  `created_by` int(11) NOT NULL,
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+  `facultyId` varchar(50) NOT NULL,
+  `facultyName` varchar(100) NOT NULL,
+  `department` varchar(100) NOT NULL,
+  `year` varchar(20) NOT NULL,
+  `section` varchar(10) NOT NULL,
+  `day` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday') NOT NULL,
+  `hour` int(11) NOT NULL,
+  `subject` varchar(100) NOT NULL,
+  `academicYear` varchar(20) NOT NULL,
+  `createdAt` datetime DEFAULT current_timestamp(),
+  `updatedAt` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `timetable_master`
+-- Dumping data for table `timetable`
 --
 
-INSERT INTO `timetable_master` (`id`, `name`, `academic_year`, `semester`, `department_id`, `year`, `timetable_incharge_id`, `status`, `approved_by`, `approved_at`, `created_by`, `createdAt`, `updatedAt`) VALUES
-(1, 'CSE - 3 RD YEAR SEM-1', '2023-2027', 'odd', 1, '3rd', NULL, 'draft', NULL, NULL, 109, '2026-02-25 18:04:27', '2026-02-25 18:04:27');
+INSERT INTO `timetable` (`id`, `facultyId`, `facultyName`, `department`, `year`, `section`, `day`, `hour`, `subject`, `academicYear`, `createdAt`, `updatedAt`) VALUES
+(82, 'CS12', 'Dr.MATHALAI RAJ. J', 'CSE', '3', 'A', 'Monday', 1, 'Data Structures', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(83, 'NS20T35', 'ABIRAMI KAYATHIRI S', 'CSE', '2', 'A', 'Monday', 2, 'Database Systems', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(84, 'NS20T41', 'ANUSUYA V', 'CSE', '1', 'B', 'Tuesday', 3, 'Programming in C', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(85, 'CS12', 'Dr.MATHALAI RAJ. J', 'CSE', '4', 'A', 'Wednesday', 4, 'Machine Learning', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(86, 'NS20T25', 'VELKUMAR K', 'CSE', '3', 'B', 'Thursday', 5, 'Operating Systems', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(87, 'NS20T33', 'DEEPIGA K', 'CSE', '2', 'B', 'Friday', 1, 'Computer Networks', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(88, 'NS20T40', 'VENKATALAKSHMI M', 'CSE', '1', 'A', 'Monday', 3, 'Mathematics I', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(89, 'NS20T29', 'ARCHANA R', 'CSE', '3', 'A', 'Tuesday', 4, 'Software Engineering', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20'),
+(90, 'NS70T01', 'DR.M SATHYA', 'CSE', '4', 'B', 'Thursday', 2, 'Artificial Intelligence', '2026-2027', '2026-03-03 15:33:20', '2026-03-03 15:33:20');
 
 -- --------------------------------------------------------
 
@@ -1992,13 +1695,10 @@ CREATE TABLE `timetable_notifications` (
   `class_id` int(11) NOT NULL,
   `faculty_id` int(11) NOT NULL,
   `requested_by` int(11) NOT NULL,
-  `status` enum('pending','accepted','rejected') NOT NULL DEFAULT 'pending',
-  `is_read` tinyint(1) NOT NULL DEFAULT 0,
-  `rejection_reason` text DEFAULT NULL,
-  `response_date` datetime DEFAULT NULL,
-  `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `status` enum('pending','approved','rejected') DEFAULT 'pending',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -2019,8 +1719,6 @@ CREATE TABLE `timetable_slots` (
   `room` varchar(50) DEFAULT NULL,
   `type` enum('lecture','lab','tutorial') DEFAULT 'lecture',
   `status` enum('active','cancelled') DEFAULT 'active',
-  `is_substitute` tinyint(1) DEFAULT 0,
-  `original_faculty_id` int(11) DEFAULT NULL,
   `created_at` datetime NOT NULL DEFAULT current_timestamp(),
   `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -2029,9 +1727,13 @@ CREATE TABLE `timetable_slots` (
 -- Dumping data for table `timetable_slots`
 --
 
-INSERT INTO `timetable_slots` (`id`, `timetable_id`, `day`, `period_number`, `start_time`, `end_time`, `subject_id`, `faculty_id`, `class_id`, `room`, `type`, `status`, `is_substitute`, `original_faculty_id`, `created_at`, `updated_at`) VALUES
-(1, 1, 'Monday', 1, '09:00:00', '09:50:00', NULL, 1, 1, '101', 'lecture', 'active', 0, NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00'),
-(2, 1, 'Monday', 2, '09:50:00', '10:40:00', NULL, 8, 1, '101', 'lecture', 'active', 0, NULL, '2024-01-01 00:00:00', '2024-01-01 00:00:00');
+INSERT INTO `timetable_slots` (`id`, `timetable_id`, `day`, `period_number`, `start_time`, `end_time`, `subject_id`, `faculty_id`, `class_id`, `room`, `type`, `status`, `created_at`, `updated_at`) VALUES
+(31, 4, 'Monday', 1, '09:00:00', '10:00:00', 7, 360, NULL, 'Room 304', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26'),
+(32, 4, 'Tuesday', 2, '10:00:00', '11:00:00', 8, 360, NULL, 'Room 305', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26'),
+(33, 4, 'Wednesday', 3, '09:00:00', '10:00:00', 9, 360, NULL, 'Room 306', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26'),
+(34, 4, 'Thursday', 4, '11:00:00', '12:00:00', 10, 360, NULL, 'Room 307', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26'),
+(35, 4, 'Friday', 5, '10:00:00', '11:00:00', 11, 360, NULL, 'Room 308', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26'),
+(36, 4, 'Saturday', 6, '09:00:00', '10:00:00', 12, 360, NULL, 'Room 309', 'lecture', 'active', '2026-03-02 09:51:26', '2026-03-02 09:51:26');
 
 -- --------------------------------------------------------
 
@@ -2046,60 +1748,16 @@ CREATE TABLE `timetable_slot_assignments` (
   `subject_code` varchar(20) NOT NULL,
   `subject_name` varchar(255) NOT NULL,
   `faculty_id` int(11) NOT NULL,
-  `is_substitute` tinyint(1) DEFAULT 0,
-  `original_faculty_id` int(11) DEFAULT NULL,
-  `substitute_assignment_id` int(11) DEFAULT NULL,
   `assigned_by` int(11) NOT NULL,
   `day_of_week` enum('Monday','Tuesday','Wednesday','Thursday','Friday','Saturday') NOT NULL,
-  `year` enum('1st','2nd','3rd','4th') NOT NULL,
   `start_time` time NOT NULL,
   `end_time` time NOT NULL,
   `room_number` varchar(50) DEFAULT NULL,
-  `type` enum('lecture','lab','tutorial','practical') DEFAULT 'lecture',
-  `status` enum('active','inactive','pending_approval') NOT NULL DEFAULT 'pending_approval',
-  `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetable_staff_alterations`
---
-
-CREATE TABLE `timetable_staff_alterations` (
-  `id` int(11) NOT NULL,
-  `timetable_id` int(11) NOT NULL,
-  `timetable_detail_id` int(11) NOT NULL,
-  `original_faculty_id` int(11) NOT NULL,
-  `alternative_faculty_id` int(11) NOT NULL,
-  `reason` text NOT NULL,
-  `requested_by` int(11) NOT NULL,
-  `status` enum('pending','accepted','rejected') DEFAULT 'pending',
-  `alternative_response` text DEFAULT NULL,
-  `accepted_at` timestamp NULL DEFAULT NULL,
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `timetable_uploads`
---
-
-CREATE TABLE `timetable_uploads` (
-  `id` int(11) NOT NULL,
-  `timetable_id` int(11) NOT NULL,
-  `file_name` varchar(255) NOT NULL,
-  `total_records` int(11) DEFAULT 0,
-  `successful_records` int(11) DEFAULT 0,
-  `failed_records` int(11) DEFAULT 0,
-  `uploaded_by` int(11) NOT NULL,
-  `upload_date` datetime NOT NULL DEFAULT current_timestamp(),
-  `status` enum('processing','completed','failed') NOT NULL DEFAULT 'processing',
-  `error_log` longtext DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+  `year` varchar(20) DEFAULT NULL,
+  `status` enum('active','pending_approval','rejected') DEFAULT 'pending_approval',
+  `created_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `updated_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -2126,42 +1784,12 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role_id`, `phone`, `isActive`, `createdAt`, `updatedAt`, `avatar`, `department_id`) VALUES
-(2, 'mathalai sundaram', 'executive@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 3, '9876543211', 1, '0000-00-00 00:00:00', '2026-02-20 05:08:42', NULL, NULL),
+(2, 'mathalai sundaram', 'executive@nscet.org', '$2a$10$ilDROfwfbOjETWkbRVEbDOGuq6puvxVQv1d27T4Rk9QVjcEqTDlAq', 3, '9876543211', 1, '0000-00-00 00:00:00', '2026-02-20 05:08:42', NULL, NULL),
 (3, 'Academic Admin', 'academic@nscet.org', '$2a$10$rtVcTSxhiJKb4Cm3GdJWTety1jN8MAbcweTMHTRw2TQOE79tziyEq', 4, '9876543212', 1, '0000-00-00 00:00:00', '0000-00-00 00:00:00', NULL, NULL),
-(109, 'GOAT', 'nscetadmin@gmail.com', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 2, '9876543210', 1, '2026-02-20 05:39:02', '2026-02-20 05:39:02', NULL, NULL),
-(112, 'Test Admin', 'testadmin@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 1, '9876543210', 1, '2026-02-20 06:24:50', '2026-02-20 06:24:50', NULL, NULL);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `year_break_timings`
---
-
-CREATE TABLE `year_break_timings` (
-  `id` int(11) NOT NULL,
-  `department_id` int(11) NOT NULL,
-  `year` enum('1st','2nd','3rd','4th') NOT NULL,
-  `break_name` varchar(100) NOT NULL,
-  `start_time` time NOT NULL,
-  `end_time` time NOT NULL,
-  `duration_minutes` int(11) NOT NULL,
-  `createdAt` datetime NOT NULL DEFAULT current_timestamp(),
-  `updatedAt` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Dumping data for table `year_break_timings`
---
-
-INSERT INTO `year_break_timings` (`id`, `department_id`, `year`, `break_name`, `start_time`, `end_time`, `duration_minutes`, `createdAt`, `updatedAt`) VALUES
-(1, 0, '1st', 'Tea Break', '10:40:00', '11:10:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(2, 0, '1st', 'Lunch Break', '12:50:00', '13:30:00', 40, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(3, 0, '2nd', 'Tea Break', '10:40:00', '11:10:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(4, 0, '2nd', 'Lunch Break', '12:50:00', '13:30:00', 40, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(5, 0, '3rd', 'Tea Break', '10:40:00', '11:00:00', 20, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(6, 0, '3rd', 'Lunch Break', '12:50:00', '13:20:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(7, 0, '4th', 'Tea Break', '10:40:00', '11:00:00', 20, '2026-02-25 18:01:10', '2026-02-25 18:01:10'),
-(8, 0, '4th', 'Lunch Break', '12:50:00', '13:20:00', 30, '2026-02-25 18:01:10', '2026-02-25 18:01:10');
+(109, 'vasanth', 'vasanthi@gmail.com', '$2a$10$EsZBdaZ0yg9x9cWbjhl9yOKXEfkZBpT01w0oYeMVg/rRc9e3FEDYe', 2, '9876543210', 1, '2026-02-20 05:39:02', '2026-02-20 05:39:02', NULL, NULL),
+(112, 'Test Admin', 'testadmin@nscet.org', '$2a$10$ELjprebdIeb3GTTMKk1oZujDrXZ2g8P41gNfiqVwVCKiflkwpO1eu', 1, '9876543210', 1, '2026-02-20 06:24:50', '2026-02-20 06:24:50', NULL, NULL),
+(113, 'Dr Mathalai Raj', 'drmathalai.raj@nscet.org', '$2a$10$nQ05yNsh4J/lr88XvuEVZeTPsmLAA2SCkq1SiK8.BaBmZtcJVr3We', 7, NULL, 1, '2026-02-25 07:32:35', '2026-02-27 07:12:51', NULL, 1),
+(114, 'GOAT', 'nscetadmin@nscet.org', '$2a$10$rpLfFsMXD/wuAB81.oKOjOBfL0iVfxmxLejtv2fYr3R4iMr1pEY3G', 2, '9876543210', 1, '2026-02-25 09:59:32', '2026-02-25 09:59:32', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -2196,15 +1824,8 @@ ALTER TABLE `faculty_events`
 -- Indexes for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  ADD PRIMARY KEY (`exp_id`),
-  ADD KEY `idx_faculty_id` (`faculty_id`);
-
---
--- Indexes for table `faculty_industry_experience`
---
-ALTER TABLE `faculty_industry_experience`
-  ADD PRIMARY KEY (`exp_id`),
-  ADD KEY `idx_faculty_id` (`faculty_id`);
+  ADD PRIMARY KEY (`faculty_id`),
+  ADD UNIQUE KEY `exp_id` (`exp_id`);
 
 --
 -- Indexes for table `faculty_leaves`
@@ -2213,14 +1834,6 @@ ALTER TABLE `faculty_leaves`
   ADD PRIMARY KEY (`leave_id`),
   ADD KEY `faculty_id` (`faculty_id`),
   ADD KEY `reassign_faculty_id` (`reassign_faculty_id`);
-
---
--- Indexes for table `faculty_leave_schedules`
---
-ALTER TABLE `faculty_leave_schedules`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_faculty` (`faculty_id`),
-  ADD KEY `idx_date_range` (`from_date`,`to_date`);
 
 --
 -- Indexes for table `faculty_phd`
@@ -2235,9 +1848,7 @@ ALTER TABLE `faculty_phd`
 ALTER TABLE `faculty_profiles`
   ADD PRIMARY KEY (`faculty_id`),
   ADD UNIQUE KEY `email` (`email`),
-  ADD KEY `fk_department` (`department_id`),
-  ADD KEY `idx_timetable_incharge` (`is_timetable_incharge`),
-  ADD KEY `idx_placement_coordinator` (`is_placement_coordinator`);
+  ADD KEY `fk_department` (`department_id`);
 
 --
 -- Indexes for table `faculty_research`
@@ -2253,39 +1864,11 @@ ALTER TABLE `faculty_subjects_handled`
   ADD PRIMARY KEY (`faculty_id`);
 
 --
--- Indexes for table `faculty_subject_assignments`
---
-ALTER TABLE `faculty_subject_assignments`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_faculty_subject_class` (`faculty_id`,`subject_id`,`class_id`,`academic_year`),
-  ADD KEY `idx_fsa_subject` (`subject_id`),
-  ADD KEY `idx_fsa_class` (`class_id`),
-  ADD KEY `idx_fsa_academic_year` (`academic_year`),
-  ADD KEY `idx_fsa_status` (`status`);
-
---
--- Indexes for table `faculty_substitutes`
---
-ALTER TABLE `faculty_substitutes`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `faculty_id` (`faculty_id`),
-  ADD KEY `substitute_faculty_id` (`substitute_faculty_id`),
-  ADD KEY `requested_by` (`requested_by`),
-  ADD KEY `status` (`status`);
-
---
 -- Indexes for table `faculy_edu_qualification`
 --
 ALTER TABLE `faculy_edu_qualification`
-  ADD UNIQUE KEY `membership_id` (`membership_id`),
-  ADD KEY `idx_faculty_id` (`faculty_id`);
-
---
--- Indexes for table `period_config`
---
-ALTER TABLE `period_config`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_period_dept` (`department_id`,`period_number`);
+  ADD PRIMARY KEY (`faculty_id`),
+  ADD UNIQUE KEY `membership_id` (`membership_id`);
 
 --
 -- Indexes for table `roles`
@@ -2443,79 +2026,34 @@ ALTER TABLE `student_sports`
 --
 ALTER TABLE `subjects`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `subject_code` (`subject_code`),
-  ADD KEY `idx_subject_code` (`subject_code`),
-  ADD KEY `idx_subject_dept` (`department_id`),
-  ADD KEY `idx_subject_semester` (`semester`),
-  ADD KEY `idx_subject_class` (`class_id`),
-  ADD KEY `idx_subject_status` (`status`),
-  ADD KEY `idx_sem_type` (`sem_type`),
-  ADD KEY `idx_dept_sem` (`department_id`,`semester`,`sem_type`);
-
---
--- Indexes for table `subject_class_mappings`
---
-ALTER TABLE `subject_class_mappings`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_subject_class_semester` (`subject_id`,`class_id`,`semester`,`academic_year`),
-  ADD KEY `idx_scm_class` (`class_id`),
-  ADD KEY `idx_scm_semester` (`semester`),
-  ADD KEY `idx_scm_dept` (`department_id`),
-  ADD KEY `idx_scm_subject` (`subject_id`);
-
---
--- Indexes for table `timetables`
---
-ALTER TABLE `timetables`
-  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uq_code` (`code`),
   ADD KEY `department_id` (`department_id`),
-  ADD KEY `class_id` (`class_id`),
-  ADD KEY `created_by` (`created_by`);
+  ADD KEY `class_id` (`class_id`);
 
 --
--- Indexes for table `timetable_details`
+-- Indexes for table `timetable`
 --
-ALTER TABLE `timetable_details`
+ALTER TABLE `timetable`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_timetable` (`timetable_id`),
-  ADD KEY `idx_class` (`class_id`),
-  ADD KEY `idx_faculty` (`faculty_id`),
-  ADD KEY `idx_day_period` (`day_of_week`,`period_number`);
-
---
--- Indexes for table `timetable_incharge`
---
-ALTER TABLE `timetable_incharge`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_dept_timetable_incharge` (`department_id`),
-  ADD KEY `department_id` (`department_id`),
-  ADD KEY `faculty_id` (`faculty_id`);
-
---
--- Indexes for table `timetable_master`
---
-ALTER TABLE `timetable_master`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_department` (`department_id`),
-  ADD KEY `idx_academic_year` (`academic_year`),
-  ADD KEY `idx_status` (`status`);
+  ADD UNIQUE KEY `unique_faculty_day_hour` (`facultyId`,`day`,`hour`),
+  ADD KEY `idx_facultyId` (`facultyId`),
+  ADD KEY `idx_department` (`department`),
+  ADD KEY `idx_academicYear` (`academicYear`);
 
 --
 -- Indexes for table `timetable_notifications`
 --
 ALTER TABLE `timetable_notifications`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `slot_assignment_id` (`slot_assignment_id`),
-  ADD KEY `class_id` (`class_id`),
-  ADD KEY `idx_faculty_status` (`faculty_id`,`status`),
-  ADD KEY `idx_requested_by` (`requested_by`),
-  ADD KEY `idx_created_date` (`createdAt`);
+  ADD KEY `faculty_id` (`faculty_id`),
+  ADD KEY `slot_assignment_id` (`slot_assignment_id`);
 
 --
 -- Indexes for table `timetable_slots`
 --
 ALTER TABLE `timetable_slots`
   ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `uk_timetable_slots_timetable_day_time` (`timetable_id`,`day`,`start_time`),
   ADD KEY `timetable_id` (`timetable_id`),
   ADD KEY `subject_id` (`subject_id`),
   ADD KEY `faculty_id` (`faculty_id`),
@@ -2526,29 +2064,9 @@ ALTER TABLE `timetable_slots`
 --
 ALTER TABLE `timetable_slot_assignments`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unique_faculty_subject_class` (`faculty_id`,`subject_code`,`class_id`,`timetable_id`),
-  ADD KEY `assigned_by` (`assigned_by`),
-  ADD KEY `idx_timetable_class` (`timetable_id`,`class_id`),
-  ADD KEY `idx_faculty_year` (`faculty_id`,`year`),
-  ADD KEY `idx_class_year_day` (`class_id`,`year`,`day_of_week`);
-
---
--- Indexes for table `timetable_staff_alterations`
---
-ALTER TABLE `timetable_staff_alterations`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_timetable` (`timetable_id`),
-  ADD KEY `idx_original_faculty` (`original_faculty_id`),
-  ADD KEY `idx_alternative_faculty` (`alternative_faculty_id`),
-  ADD KEY `idx_status` (`status`);
-
---
--- Indexes for table `timetable_uploads`
---
-ALTER TABLE `timetable_uploads`
-  ADD PRIMARY KEY (`id`),
   ADD KEY `timetable_id` (`timetable_id`),
-  ADD KEY `uploaded_by` (`uploaded_by`);
+  ADD KEY `faculty_id` (`faculty_id`),
+  ADD KEY `class_id` (`class_id`);
 
 --
 -- Indexes for table `users`
@@ -2559,14 +2077,6 @@ ALTER TABLE `users`
   ADD KEY `fk_users_role_id` (`role_id`);
 
 --
--- Indexes for table `year_break_timings`
---
-ALTER TABLE `year_break_timings`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_department_year` (`department_id`,`year`),
-  ADD KEY `idx_year` (`year`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -2574,7 +2084,7 @@ ALTER TABLE `year_break_timings`
 -- AUTO_INCREMENT for table `announcements`
 --
 ALTER TABLE `announcements`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `faculty_events`
@@ -2586,13 +2096,7 @@ ALTER TABLE `faculty_events`
 -- AUTO_INCREMENT for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-
---
--- AUTO_INCREMENT for table `faculty_industry_experience`
---
-ALTER TABLE `faculty_industry_experience`
-  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `exp_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `faculty_leaves`
@@ -2601,46 +2105,22 @@ ALTER TABLE `faculty_leaves`
   MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `faculty_leave_schedules`
---
-ALTER TABLE `faculty_leave_schedules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `faculty_phd`
 --
 ALTER TABLE `faculty_phd`
-  MODIFY `phd_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `phd_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `faculty_profiles`
 --
 ALTER TABLE `faculty_profiles`
-  MODIFY `faculty_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=432;
-
---
--- AUTO_INCREMENT for table `faculty_subject_assignments`
---
-ALTER TABLE `faculty_subject_assignments`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `faculty_substitutes`
---
-ALTER TABLE `faculty_substitutes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `faculty_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=431;
 
 --
 -- AUTO_INCREMENT for table `faculy_edu_qualification`
 --
 ALTER TABLE `faculy_edu_qualification`
-  MODIFY `membership_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
-
---
--- AUTO_INCREMENT for table `period_config`
---
-ALTER TABLE `period_config`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `membership_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `staff_attendance_entry`
@@ -2736,31 +2216,13 @@ ALTER TABLE `student_sports`
 -- AUTO_INCREMENT for table `subjects`
 --
 ALTER TABLE `subjects`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=89;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
--- AUTO_INCREMENT for table `subject_class_mappings`
+-- AUTO_INCREMENT for table `timetable`
 --
-ALTER TABLE `subject_class_mappings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `timetable_details`
---
-ALTER TABLE `timetable_details`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `timetable_incharge`
---
-ALTER TABLE `timetable_incharge`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `timetable_master`
---
-ALTER TABLE `timetable_master`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+ALTER TABLE `timetable`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=91;
 
 --
 -- AUTO_INCREMENT for table `timetable_notifications`
@@ -2769,34 +2231,22 @@ ALTER TABLE `timetable_notifications`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `timetable_slots`
+--
+ALTER TABLE `timetable_slots`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
+
+--
 -- AUTO_INCREMENT for table `timetable_slot_assignments`
 --
 ALTER TABLE `timetable_slot_assignments`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `timetable_staff_alterations`
---
-ALTER TABLE `timetable_staff_alterations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `timetable_uploads`
---
-ALTER TABLE `timetable_uploads`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=116;
-
---
--- AUTO_INCREMENT for table `year_break_timings`
---
-ALTER TABLE `year_break_timings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=115;
 
 --
 -- Constraints for dumped tables
@@ -2812,13 +2262,8 @@ ALTER TABLE `faculty_events`
 -- Constraints for table `faculty_experience`
 --
 ALTER TABLE `faculty_experience`
-  ADD CONSTRAINT `faculty_experience_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `faculty_industry_experience`
---
-ALTER TABLE `faculty_industry_experience`
-  ADD CONSTRAINT `fk_industry_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
+  ADD CONSTRAINT `faculty_experience_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `faculty_experience_ibfk_2` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `faculty_leaves`
@@ -2834,22 +2279,6 @@ ALTER TABLE `faculty_phd`
   ADD CONSTRAINT `faculty_phd_ibfk_1` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `faculty_subject_assignments`
---
-ALTER TABLE `faculty_subject_assignments`
-  ADD CONSTRAINT `fk_fsa_class` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fk_fsa_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fk_fsa_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `faculty_substitutes`
---
-ALTER TABLE `faculty_substitutes`
-  ADD CONSTRAINT `fk_substitute_faculty` FOREIGN KEY (`faculty_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `fk_substitute_faculty_sub` FOREIGN KEY (`substitute_faculty_id`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `fk_substitute_requested_by` FOREIGN KEY (`requested_by`) REFERENCES `users` (`id`);
-
---
 -- Constraints for table `faculy_edu_qualification`
 --
 ALTER TABLE `faculy_edu_qualification`
@@ -2857,41 +2286,16 @@ ALTER TABLE `faculy_edu_qualification`
   ADD CONSTRAINT `faculy_edu_qualification_ibfk_2` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE;
 
 --
--- Constraints for table `student_attendance_entry`
---
-ALTER TABLE `student_attendance_entry`
-  ADD CONSTRAINT `fk_attendance_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON UPDATE CASCADE;
-
---
 -- Constraints for table `timetable_notifications`
 --
 ALTER TABLE `timetable_notifications`
-  ADD CONSTRAINT `timetable_notifications_ibfk_1` FOREIGN KEY (`slot_assignment_id`) REFERENCES `timetable_slot_assignments` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_notifications_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_notifications_ibfk_3` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_notifications_ibfk_4` FOREIGN KEY (`requested_by`) REFERENCES `faculty_profiles` (`faculty_id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `timetable_slots`
---
-ALTER TABLE `timetable_slots`
-  ADD CONSTRAINT `fk_timetable_slots_subject` FOREIGN KEY (`subject_id`) REFERENCES `subjects` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_notifications_assignment` FOREIGN KEY (`slot_assignment_id`) REFERENCES `timetable_slot_assignments` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `timetable_slot_assignments`
 --
 ALTER TABLE `timetable_slot_assignments`
-  ADD CONSTRAINT `timetable_slot_assignments_ibfk_1` FOREIGN KEY (`timetable_id`) REFERENCES `timetables` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_slot_assignments_ibfk_2` FOREIGN KEY (`class_id`) REFERENCES `classes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_slot_assignments_ibfk_3` FOREIGN KEY (`faculty_id`) REFERENCES `faculty_profiles` (`faculty_id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  ADD CONSTRAINT `timetable_slot_assignments_ibfk_4` FOREIGN KEY (`assigned_by`) REFERENCES `faculty_profiles` (`faculty_id`) ON UPDATE CASCADE;
-
---
--- Constraints for table `timetable_uploads`
---
-ALTER TABLE `timetable_uploads`
-  ADD CONSTRAINT `fk_timetable_upload_timetable` FOREIGN KEY (`timetable_id`) REFERENCES `timetables` (`id`),
-  ADD CONSTRAINT `fk_timetable_upload_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `fk_slot_assignments_timetable` FOREIGN KEY (`timetable_id`) REFERENCES `timetables` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `users`

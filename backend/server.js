@@ -194,7 +194,8 @@ const startServer = () => {
 
   app.use(errorHandler);
 
-  const PORT = process.env.PORT || 5000;
+  // prefer using environment variable, but default to 3005 as requested
+  const PORT = process.env.PORT || 3005;
 
   const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`.yellow.bold);

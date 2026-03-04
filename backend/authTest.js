@@ -1,5 +1,6 @@
 // Test endpoints with proper authentication
-const baseUrl = 'http://localhost:8086/api/v1';
+// tests should hit backend port 3005 not front-end
+const baseUrl = 'http://localhost:3005/api/v1';
 
 async function login() {
   try {
