@@ -28,6 +28,8 @@ import studentBioRoutes from './routes/student/studentBio.routes.js';
 import studentAttendanceRoutes from './routes/student/studentAttendance.routes.js';
 import studentEventRoutes from './routes/student/studentEvent.routes.js';
 import studentSportRoutes from './routes/student/studentSport.routes.js';
+import studentInternalMarksRoutes from './routes/student/studentInternalMarks.routes.js';
+import studentProfileRoutes from './routes/student/studentProfile.routes.js';
 import timetableRoutes from './routes/timetable/timetable.routes.js';
 import timetableManagementAdminRoutes from './routes/admin/timetable-management.routes.js';
 import leaveRoutes from './routes/leave-attendance/leave.routes.js';
@@ -164,6 +166,8 @@ const startServer = () => {
   app.use('/api/v1/student/attendance', studentAttendanceRoutes);
   app.use('/api/v1/student/events', studentEventRoutes);
   app.use('/api/v1/student/sports', studentSportRoutes);
+  app.use('/api/v1/student/internal-marks', studentInternalMarksRoutes);
+  app.use('/api/v1/student/profile', studentProfileRoutes);
   app.use('/api/v1/subjects', generalSubjectRoutes);
   app.use('/api/v1/classes', classRoutes);
   app.use('/api/v1/timetable', timetableRoutes);
