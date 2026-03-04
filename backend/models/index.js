@@ -43,6 +43,8 @@ import StudentDisciplinary from './StudentDisciplinary.model.js';
 import StudentProject from './StudentProject.model.js';
 import StudentSport from './StudentSport.model.js';
 import StudentNotification from './StudentNotification.model.js';
+import StudentExtracurricular from './StudentExtracurricular.model.js';
+import { StudentProfileModel } from './StudentProfile.model.js';
 
 // Initialize models
 const models = {
@@ -87,6 +89,8 @@ const models = {
   StudentProject: StudentProject(sequelize),
   StudentSport: StudentSport(sequelize),
   StudentNotification: StudentNotification(sequelize),
+  StudentExtracurricular: StudentExtracurricular(sequelize),
+  StudentProfile: StudentProfileModel(sequelize),
 };
 
 // Define associations
