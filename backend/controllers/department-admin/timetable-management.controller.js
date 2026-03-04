@@ -27,14 +27,37 @@ export const checkTimetableIncharge = asyncHandler(async (req, res, next) => {
 });
 
 /**
- * Get all timetables for a department and year
+ * Get all timetables for a department.
+ *
+ * The `year` path parameter is accepted for compatibility but the
+ * Timetable model does *not* have a `year` column. Originally the UI
+ * used this to filter, but it resulted in SQL errors. We ignore it and
+ * simply return every timetable belonging to the department.
  */
 export const getTimetablesByDepartmentAndYear = asyncHandler(async (req, res, next) => {
   const { department_id } = req.user;
-  const { year } = req.params;
+  
+  // DEBUG: Log user info to diagnose department_id issue
+  console.log('[DEBUG] getTimetablesByDepartmentAndYear - user:', JSON.stringify({
+    userId: req.user.id,
+    role: req.user.role,
+    role_id: req.user.role_id,
+    department_id: req.user.department_id,
+    department: req.user.department,
+    departmentCode: req.user.departmentCode
+  }));
+
+  // Validate department_id exists
+  if (!department_id) {
+    console.error('[DEBUG] department_id is missing or undefined!');
+    return res.status(500).json({
+      success: false,
+      message: 'Department ID not found in user session. Please re-login.'
+    });
+  }
 
   const timetables = await models.Timetable.findAll({
-    where: { department_id, year },
+    where: { department_id },
     include: [
       {
         model: models.Department,
@@ -569,6 +592,48 @@ export const getDepartmentFaculty = asyncHandler(async (req, res, next) => {
     });
   }
 
+  // If frontend sent a year filter, return only faculty who teach that year
+  // in the department by querying the simple timetable table.
+  const yearParam = req.query.year;
+  if (yearParam) {
+    // Support Roman numerals like I, II, III, IV as well as numeric strings
+    const romanToNumber = { 'I': 1, 'II': 2, 'III': 3, 'IV': 4 };
+    let yearValue = yearParam;
+    if (typeof yearValue === 'string') {
+      const up = yearValue.trim().toUpperCase();
+      if (romanToNumber[up]) yearValue = romanToNumber[up];
+      else yearValue = parseInt(yearValue, 10);
+    }
+
+    // Determine department short name used in TimetableSimple.department
+    let departmentShort = req.user?.department || null;
+    if (!departmentShort && department_id) {
+      const dept = await models.Department.findByPk(department_id, { attributes: ['short_name'] });
+      if (dept) departmentShort = dept.short_name;
+    }
+
+    if (!departmentShort) {
+      return res.status(200).json({ success: true, count: 0, data: [], message: 'Department not resolved' });
+    }
+
+    // Query TimetableSimple for distinct faculty entries matching department and year
+    const facultyRows = await models.TimetableSimple.findAll({
+      where: {
+        department: departmentShort,
+        year: yearValue
+      },
+      attributes: ['facultyId', 'facultyName'],
+      group: ['facultyId', 'facultyName'],
+      order: [['facultyName', 'ASC']]
+    });
+
+    // Normalize field names to match existing frontend expectations
+    const data = facultyRows.map(r => ({ faculty_id: r.facultyId, Name: r.facultyName }));
+
+    return res.status(200).json({ success: true, count: data.length, data });
+  }
+
+  // Default: return all active faculty in department
   const faculties = await models.Faculty.findAll({
     where: {
       department_id,

@@ -52,11 +52,11 @@ router.post('/download-profile', authorize('faculty', 'department-admin', 'super
 
 // Routes for admin
 router.route('/')
-  .get(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin', 'faculty'), getAllFaculty)
+  .get(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin', 'faculty', 'department-admin'), getAllFaculty)
   .post(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), createFaculty);
 
-router.route('/:id(\\d+)')
-  .get(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin', 'faculty'), getFaculty)
+router.route('/:id(\d+)')
+  .get(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin', 'faculty', 'department-admin'), getFaculty)
   .put(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), updateFaculty)
   .delete(authorize('superadmin', 'super-admin'), deleteFaculty);
 

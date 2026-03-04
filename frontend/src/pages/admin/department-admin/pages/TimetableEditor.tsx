@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Grid3x3, Plus, Trash2, Save, Clock, Edit2, X } from 'lucide-react';
+import { Grid3x3, Plus, Trash2, Save, Clock, Edit2, X, Users } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
 import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/pages/admin/department-admin/components/layout/MainLayout';
@@ -63,6 +63,26 @@ interface BreakFormData {
   end_time: string;
 }
 
+interface FacultyInfo {
+  facultyId: string;
+  facultyName: string;
+}
+
+interface FacultyTimetableSlot {
+  id: number;
+  facultyId: string;
+  facultyName: string;
+  department: string;
+  year: number;
+  section: string;
+  day: string;
+  hour: number;
+  subject: string;
+  academicYear: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
 export default function TimetableEditor() {
@@ -76,7 +96,13 @@ export default function TimetableEditor() {
   const [faculty, setFaculty] = useState<AvailableFaculty[]>([]);
   const [loading, setLoading] = useState(false);
   const [showSlotForm, setShowSlotForm] = useState(false);
-  const [activeTab, setActiveTab] = useState<'slots' | 'breaks'>('slots');
+  const [activeTab, setActiveTab] = useState<'slots' | 'breaks' | 'faculty-timetable'>('slots');
+  
+  // Faculty Timetable State
+  const [facultyList, setFacultyList] = useState<FacultyInfo[]>([]);
+  const [selectedFaculty, setSelectedFaculty] = useState<FacultyInfo | null>(null);
+  const [facultyTimetable, setFacultyTimetable] = useState<FacultyTimetableSlot[]>([]);
+  const [loadingFacultyTimetable, setLoadingFacultyTimetable] = useState(false);
   
   // Slot Form State
   const [slotFormData, setSlotFormData] = useState<SlotFormData>({
@@ -99,71 +125,37 @@ export default function TimetableEditor() {
   const [editingBreakId, setEditingBreakId] = useState<number | null>(null);
   const [isSubmittingBreak, setIsSubmittingBreak] = useState(false);
 
-  const fetchTimetables = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`/api/v1/department-admin/timetable/department/${selectedYear}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
+  // no longer fetching department timetables; we only need faculty list
 
-      if (!response.ok) throw new Error('Failed to fetch timetables');
-      const data = await response.json();
-      setTimetables(data.data);
-      if (data.data.length > 0) {
-        setSelectedTimetable(data.data[0]);
-        fetchSlotAssignments(data.data[0].id);
-      }
-    } catch (error) {
-      toast.error('Failed to load timetables');
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchSlotAssignments = async (timetableId: number) => {
-    try {
-      const response = await fetch(`/api/v1/department-admin/timetable/${timetableId}/slots`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (!response.ok) throw new Error('Failed to fetch slot assignments');
-      const data = await response.json();
-      setTimetables((prev) =>
-        prev.map((t) => (t.id === timetableId ? { ...t, TimetableSlots: data.data } : t))
-      );
-    } catch (error) {
-      console.error('Failed to fetch slot assignments:', error);
-    }
-  };
+  // old timetable slot fetching logic removed; faculty timetable handled separately
 
   const fetchAvailableData = async () => {
     try {
-      const [classRes, subjectRes, facultyRes] = await Promise.all([
-        fetch('/api/v1/classes', {
-          headers: { Authorization: `Bearer ${authToken}` }
-        }),
-        fetch('/api/v1/subjects', {
-          headers: { Authorization: `Bearer ${authToken}` }
-        }),
-        fetch('/api/v1/faculty', {
-          headers: { Authorization: `Bearer ${authToken}` }
-        })
+      const [classRes, subjectRes] = await Promise.all([
+        fetch('/api/v1/classes', { headers: { Authorization: `Bearer ${authToken}` } }),
+        fetch('/api/v1/subjects', { headers: { Authorization: `Bearer ${authToken}` } })
       ]);
 
       const classData = await classRes.json();
       const subjectData = await subjectRes.json();
-      const facultyData = await facultyRes.json();
 
       setClasses(classData.data || []);
       setSubjects(subjectData.data || []);
-      setFaculty(facultyData.data || []);
+
+      // Faculty endpoint may return 403 for department-admin; fetch separately and ignore 403
+      try {
+        const facultyRes = await fetch('/api/v1/faculty', { headers: { Authorization: `Bearer ${authToken}` } });
+        if (facultyRes.ok) {
+          const facultyData = await facultyRes.json();
+          setFaculty(facultyData.data || []);
+        } else {
+          // ignore forbidden or other errors for faculty list
+          setFaculty([]);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch /api/v1/faculty (ignored):', err);
+        setFaculty([]);
+      }
     } catch (error) {
       console.error('Failed to fetch available data:', error);
     }
@@ -172,6 +164,7 @@ export default function TimetableEditor() {
   // Fetch Break Timings
   const fetchBreakTimings = async (year?: string) => {
     try {
+      // department-admin break-timings endpoint expects values like "1st","2nd" etc.
       const endpoint = year
         ? `/api/v1/department-admin/break-timings/year/${year}`
         : '/api/v1/department-admin/break-timings';
@@ -182,20 +175,138 @@ export default function TimetableEditor() {
         }
       });
 
-      if (!response.ok) throw new Error('Failed to fetch break timings');
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch break timings');
+      }
       const data = await response.json();
       setBreakTimings(data.data || []);
     } catch (error) {
-      toast.error('Failed to load break timings');
-      console.error(error);
+      // Don't show toast during render - schedule it for next tick
+      setTimeout(() => {
+        toast.error('Failed to load break timings');
+      }, 0);
+      console.error('Error fetching break timings:', error);
+    }
+  };
+
+  // Fetch all timetables for a given department-year (used by slots/breaks tabs)
+  const fetchTimetables = async (year?: string) => {
+    try {
+      // the backend no longer filters by year, so any value is fine
+      const endpoint = year
+        ? `/api/v1/department-admin/timetable/department/${year}`
+        : '/api/v1/department-admin/timetable/department/1';
+      const response = await fetch(endpoint, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch timetables');
+      }
+      const data = await response.json();
+      setTimetables(data.data || []);
+      // optionally reset selection if year changed
+      setSelectedTimetable(null);
+    } catch (error) {
+      // Don't show toast during render - schedule it for next tick
+      setTimeout(() => {
+        toast.error('Failed to load timetables');
+      }, 0);
+      console.error('Error fetching timetables:', error);
+      // don't disturb user, timetables may not be needed
+    }
+  };
+
+  // dummy helper to satisfy existing slot-related logic
+  const fetchSlotAssignments = async (timetableId: number) => {
+    // The original implementation would fetch slot assignments and
+    // attach them to selectedTimetable.TimetableSlots. If dept-admin
+    // no longer needs this functionality, we can leave it as a no-op.
+    try {
+      const response = await fetch(`/api/v1/department-admin/timetable/${timetableId}/slots`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      if (selectedTimetable) {
+        setSelectedTimetable({ ...selectedTimetable, TimetableSlots: data.data || [] });
+      }
+    } catch (err) {
+      console.error('Failed to fetch slot assignments', err);
+    }
+  };
+
+  // Fetch faculty by year for department admin
+  const fetchFacultyByYear = async (year: string) => {
+    try {
+      // convert to simple number if year is like '1st' or '2nd'
+      const yearMap: any = { '1st': '1', '2nd': '2', '3rd': '3', '4th': '4' };
+      const yearParam = yearMap[year] || year;
+      const response = await fetch(`/api/v1/timetable/admin/faculty-by-year/${yearParam}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch faculty list');
+      }
+      const data = await response.json();
+      setFacultyList(data.data || []);
+      setSelectedFaculty(null);
+      setFacultyTimetable([]);
+    } catch (error) {
+      // Don't show toast during render - schedule it for next tick
+      setTimeout(() => {
+        toast.error('Failed to load faculty list');
+      }, 0);
+      console.error('Error fetching faculty by year:', error);
+    }
+  };
+
+  // Fetch faculty personal timetable
+  const fetchFacultyTimetable = async (facultyId: string) => {
+    setLoadingFacultyTimetable(true);
+    try {
+      const response = await fetch(`/api/v1/timetable/admin/faculty-timetable/${facultyId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to fetch faculty timetable');
+      }
+      const data = await response.json();
+      setFacultyTimetable(data.data || []);
+    } catch (error) {
+      // Don't show toast during render - schedule it for next tick
+      setTimeout(() => {
+        toast.error('Failed to load faculty timetable');
+      }, 0);
+      console.error('Error fetching faculty timetable:', error);
+    } finally {
+      setLoadingFacultyTimetable(false);
     }
   };
 
   useEffect(() => {
     if (authToken) {
-      fetchTimetables();
+      fetchTimetables(selectedYear);
       fetchAvailableData();
       fetchBreakTimings(selectedYear);
+      fetchFacultyByYear(selectedYear);
     }
   }, [authToken, selectedYear]);
 
@@ -393,44 +504,23 @@ export default function TimetableEditor() {
           )}
         </motion.div>
 
-        {/* Year & Timetable Selection */}
+        {/* Year Selection (department admin) */}
         <div className="bg-muted/40 rounded-lg border border-border p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">Select Year</label>
               <select
                 value={selectedYear}
                 onChange={(e) => {
                   setSelectedYear(e.target.value);
-                  setActiveTab('slots');
+                  // automatically show faculty timetable tab when year changes
+                  setActiveTab('faculty-timetable');
                 }}
                 className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 {years.map((year) => (
                   <option key={year} value={year}>
                     {year} Year
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">Select Timetable</label>
-              <select
-                value={selectedTimetable?.id || ''}
-                onChange={(e) => {
-                  const timetable = timetables.find((t) => t.id === parseInt(e.target.value));
-                  if (timetable) {
-                    setSelectedTimetable(timetable);
-                    fetchSlotAssignments(timetable.id);
-                  }
-                }}
-                className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select a timetable</option>
-                {timetables.map((timetable) => (
-                  <option key={timetable.id} value={timetable.id}>
-                    {timetable.session_start} - {timetable.session_end}
                   </option>
                 ))}
               </select>
@@ -461,6 +551,17 @@ export default function TimetableEditor() {
           >
             <Clock className="inline w-4 h-4 mr-2" />
             Break Timings
+          </button>
+          <button
+            onClick={() => setActiveTab('faculty-timetable')}
+            className={`px-6 py-3 font-medium transition-colors ${
+              activeTab === 'faculty-timetable'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Users className="inline w-4 h-4 mr-2" />
+            Faculty Timetable
           </button>
         </div>
 
@@ -796,6 +897,148 @@ export default function TimetableEditor() {
                 )}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* FACULTY TIMETABLE TAB */}
+        {activeTab === 'faculty-timetable' && (
+          <div className="space-y-6">
+            {/* Faculty Selection Section */}
+            <div className="bg-slate-700/50 border border-slate-600 rounded-lg p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-300 mb-2">Select Faculty</label>
+                  <select
+                    value={selectedFaculty?.facultyId || ''}
+                    onChange={(e) => {
+                      const faculty = facultyList.find((f) => f.facultyId === e.target.value);
+                      if (faculty) {
+                        setSelectedFaculty(faculty);
+                        fetchFacultyTimetable(faculty.facultyId);
+                      }
+                    }}
+                    className="w-full px-4 py-2 bg-slate-700 border border-slate-600 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">-- Select Faculty --</option>
+                    {facultyList.map((f) => (
+                      <option key={f.facultyId} value={f.facultyId}>
+                        {f.facultyName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {selectedFaculty && (
+                  <div className="bg-blue-900/30 border border-blue-700 rounded-lg p-4 flex items-center">
+                    <div>
+                      <p className="text-sm text-blue-300">Selected Faculty</p>
+                      <p className="text-lg font-bold text-white">{selectedFaculty.facultyName}</p>
+                      <p className="text-sm text-blue-200">ID: {selectedFaculty.facultyId}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Faculty Timetable Display */}
+            {selectedFaculty && !loadingFacultyTimetable && (
+              <div className="space-y-4">
+                <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                  <Users className="w-6 h-6" />
+                  Personal Timetable: {selectedFaculty.facultyName}
+                </h2>
+
+                {facultyTimetable.length === 0 ? (
+                  <div className="bg-slate-700 border border-slate-600 rounded-lg p-8 text-center">
+                    <Grid3x3 className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                    <p className="text-slate-400">No timetable records found for this faculty</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 lg:grid-cols-7 gap-4">
+                    {/* Organize timetable by days */}
+                    {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => {
+                      const daySlots = facultyTimetable.filter((slot) => slot.day === day);
+                      return (
+                        <div
+                          key={day}
+                          className="bg-slate-700 border border-slate-600 rounded-lg overflow-hidden hover:border-blue-500 transition-colors"
+                        >
+                          <div className="bg-blue-900/50 px-4 py-3 border-b border-slate-600">
+                            <h3 className="font-bold text-white text-center">{day}</h3>
+                          </div>
+                          <div className="p-4 space-y-2 min-h-[400px]">
+                            {daySlots.length === 0 ? (
+                              <p className="text-slate-400 text-sm text-center py-4">No classes</p>
+                            ) : (
+                              daySlots.map((slot) => (
+                                <div
+                                  key={slot.id}
+                                  className="bg-slate-600 rounded p-2 border-l-4 border-green-500 hover:bg-slate-500 transition-colors"
+                                >
+                                  <p className="font-bold text-white text-sm">{slot.subject}</p>
+                                  <div className="text-xs text-slate-200 mt-1 space-y-0.5">
+                                    <p>Hour: {slot.hour}</p>
+                                    <p>Year: {slot.year} | Sec: {slot.section}</p>
+                                  </div>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Detailed Table View */}
+                {facultyTimetable.length > 0 && (
+                  <div className="mt-8">
+                    <h3 className="text-xl font-bold text-white mb-4">Detailed View</h3>
+                    <div className="overflow-x-auto bg-slate-700 border border-slate-600 rounded-lg">
+                      <table className="w-full text-sm text-left text-slate-300">
+                        <thead className="bg-slate-800 border-b border-slate-600">
+                          <tr>
+                            <th className="px-6 py-3">Day</th>
+                            <th className="px-6 py-3">Hour</th>
+                            <th className="px-6 py-3">Subject</th>
+                            <th className="px-6 py-3">Year</th>
+                            <th className="px-6 py-3">Section</th>
+                            <th className="px-6 py-3">Academic Year</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-600">
+                          {facultyTimetable.map((slot) => (
+                            <tr key={slot.id} className="hover:bg-slate-600 transition-colors">
+                              <td className="px-6 py-4 font-medium text-white">{slot.day}</td>
+                              <td className="px-6 py-4">{slot.hour}</td>
+                              <td className="px-6 py-4 font-semibold text-green-400">{slot.subject}</td>
+                              <td className="px-6 py-4">{slot.year}</td>
+                              <td className="px-6 py-4">{slot.section}</td>
+                              <td className="px-6 py-4">{slot.academicYear}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Loading State */}
+            {selectedFaculty && loadingFacultyTimetable && (
+              <div className="flex justify-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400" />
+              </div>
+            )}
+
+            {/* No Faculty Selected */}
+            {!selectedFaculty && (
+              <div className="bg-slate-700 border border-slate-600 rounded-lg p-8 text-center">
+                <Users className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <p className="text-slate-400">Select a faculty to view their personal timetable</p>
+              </div>
+            )}
           </div>
         )}
       </div>

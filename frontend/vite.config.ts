@@ -11,12 +11,13 @@ export default defineConfig({
     },
   },
   server: {
-    // frontend development server must run on 8086 per requirement
+    // use specified frontend port
     port: 8086,
     strictPort: true,
     open: true,
     proxy: {
       '/api': {
+        // backend runs on 3005
         target: 'http://localhost:3005',
         changeOrigin: true,
         secure: false,
