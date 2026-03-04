@@ -12,7 +12,9 @@ import {
   removeSlot,
   getPeriodConfigs,
   createPeriodConfig,
-  getTodaySchedule
+  getTodaySchedule,
+  getFacultyByYear,
+  getFacultyTimetable
 } from '../../controllers/timetable/timetable.controller.js';
 
 import { bulkUploadTimetable, getPersonalTimetable, getMyTimetable, getMyStudentTimetable } from '../../controllers/timetable/timetable-bulk.controller.js';
@@ -39,6 +41,13 @@ router.use(protect);
 
 // Get today's schedule for logged in user
 router.get('/today', getTodaySchedule);
+
+// Department Admin Routes - Faculty personal timetable (simpler paths)
+router.get('/year/:year/faculties', authorize('department-admin'), getFacultyByYear);
+
+// Department Admin Routes - Faculty personal timetable (admin-specific paths)
+router.get('/admin/faculty-by-year/:year', authorize('department-admin'), getFacultyByYear);
+router.get('/admin/faculty-timetable/:facultyId', authorize('department-admin'), getFacultyTimetable);
 
 // Bulk upload timetable (with file upload)
 router.post('/bulk-upload', upload.single('file'), handleMulterError, bulkUploadTimetable);
