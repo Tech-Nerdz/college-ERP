@@ -1,8 +1,9 @@
 import ErrorResponse from '../../utils/errorResponse.js';
 import asyncHandler from '../../middleware/async.js';
-import { models } from '../../models/index.js';
+import { models, sequelize } from '../../models/index.js';
 const { Timetable, PeriodConfig, Faculty, Student, TimetableSlot, Department, Class: ClassModel, Subject, User } = models;
-import { Op } from 'sequelize';
+import TimetableSimple from '../../models/TimetableSimple.model.js';
+import { Op, QueryTypes } from 'sequelize';
 
 // @desc      Get all timetables
 // @route     GET /api/v1/timetable
@@ -468,4 +469,134 @@ export const getTodaySchedule = asyncHandler(async (req, res, next) => {
     count: schedule.length,
     data: schedule
   });
+});
+
+// @desc      Get faculty by year for department admin
+// @route     GET /api/v1/timetable/year/:year/faculties
+// @access    Private/Department-Admin
+export const getFacultyByYear = asyncHandler(async (req, res, next) => {
+  const isDepartmentAdmin = req.user.role === 'department_admin' || req.user.role === 'department-admin' || req.user.role_id === 7;
+  if (!isDepartmentAdmin) {
+    return next(new ErrorResponse('Only department admin can access this feature', 403));
+  }
+
+  let { year } = req.params;
+  const yearMap = { '1st': 1, '2nd': 2, '3rd': 3, '4th': 4 };
+  const yearNum = yearMap[year] || parseInt(year, 10);
+  
+  // DEBUG: Log user department info
+  console.log('[DEBUG] getFacultyByYear - user:', JSON.stringify({
+    userId: req.user.id,
+    role: req.user.role,
+    department_id: req.user.department_id,
+    department: req.user.department,
+    departmentCode: req.user.departmentCode
+  }));
+
+  // Build a list of possible department identifiers (short_name, full_name, code)
+  const deptCandidates = [];
+  // req.user.department may be a string or an object
+  if (req.user.department) {
+    if (typeof req.user.department === 'string') deptCandidates.push(req.user.department);
+    else if (typeof req.user.department === 'object') {
+      if (req.user.department.short_name) deptCandidates.push(req.user.department.short_name);
+      if (req.user.department.full_name) deptCandidates.push(req.user.department.full_name);
+    }
+  }
+  if (req.user.departmentCode && typeof req.user.departmentCode === 'string') deptCandidates.push(req.user.departmentCode);
+  if (req.user.department_id) {
+    try {
+      const deptRecord = await Department.findByPk(req.user.department_id, { attributes: ['short_name', 'full_name'] });
+      if (deptRecord) {
+        if (deptRecord.short_name) deptCandidates.push(deptRecord.short_name);
+        if (deptRecord.full_name) deptCandidates.push(deptRecord.full_name);
+      }
+    } catch (err) {
+      console.warn('Failed to lookup department by id:', req.user.department_id, err && err.message);
+    }
+  }
+
+  // Deduplicate and sanitize
+  const uniqueDepts = Array.from(new Set(deptCandidates.filter(Boolean).map(String)));
+
+  try {
+    console.log(`[TIMETABLE] Fetching faculty for year: ${year} (${yearNum}), dept candidates: ${uniqueDepts.join(',')}`);
+
+    if (uniqueDepts.length === 0) {
+      console.warn('[TIMETABLE] No department identifiers available for user; returning empty list');
+      return res.status(200).json({ success: true, count: 0, data: [] });
+    }
+
+    // Build dynamic IN clause for departments
+    const placeholders = uniqueDepts.map(() => '?').join(',');
+    const replacements = [yearNum, ...uniqueDepts];
+
+    const sql = `SELECT DISTINCT facultyId, facultyName FROM timetable WHERE year = ? AND department IN (${placeholders}) ORDER BY facultyName ASC`;
+    const faculty = await sequelize.query(sql, { replacements, type: QueryTypes.SELECT });
+
+    console.log(`[TIMETABLE] Found ${faculty.length} faculty for year ${year}`);
+    res.status(200).json({ success: true, count: faculty.length, data: faculty });
+  } catch (err) {
+    console.error('[TIMETABLE] getFacultyByYear error:', err && err.stack ? err.stack : err);
+    return next(new ErrorResponse('Failed to fetch faculty list', 500));
+  }
+});
+
+// @desc      Get faculty personal timetable for department admin
+// @route     GET /api/v1/timetable/faculty/:facultyId
+// @access    Private/Department-Admin
+export const getFacultyTimetable = asyncHandler(async (req, res, next) => {
+  const isDepartmentAdmin2 = req.user.role === 'department_admin' || req.user.role === 'department-admin' || req.user.role_id === 7;
+  if (!isDepartmentAdmin2) {
+    return next(new ErrorResponse('Only department admin can access this feature', 403));
+  }
+
+  const { facultyId } = req.params;
+  // Build department candidates similar to getFacultyByYear
+  const deptCandidates = [];
+  if (req.user.department) {
+    if (typeof req.user.department === 'string') deptCandidates.push(req.user.department);
+    else if (typeof req.user.department === 'object') {
+      if (req.user.department.short_name) deptCandidates.push(req.user.department.short_name);
+      if (req.user.department.full_name) deptCandidates.push(req.user.department.full_name);
+    }
+  }
+  if (req.user.departmentCode && typeof req.user.departmentCode === 'string') deptCandidates.push(req.user.departmentCode);
+  if (req.user.department_id) {
+    try {
+      const deptRecord = await Department.findByPk(req.user.department_id, { attributes: ['short_name', 'full_name'] });
+      if (deptRecord) {
+        if (deptRecord.short_name) deptCandidates.push(deptRecord.short_name);
+        if (deptRecord.full_name) deptCandidates.push(deptRecord.full_name);
+      }
+    } catch (err) {
+      console.warn('Failed to lookup department by id:', req.user.department_id, err && err.message);
+    }
+  }
+  const uniqueDepts = Array.from(new Set(deptCandidates.filter(Boolean).map(String)));
+
+  try {
+    console.log(`[TIMETABLE] Fetching timetable for faculty: ${facultyId}, dept candidates: ${uniqueDepts.join(',')}`);
+
+    if (uniqueDepts.length === 0) {
+      console.warn('[TIMETABLE] No department identifiers available for user; returning not found');
+      return next(new ErrorResponse('No department associated with your account', 400));
+    }
+
+    const placeholders = uniqueDepts.map(() => '?').join(',');
+    const replacements = [facultyId, ...uniqueDepts];
+
+    const sql = `SELECT * FROM timetable WHERE facultyId = ? AND department IN (${placeholders}) ORDER BY CASE day WHEN 'Monday' THEN 1 WHEN 'Tuesday' THEN 2 WHEN 'Wednesday' THEN 3 WHEN 'Thursday' THEN 4 WHEN 'Friday' THEN 5 WHEN 'Saturday' THEN 6 WHEN 'Sunday' THEN 7 END ASC, hour ASC`;
+    const timetable = await sequelize.query(sql, { replacements, type: QueryTypes.SELECT });
+
+    if (timetable.length === 0) {
+      return next(new ErrorResponse('No timetable found for this faculty', 404));
+    }
+
+    console.log(`[TIMETABLE] Found ${timetable.length} slots for faculty ${facultyId}`);
+    res.status(200).json({ success: true, count: timetable.length, data: timetable });
+  } catch (err) {
+    console.error('[TIMETABLE] getFacultyTimetable error:', err && err.stack ? err.stack : err);
+    return next(new ErrorResponse('Failed to fetch faculty timetable', 500));
+  }
 });

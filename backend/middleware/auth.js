@@ -58,7 +58,7 @@ export const protect = asyncHandler(async (req, res, next) => {
         include: [{
           model: models.Department,
           as: 'department',
-          attributes: ['short_name', 'full_name']
+          attributes: ['id', 'short_name', 'full_name']
         }]
       });
 
@@ -70,14 +70,14 @@ export const protect = asyncHandler(async (req, res, next) => {
       req.user.role = 'student';
       req.user.departmentCode = decoded.department || req.user.department?.short_name || null;
       req.user.department = decoded.department || req.user.department?.short_name || null;
-      // normalize department id properties for compatibility
-      req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
+      // FIX: Get department_id from the Student model directly
+      req.user.department_id = req.user.dataValues?.department_id || req.user.department_id || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
       // Set year, section, academicYear from JWT for timetable lookup
       req.user.year = decoded.year || req.user.year || null;
       req.user.section = decoded.section || req.user.section || null;
       req.user.academicYear = decoded.academicYear || req.user.batch || null;
-      console.log('[AUTH] Student logged in - department:', req.user.department, 'year:', req.user.year, 'section:', req.user.section, 'academicYear:', req.user.academicYear);
+      console.log('[AUTH] Student logged in - department:', req.user.department, 'year:', req.user.year, 'section:', req.user.section, 'academicYear:', req.user.academicYear, 'department_id:', req.user.department_id);
       return next();
     }
 
@@ -88,7 +88,7 @@ export const protect = asyncHandler(async (req, res, next) => {
         include: [{
           model: models.Department,
           as: 'department',
-          attributes: ['short_name', 'full_name']
+          attributes: ['id', 'short_name', 'full_name']
         }]
       });
 
@@ -101,14 +101,14 @@ export const protect = asyncHandler(async (req, res, next) => {
       req.user.role = 'faculty';
       req.user.userType = 'faculty';
       req.user.departmentCode = req.user.department?.short_name || null;
-      // normalize department id and faculty id properties for compatibility
-      req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
+      // FIX: Get department_id from the Faculty model directly
+      req.user.department_id = req.user.dataValues?.department_id || req.user.department_id || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
       // Set both faculty_id and facultyId for compatibility
       // Use decoded.facultyId (faculty_college_code from JWT) for timetable lookup
       req.user.faculty_id = decoded.id;
       req.user.facultyId = decoded.facultyId || String(decoded.id);
-      console.log('[AUTH] Faculty logged in - faculty_id:', req.user.faculty_id, 'facultyId:', req.user.facultyId);
+      console.log('[AUTH] Faculty logged in - faculty_id:', req.user.faculty_id, 'facultyId:', req.user.facultyId, 'department_id:', req.user.department_id);
       return next();
     }
 
@@ -119,7 +119,7 @@ export const protect = asyncHandler(async (req, res, next) => {
         include: [{
           model: models.Department,
           as: 'department',
-          attributes: ['short_name', 'full_name']
+          attributes: ['id', 'short_name', 'full_name']
         }]
       });
 
@@ -132,13 +132,11 @@ export const protect = asyncHandler(async (req, res, next) => {
       req.user.role = 'department-admin';
       req.user.userType = 'faculty';
       req.user.departmentCode = req.user.department?.short_name || null;
-      // normalize ids
-      req.user.department_id = req.user.department_id || req.user.departmentId || req.user.department?.id || null;
+      // FIX: Get department_id from the Faculty model directly, not just from include
+      // The Faculty model has department_id as a direct column
+      req.user.department_id = req.user.dataValues?.department_id || req.user.department_id || req.user.department?.id || null;
       req.user.departmentId = req.user.department_id;
-      // Set both faculty_id and facultyId for compatibility
-      req.user.faculty_id = req.user.faculty_id || req.user.id || null;
-      req.user.facultyId = String(req.user.faculty_id); // facultyId as string for timetable table
-      console.log('[AUTH] Department-admin logged in - faculty_id:', req.user.faculty_id, 'facultyId:', req.user.facultyId);
+      console.log('[AUTH] Department-admin logged in - faculty_id:', req.user.faculty_id, 'department_id:', req.user.department_id, 'department:', req.user.departmentCode);
       return next();
     }
 
