@@ -1,6 +1,7 @@
 import { models } from '../../models/index.js';
 import asyncHandler from '../../middleware/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
+import { Op } from 'sequelize';
 
 /**
  * Get break timings for a specific year in the department
@@ -157,7 +158,7 @@ export const updateBreakTiming = asyncHandler(async (req, res, next) => {
         department_id,
         year: year || breakTiming.year,
         break_name: break_name || breakTiming.break_name,
-        id: { [models.Sequelize.Op.ne]: id }
+        id: { [Op.ne]: id }
       }
     });
 

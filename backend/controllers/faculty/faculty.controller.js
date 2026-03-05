@@ -1,6 +1,6 @@
 import ErrorResponse from '../../utils/errorResponse.js';
 import asyncHandler from '../../middleware/async.js';
-import { models } from '../../models/index.js';
+import { models, TimetableSimple } from '../../models/index.js';
 const { Faculty, User } = models;
 // additional models imported from models index
 const { Department, Subject, Class: ClassModel } = models;
@@ -541,4 +541,94 @@ export const getMyTimetable = asyncHandler(async (req, res, next) => {
     success: true,
     data: slots
   });
+});
+
+// @desc      Get all faculty in the department for timetable alteration (substitution)
+// @route     GET /api/v1/faculty/free
+// @access    Private/Faculty
+export const getFreeFaculty = asyncHandler(async (req, res, next) => {
+  const { department, day, hour } = req.query;
+
+  if (!department || !day || !hour) {
+    return res.status(400).json({
+      success: false,
+      error: 'Please provide department, day, and hour parameters'
+    });
+  }
+
+  const hourInt = parseInt(hour, 10);
+
+  try {
+    // Find the department ID from the department name
+    const deptRecord = await Department.findOne({
+      where: {
+        [Op.or]: [
+          { short_name: department },
+          { full_name: department }
+        ]
+      }
+    });
+
+    if (!deptRecord) {
+      return res.status(200).json({
+        success: true,
+        data: [], // Return empty array if department not found
+        message: 'Department not found'
+      });
+    }
+
+    // Get all faculty in the department
+    const allFaculty = await Faculty.findAll({
+      where: {
+        department_id: deptRecord.id,
+        status: 'active' // Only active faculty
+      },
+      attributes: ['faculty_id', 'faculty_college_code', 'Name', 'email', 'department_id']
+    });
+
+    if (allFaculty.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: [],
+        message: 'No faculty found in this department'
+      });
+    }
+
+    // Get faculty IDs who have classes at this day/hour (for reference, but show all faculty)
+    const busyFacultyIds = await TimetableSimple.findAll({
+      where: {
+        department: department,
+        day: day,
+        hour: hourInt
+      },
+      attributes: ['facultyId']
+    });
+
+    const busyIds = new Set(busyFacultyIds.map(f => f.facultyId));
+
+    // Return ALL faculty with an indicator of whether they're busy or free at this time
+    const facultyWithStatus = allFaculty.map(f => ({
+      id: f.faculty_id,
+      facultyId: f.faculty_college_code,
+      firstName: f.Name.split(' ')[0] || f.Name,
+      lastName: f.Name.split(' ').slice(1).join(' ') || '',
+      email: f.email,
+      isFree: !busyIds.has(f.faculty_college_code)
+    }));
+
+    // Sort so free faculty appear first
+    facultyWithStatus.sort((a, b) => (b.isFree ? 1 : 0) - (a.isFree ? 1 : 0));
+
+    res.status(200).json({
+      success: true,
+      data: facultyWithStatus
+    });
+  } catch (error) {
+    console.error('[FACULTY] getFreeFaculty error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch faculty list',
+      message: error.message
+    });
+  }
 });

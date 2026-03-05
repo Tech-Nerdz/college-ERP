@@ -33,6 +33,7 @@ import timetableManagementRoutes from './routes/department-admin/timetable-manag
 import breakTimingRoutes from './routes/department-admin/break-timing.routes.js';
 import facultyAllocationRoutes from './routes/department-admin/faculty-allocation.routes.js';
 import timetableNotificationRoutes from './routes/faculty/timetable-notification.routes.js';
+import timetableAlterationRoutes from './routes/faculty/timetable-alteration.routes.js';
 import coordinatorRoutes from './routes/department-admin/coordinator.routes.js';
 import subjectRoutes from './routes/department-admin/subject.routes.js';
 import generalSubjectRoutes from './routes/subject.routes.js';
@@ -169,6 +170,7 @@ const startServer = () => {
   app.use('/api/v1/department-admin/coordinators', coordinatorRoutes);
   app.use('/api/v1/department-admin/subjects', subjectRoutes);
   app.use('/api/v1/faculty/notifications', timetableNotificationRoutes);
+  app.use('/api/v1/faculty/timetable/alterations', timetableAlterationRoutes);
 
   // Health check
   app.get('/api/v1/health', (req, res) => {

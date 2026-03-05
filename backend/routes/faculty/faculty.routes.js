@@ -12,7 +12,8 @@ import {
   uploadFaculty,
   getMyProfile,
   updateFacultyProfile,
-  getMyTimetable
+  getMyTimetable,
+  getFreeFaculty
 } from '../../controllers/faculty/faculty.controller.js';
 import {
   getMyEducation,
@@ -109,5 +110,8 @@ router.route('/phd')
 router.route('/phd/:id')
   .put(authorize('faculty', 'department-admin'), updatePhd)
   .delete(authorize('faculty', 'department-admin'), deletePhd);
+
+// Free faculty route - get faculty who are free at a given day/hour for timetable alteration
+router.get('/free', authorize('faculty', 'department-admin'), getFreeFaculty);
 
 export default router;

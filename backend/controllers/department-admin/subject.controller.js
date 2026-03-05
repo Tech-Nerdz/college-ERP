@@ -1,6 +1,7 @@
 import asyncHandler from '../../middleware/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
 import { models } from '../../models/index.js';
+import { Op } from 'sequelize';
 
 const { Subject, Department, Faculty, FacultySubjectAssignment, User } = models;
 
@@ -148,7 +149,7 @@ export const updateSubject = asyncHandler(async (req, res, next) => {
       where: { 
         code: req.body.code,
         department_id: departmentId,
-        id: { [models.Sequelize.Op.ne]: id } // Exclude current subject
+        id: { [Op.ne]: id } // Exclude current subject
       }
     });
 
@@ -372,7 +373,7 @@ export const getAvailableFaculty = asyncHandler(async (req, res, next) => {
   };
   
   if (excludeIds.length > 0) {
-    where.faculty_id = { [models.Sequelize.Op.notIn]: excludeIds };
+    where.faculty_id = { [Op.notIn]: excludeIds };
   }
 
   const faculty = await Faculty.findAll({

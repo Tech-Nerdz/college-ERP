@@ -1,7 +1,7 @@
 import asyncHandler from '../../middleware/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
-import { models, sequelize } from '../../models/index.js';
 import { Op } from 'sequelize';
+import { models, sequelize } from '../../models/index.js';
 
 const { FacultySubjectAssignment, Subject, Faculty, Class, Department } = models;
 
@@ -382,7 +382,7 @@ export const getFacultyAllocationsBySemester = asyncHandler(async (req, res, nex
     where: {
       academic_year,
       semester,
-      subject_id: { [models.sequelize.Op.in]: subjectIds }
+      subject_id: { [Op.in]: subjectIds }
     },
     include: [
       { model: Faculty, as: 'faculty', attributes: ['faculty_id', 'Name', 'email', 'designation'] },

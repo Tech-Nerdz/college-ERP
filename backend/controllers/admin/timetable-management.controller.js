@@ -259,8 +259,8 @@ export const getFacultyTimetable = asyncHandler(async (req, res, next) => {
       where: {
         faculty_id: parseInt(faculty_id),
         is_active: true,
-        from_date: { [models.sequelize.Op.lte]: currentDate },
-        to_date: { [models.sequelize.Op.gte]: currentDate }
+        from_date: { [Op.lte]: currentDate },
+        to_date: { [Op.gte]: currentDate }
       }
     });
 

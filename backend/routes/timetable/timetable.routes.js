@@ -14,7 +14,9 @@ import {
   createPeriodConfig,
   getTodaySchedule,
   getFacultyByYear,
-  getFacultyTimetable
+  getFacultyTimetable,
+  getTimetableByDepartmentAndYear,
+  applyTimetableAlteration
 } from '../../controllers/timetable/timetable.controller.js';
 
 import { bulkUploadTimetable, getPersonalTimetable, getMyTimetable, getMyStudentTimetable } from '../../controllers/timetable/timetable-bulk.controller.js';
@@ -87,5 +89,11 @@ router.route('/:id/slots')
 router.route('/:id/slots/:slotId')
   .put(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), updateSlot)
   .delete(authorize('superadmin', 'super-admin', 'executiveadmin', 'academicadmin'), removeSlot);
+
+// Get timetable by department and year (for timetable alteration)
+router.get('/department/:year', authorize('faculty', 'department-admin'), getTimetableByDepartmentAndYear);
+
+// Apply timetable alteration
+router.post('/alteration', authorize('faculty', 'department-admin'), applyTimetableAlteration);
 
 export default router;

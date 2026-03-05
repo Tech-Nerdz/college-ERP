@@ -2,6 +2,7 @@ import fs from 'fs';
 import { models } from '../../models/index.js';
 import asyncHandler from '../../middleware/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
+import { Op } from 'sequelize';
 /**
  * Check if faculty is a timetable incharge OR department admin for their department
  */
@@ -313,14 +314,10 @@ export const changeFacultyAssignment = asyncHandler(async (req, res, next) => {
       class_id: assignment.class_id,
       subject_code: assignment.subject_code,
       faculty_id: new_faculty_id,
-      id: { [models.Sequelize.Op.ne]: assignment_id },
+      id: { [Op.ne]: assignment_id },
       status: ['active', 'pending_approval']
     }
   });
-
-  if (duplicateAssignment) {
-    throw new ErrorResponse('New faculty is already assigned to this subject for this class', 409);
-  }
 
   // Check for time conflict with new faculty
   const timeConflict = await models.TimetableSlotAssignment.findOne({
@@ -330,7 +327,7 @@ export const changeFacultyAssignment = asyncHandler(async (req, res, next) => {
       start_time: assignment.start_time,
       end_time: assignment.end_time,
       year: assignment.Timetable.year,
-      id: { [models.Sequelize.Op.ne]: assignment_id },
+      id: { [Op.ne]: assignment_id },
       status: ['active', 'pending_approval']
     }
   });

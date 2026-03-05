@@ -3,6 +3,9 @@ import asyncHandler from '../../middleware/async.js';
 import { sequelize, models } from '../../models/index.js';
 import { TimetableSimple } from '../../models/index.js';
 import { Op } from 'sequelize';
+
+// extract frequently used models
+const { TimetableAlteration, Faculty } = models;
 import csvParser from 'csv-parser';
 import fs from 'fs';
 
@@ -265,45 +268,62 @@ export const bulkUploadTimetable = asyncHandler(async (req, res, next) => {
 // @route     GET /api/v1/timetable/faculty/me
 // @access    Private (Faculty only)
 export const getMyTimetable = asyncHandler(async (req, res, next) => {
-  // Get facultyId from logged-in user (JWT token)
-  // The auth middleware normalizes faculty_id/facultyId
-  const facultyId = req.user.facultyId || req.user.faculty_id || req.user.id;
-  
-  console.log('[DEBUG] getMyTimetable - req.user:', JSON.stringify(req.user));
-  console.log('[DEBUG] getMyTimetable - extracted facultyId:', facultyId);
-  
-  if (!facultyId) {
+  try {
+    // Get facultyId/code from logged-in user (JWT token). Depending on how the token was issued
+    // this may contain the college code (string) or the numeric PK. We'll handle both safely.
+    const facultyCode = req.user.facultyId || req.user.faculty_id || req.user.id;
+
+  console.log('[DEBUG] getMyTimetable - facultyCode from token:', facultyCode);
+
+  if (!facultyCode) {
     console.log('[DEBUG] getMyTimetable - Faculty ID not found in token');
     return next(new ErrorResponse('Faculty ID not found in token', 400));
   }
 
+  // Build an array of OR conditions, avoiding NaN values which can blow up the SQL query
+  const orConditions = [{ faculty_college_code: String(facultyCode) }];
+  const parsedId = parseInt(facultyCode, 10);
+  if (!isNaN(parsedId)) {
+    orConditions.push({ faculty_id: parsedId });
+  }
+
+  // Look up the actual faculty record to get integer faculty_id
+  const faculty = await Faculty.findOne({
+    where: {
+      [Op.or]: orConditions
+    }
+  });
+
+  if (!faculty) {
+    return res.status(200).json({
+      success: true,
+      timetable: [],
+      message: 'Faculty record not found'
+    });
+  }
+
+  const facultyId = faculty.faculty_id; // Use integer ID for alterations
+
+  // Determine string value to query timetable rows. Prefer the college code if present,
+  // otherwise fall back to the numeric id (converted to string since TimetableSimple stores it as text).
+  const timetableFacultyKey = faculty.faculty_college_code
+    ? String(faculty.faculty_college_code)
+    : String(facultyId);
+
   const timetable = await TimetableSimple.findAll({
-    where: { facultyId: String(facultyId) },
+    where: { facultyId: timetableFacultyKey },
     attributes: ['id', 'facultyId', 'day', 'hour', 'subject', 'section', 'department', 'year', 'academicYear'],
     order: [
-      // Use literal query for FIELD function to order by day of week
       [sequelize.literal("FIELD(day, 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday')"), 'ASC'],
       ['hour', 'ASC']
     ]
   });
 
   console.log('[DEBUG] getMyTimetable - Query result count:', timetable.length);
-  console.log('[DEBUG] getMyTimetable - Query facultyId used:', String(facultyId));
-
-  if (!timetable || timetable.length === 0) {
-    // Check if any data exists at all
-    const totalCount = await TimetableSimple.count();
-    console.log('[DEBUG] getMyTimetable - Total timetable records in DB:', totalCount);
-    
-    return res.status(200).json({
-      success: true,
-      timetable: [],
-      message: totalCount === 0 ? 'No timetable data in system' : 'No timetable found for this faculty'
-    });
-  }
+  console.log('[DEBUG] getMyTimetable - Faculty ID used:', facultyId);
 
   // Format response
-  const formattedTimetable = timetable.map(record => ({
+  let formattedTimetable = timetable.map(record => ({
     id: record.id,
     facultyId: record.facultyId,
     day: record.day,
@@ -312,15 +332,91 @@ export const getMyTimetable = asyncHandler(async (req, res, next) => {
     section: record.section,
     department: record.department,
     year: record.year,
-    academicYear: record.academicYear
+    academicYear: record.academicYear,
+    isAltered: false,
+    alteredAt: null,
+    originalFacultyId: null,
+    originalFacultyName: null
   }));
+
+  // Apply any temporary alterations within last 24 hours
+  try {
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const altRecords = await TimetableAlteration.findAll({
+      where: {
+        [Op.or]: [
+          { old_faculty_id: facultyId },  // Faculty being substituted
+          { new_faculty_id: facultyId }   // Faculty substituting
+        ],
+        created_at: { [Op.gte]: cutoff }
+      }
+    });
+
+    const alts = altRecords.map(a => a.toJSON ? a.toJSON() : a);
+
+    alts.forEach(alt => {
+      const { day, hour, section, subject, year } = alt;
+      
+      // If this faculty is the replacement (new_faculty_id)
+      if (alt.new_faculty_id === facultyId) {
+        // Add the substituted class to their timetable
+        const exists = formattedTimetable.some(s => s.day === day && s.hour === hour && s.section === section);
+        if (!exists) {
+          formattedTimetable.push({
+            id: `alt-${alt.id}`,
+            facultyId: faculty.faculty_college_code,
+            day,
+            hour,
+            subject,
+            section,
+            department: null,
+            year: year,
+            academicYear: null,
+            isAltered: true,
+            alteredAt: alt.created_at,
+            originalFacultyId: alt.old_faculty_id,
+            originalFacultyName: null
+          });
+        }
+      }
+      
+      // If this faculty is being substituted (old_faculty_id)
+      if (alt.old_faculty_id === facultyId) {
+        // Mark the slot as altered
+        formattedTimetable = formattedTimetable.map(slot => {
+          if (slot.day === day && slot.hour === hour && slot.section === section) {
+            return {
+              ...slot,
+              isAltered: true,
+              alteredAt: alt.created_at,
+              originalFacultyId: slot.facultyId,
+              originalFacultyName: slot.facultyId
+            };
+          }
+          return slot;
+        });
+      }
+    });
+  } catch (err) {
+    console.error('[TIMETABLE] error applying alterations to personal timetable', err);
+  }
+
+  // Sort altered entries to the end
+  formattedTimetable.sort((a, b) => (a.isAltered ? 1 : 0) - (b.isAltered ? 1 : 0));
 
   console.log('[DEBUG] getMyTimetable - Returning timetable records:', formattedTimetable.length);
 
-  res.status(200).json({
-    success: true,
-    timetable: formattedTimetable
-  });
+    res.status(200).json({
+      success: true,
+      timetable: formattedTimetable
+    });
+  } catch (err) {
+    console.error('[TIMETABLE] getMyTimetable caught error:', err);
+    // rethrow to be handled by asyncHandler
+    throw err;
+  }
 });
 
 // @desc      Get personal timetable for logged-in student
@@ -401,12 +497,60 @@ export const getMyStudentTimetable = asyncHandler(async (req, res, next) => {
   }
 
   // Format response
-  const formattedTimetable = timetable.map(record => ({
+  let formattedTimetable = timetable.map(record => ({
     day: record.day,
     hour: record.hour,
     subject: record.subject,
-    facultyName: record.facultyName
+    section: record.section,
+    facultyName: record.facultyName,
+    department: record.department,
+    year: record.year,
+    academicYear: record.academicYear,
+    isAltered: false,
+    alteredAt: null,
+    originalFacultyName: null
   }));
+
+  // Apply any temporary alterations within last 24 hours
+  try {
+    const now = new Date();
+    const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const altRecords = await TimetableAlteration.findAll({
+      where: {
+        day: { [Op.in]: formattedTimetable.map(s => s.day) },
+        hour: { [Op.in]: formattedTimetable.map(s => s.hour) },
+        section: sectionValue, // Match student's section
+        year: yearValue,
+        created_at: { [Op.gte]: cutoff }
+      }
+    });
+
+    const alts = altRecords.map(a => a.toJSON ? a.toJSON() : a);
+
+    // Apply alterations to student timetable
+    formattedTimetable = formattedTimetable.map(slot => {
+      const matching = alts.find(alt =>
+        alt.day === slot.day &&
+        alt.hour === slot.hour &&
+        alt.section === slot.section &&
+        (alt.year === slot.year || alt.semester === slot.year)
+      );
+
+      if (matching) {
+        return {
+          ...slot,
+          facultyName: matching.replacementFacultyName || slot.facultyName,
+          isAltered: true,
+          alteredAt: matching.created_at,
+          originalFacultyName: slot.facultyName
+        };
+      }
+      return slot;
+    });
+  } catch (err) {
+    console.error('[TIMETABLE] error applying alterations to student timetable', err);
+  }
 
   console.log('[DEBUG] getMyStudentTimetable - Returning timetable records:', formattedTimetable.length);
 

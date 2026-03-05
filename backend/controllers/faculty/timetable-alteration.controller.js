@@ -1,6 +1,7 @@
 import asyncHandler from '../../middleware/async.js';
 import ErrorResponse from '../../utils/errorResponse.js';
 import { models } from '../../models/index.js';
+import { Op } from 'sequelize';
 
 const { Timetable, Faculty } = models;
 
@@ -30,7 +31,7 @@ export const getTimetableAlterations = asyncHandler(async (req, res, next) => {
 
   if (!isIncharge) {
     // If not incharge, they can only view requests they created, or where they are the new/old faculty
-    whereClause[models.Sequelize.Op.or] = [
+    whereClause[Op.or] = [
       { requested_by: facultyId },
       { old_faculty_id: facultyId },
       { new_faculty_id: facultyId }
@@ -56,14 +57,70 @@ export const getTimetableAlterations = asyncHandler(async (req, res, next) => {
         attributes: ['faculty_id', 'Name', 'email'],
       }
     ],
-    order: [['createdAt', 'DESC']],
+    order: [['created_at', 'DESC']],
+  });
+
+  // Enrich alterations with timetable slot information
+  // map alterations to include stored slot details
+  const enrichedAlterations = alterations.map((alt) => {
+    const altObj = alt.toJSON ? alt.toJSON() : alt;
+
+    return {
+      id: altObj.id,
+      department_id: altObj.department_id,
+      semester: altObj.semester,
+      old_faculty_id: altObj.old_faculty_id,
+      new_faculty_id: altObj.new_faculty_id,
+      status: altObj.status,
+      created_at: altObj.created_at,
+      createdAt: altObj.created_at,
+      updated_at: altObj.updated_at,
+      reason: altObj.reason,
+      proposed_date: altObj.proposed_date,
+      requested_by: altObj.requested_by,
+      approved_by: altObj.approved_by,
+      approval_date: altObj.approval_date,
+      // use saved slot details
+      day: altObj.day,
+      hour: altObj.hour,
+      section: altObj.section,
+      subject: altObj.subject,
+      year: altObj.year || altObj.semester,
+      // Include faculty names for display
+      replacementFacultyId: altObj.newFaculty?.faculty_id || altObj.new_faculty_id,
+      replacementFacultyName: altObj.newFaculty 
+        ? altObj.newFaculty.Name 
+        : 'TBA'
+    };
   });
 
   res.status(200).json({
     success: true,
-    data: alterations,
+    data: enrichedAlterations,
   });
 });
+
+// Helper functions to extract info from reason string
+const extractDayFromReason = (reason) => {
+  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  for (const day of days) {
+    if (reason.includes(day)) {
+      return day;
+    }
+  }
+  return null;
+};
+
+const extractHourFromReason = (reason) => {
+  const match = reason.match(/Hour\s+(\d+)/);
+  return match ? parseInt(match[1], 10) : null;
+};
+
+const extractSubjectFromReason = (reason) => {
+  // Extract subject from reason string like "Temporary substitution for Monday Hour 1 - SubjectName"
+  const match = reason.match(/\s-\s(.+)$/);
+  return match ? match[1] : null;
+};
 
 // @route   POST /api/v1/faculty/timetable/alterations
 // @desc    Create timetable alteration request (Swap/Substitute Request)
