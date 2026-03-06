@@ -62,7 +62,11 @@ export default function Timetable() {
       
       console.log('[DEBUG] Student Timetable - Response status:', response.status);
       console.log('[DEBUG] Student Timetable - Response data:', data);
-
+        // log if any replacements were marked on the server
+        if (data.timetable) {
+          const altered = data.timetable.filter((s:any) => s.isAltered);
+          console.log('[DEBUG] Student Timetable - altered slots count:', altered.length);
+        }
       if (data.success && data.timetable && data.timetable.length > 0) {
         console.log("API Response - Total slots:", data.timetable.length);
         console.log("API Response - Sample slot:", data.timetable[0]);
@@ -159,11 +163,16 @@ export default function Timetable() {
     hours.some(hour => timetableData[day]?.[hour]?.length > 0)
   );
 
+  // compute a friendly department name; sometimes the auth context gives an object
+  const deptDisplay = user?.department
+    ? (typeof user.department === 'object' ? user.department.short_name || user.department : user.department)
+    : '';
+
   return (
     <div className="animate-fade-in">
       <PageHeader
         title="My Timetable"
-        subtitle={user?.department ? `Department: ${user.department} | Year: ${user.year}` : ''}
+        subtitle={deptDisplay ? `Department: ${deptDisplay} | Year: ${user?.year}` : ''}
         breadcrumbs={[
           { label: 'Academics' },
           { label: 'Timetable' },

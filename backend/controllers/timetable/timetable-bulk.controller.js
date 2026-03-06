@@ -516,31 +516,53 @@ export const getMyStudentTimetable = asyncHandler(async (req, res, next) => {
     const now = new Date();
     const cutoff = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
+    // We used to restrict the query by year and section, but these values
+    // can sometimes be missing from the JWT or student record which caused
+    // legitimate alterations to be ignored.  Instead fetch all recent
+    // alterations that fall on the same day/hour and then filter in JS.
+    // fetch any recent alterations for these day/hour combinations
     const altRecords = await TimetableAlteration.findAll({
       where: {
         day: { [Op.in]: formattedTimetable.map(s => s.day) },
         hour: { [Op.in]: formattedTimetable.map(s => s.hour) },
-        section: sectionValue, // Match student's section
-        year: yearValue,
         created_at: { [Op.gte]: cutoff }
-      }
+      },
+      include: [
+        { model: Faculty, as: 'newFaculty', attributes: ['Name'] },
+        { model: Faculty, as: 'oldFaculty', attributes: ['Name'] }
+      ]
     });
 
     const alts = altRecords.map(a => a.toJSON ? a.toJSON() : a);
 
-    // Apply alterations to student timetable
+    console.log('[DEBUG] getMyStudentTimetable - raw alterations fetched', alts.length, 'entries', alts);
+
+    // Apply alterations to student timetable, checking section/year explicitly
     formattedTimetable = formattedTimetable.map(slot => {
-      const matching = alts.find(alt =>
-        alt.day === slot.day &&
-        alt.hour === slot.hour &&
-        alt.section === slot.section &&
-        (alt.year === slot.year || alt.semester === slot.year)
-      );
+      const matching = alts.find(alt => {
+        // normalize strings for robust matching
+        const altDay = alt.day?.toLowerCase().trim();
+        const slotDay = slot.day?.toLowerCase().trim();
+        const altSection = alt.section ? alt.section.trim() : '';
+        const slotSection = slot.section ? slot.section.trim() : '';
+        const sameDay = altDay === slotDay;
+        const sameHour = alt.hour === slot.hour;
+        const sameSection = !slotSection || altSection === slotSection;
+        const altYear = Number(alt.year || alt.semester);
+        const slotYear = Number(slot.year);
+        // if altYear is not available, ignore year when matching
+        const sameYear = !altYear || (slotYear && altYear === slotYear);
+        return sameDay && sameHour && sameSection && sameYear;
+      });
 
       if (matching) {
+        const replacementName = matching.newFaculty?.Name || matching.replacementFacultyName;
+        if (replacementName && replacementName === slot.facultyName) {
+          console.warn('[TIMETABLE] alteration matched but replacement equals original', matching, slot);
+        }
         return {
           ...slot,
-          facultyName: matching.replacementFacultyName || slot.facultyName,
+          facultyName: replacementName || slot.facultyName,
           isAltered: true,
           alteredAt: matching.created_at,
           originalFacultyName: slot.facultyName
@@ -553,6 +575,9 @@ export const getMyStudentTimetable = asyncHandler(async (req, res, next) => {
   }
 
   console.log('[DEBUG] getMyStudentTimetable - Returning timetable records:', formattedTimetable.length);
+  // log if any replacements actually changed the faculty name
+  const changed = formattedTimetable.filter(s => s.isAltered);
+  console.log('[DEBUG] getMyStudentTimetable - slots marked altered after filter:', changed.length, changed);
 
   res.status(200).json({
     success: true,
